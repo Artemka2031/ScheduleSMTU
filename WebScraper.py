@@ -11,35 +11,9 @@ class WebScraper:
         self.faculty_data = self.save_directory / "faculty_data.json"
         self.faculties_dir = self.save_directory / "faculties"
 
-    def set_main_page(self, file_name):
-        file_path = self.save_directory / f"{file_name}.html"
-        if file_path and isinstance(file_path, Path) and file_path.suffix == '.html':
-            self.main_page = file_path
-        else:
-            print("Неверный путь к файлу .html или объект Path")
-
-    def set_faculty_data(self, file_name):
-        file_path = self.save_directory / f"{file_name}.json"
-        if file_path and isinstance(file_path, Path) and file_path.suffix == '.json':
-            self.faculty_data = file_path
-        else:
-            print("Неверный путь к файлу .json или объект Path")
-
-    def set_faculties_dir(self, dir_name):
-        dir_path = self.save_directory / f"{dir_name}"
-        if dir_path and isinstance(dir_path, Path):
-            self.faculties_dir = dir_path
-        else:
-            print("Неверный путь к файлу .json или объект Path")
-
-    def create_main_directory(self):
-        # Создайте папку, если она не существует
-        self.save_directory.mkdir(parents=True, exist_ok=True)
-
-    def load_and_save_main_page(self, url, headers, file_name):
+    def load_and_save_main_page(self, url, headers):
         # Проверяем существование директории перед созданием
-        if not self.save_directory.is_dir():
-            self.create_main_directory()
+        self.save_directory.mkdir(parents=True, exist_ok=True)
 
         # Отправляем GET-запрос для загрузки страницы
         response = requests.get(url, headers=headers)
@@ -59,9 +33,9 @@ class WebScraper:
             print(soup.title.text)
 
 
-            # Определяем имя файла для сохранения (например, "главная_страница.html")
-            if self.main_page is None:
-                self.set_main_page(self.save_directory / file_name)
+            # # Определяем имя файла для сохранения (например, "главная_страница.html")
+            # if self.main_page is None:
+            #     self.set_main_page(self.save_directory / file_name)
 
 
             # Сохраняем разметку в файл
@@ -80,7 +54,7 @@ class WebScraper:
         else:
             print("Файл с главной разметкой не найден.")
 
-    def parse_main_page(self, start_url, file_name):
+    def parse_main_page(self, start_url):
 
         data = self.read_main_page()
 
@@ -106,10 +80,6 @@ class WebScraper:
                         faculty_data[faculty_name].append({'group': group_name, 'link': start_url + group_link})
                     next_element = next_element.find_next_sibling()
 
-            # Создаем JSON-файл и записываем в него данные
-            if self.faculty_data is None:
-                self.set_faculty_data(file_name)
-
             json_file_path = self.faculty_data
             with open(json_file_path, 'w', encoding='utf-8') as json_file:
                 json.dump(faculty_data, json_file, ensure_ascii=False, indent=4)
@@ -121,16 +91,14 @@ class WebScraper:
     def create_faculty_dirs(self):
         json_file_path = self.faculty_data
 
-        if self.faculties_dir is None:
-            faculties_dir = self.save_directory / 'faculties'
-            faculties_dir.mkdir(exist_ok=True)
+        self.faculties_dir.mkdir(exist_ok=True)
 
         if json_file_path.is_file():
             with open(json_file_path, 'r', encoding='utf-8') as json_file:
                 faculty_data = json.load(json_file)
 
             for faculty, groups in faculty_data.items():
-                faculty_dir = faculties_dir / faculty
+                faculty_dir = self.faculties_dir / faculty
                 faculty_dir.mkdir(exist_ok=True)
 
                 for group_data in groups:

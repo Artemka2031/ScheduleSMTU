@@ -18,20 +18,15 @@ headers = {
     "Accept": "*/*",  # Пример: указание предпочтительных языков
 }
 
-# web_scraper.load_and_save_main_page(main_page_url, headers, main_page_name)
-
-faculty_data_file_name = "faculty_data"
-# web_scraper.parse_main_page(start_url, faculty_data_file_name)
-
+# web_scraper.load_and_save_main_page(main_page_url, headers)
+#
+# web_scraper.parse_main_page(start_url)
+#
 # web_scraper.create_faculty_dirs()
 
-# group_parser.save_group_schedule_to_html("2251", headers),
+print(len(group_parser.get_all_group_numbers()))
+# group_parser.get_group(group, headers)
 
 
-print(group_parser.parse_schedule_html("2251"))
-
-
-
-# print(group_parser.find_group_dir_by_group_id("2251"))
 
 

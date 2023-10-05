@@ -12,6 +12,25 @@ class GroupParser:
         self.faculty_data = faculty_data
         self.faculties = faculties_dir
 
+    def get_all_group_numbers(self):
+        try:
+            with open(self.faculty_data, 'r', encoding='utf-8') as json_file:
+                faculty_data = json.load(json_file)
+
+            group_numbers = []
+
+            for groups in faculty_data.values():
+                for group_data in groups:
+                    if 'group' in group_data:
+                        group_number = group_data['group']
+                        group_numbers.append(group_number)
+
+            return group_numbers
+
+        except Exception as e:
+            print(f"Произошла ошибка при получении номеров групп: {str(e)}")
+            return []
+
     def find_group_dir_by_group_id(self, group_id):
         # Преобразуем group_id в строку
         group_id = str(group_id)
@@ -227,8 +246,10 @@ class GroupParser:
         except Exception as e:
             print(f"Произошла ошибка при разборе HTML-разметки: {str(e)}")
 
-    def get_group(self, group_id):
-        pass
+    def get_group(self, group_id, headers):
+        self.save_group_schedule_to_html(group_id, headers)
+        self.parse_schedule_html(group_id)
+
 
 group_parser = GroupParser(web_scraper.save_directory, web_scraper.main_page, web_scraper.faculty_data,
                            web_scraper.faculties_dir)
