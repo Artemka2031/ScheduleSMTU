@@ -1,9 +1,8 @@
-import requests
-from bs4 import BeautifulSoup
-from pathlib import Path
+import time
 
 from WebScraper import web_scraper
 from GroupParser import group_parser
+from GroupData import group_data
 
 start_url = "https://www.smtu.ru/ru/"
 main_page_name = "listschedule"
@@ -24,8 +23,16 @@ headers = {
 #
 # web_scraper.create_faculty_dirs()
 
-print(len(group_parser.get_all_group_numbers()))
-# group_parser.get_group(group, headers)
+
+# groups_len = len(groups)
+#
+# for group in groups:
+#     group_parser.get_group(group, headers)
+#     time.sleep(15)
+
+
+group_data.create_smtu_schedule()
+
 
 
 

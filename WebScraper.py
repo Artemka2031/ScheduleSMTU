@@ -3,13 +3,10 @@ import requests
 from bs4 import BeautifulSoup
 from pathlib import Path
 
+from Paths import Paths
 
-class WebScraper:
-    def __init__(self, directory_name):
-        self.save_directory = Path(directory_name)
-        self.main_page = self.save_directory / "listschedule.html"
-        self.faculty_data = self.save_directory / "faculty_data.json"
-        self.faculties_dir = self.save_directory / "faculties"
+
+class WebScraper(Paths):
 
     def load_and_save_main_page(self, url, headers):
         # Проверяем существование директории перед созданием
@@ -32,11 +29,9 @@ class WebScraper:
             # Пример: вывести заголовок страницы
             print(soup.title.text)
 
-
             # # Определяем имя файла для сохранения (например, "главная_страница.html")
             # if self.main_page is None:
             #     self.set_main_page(self.save_directory / file_name)
-
 
             # Сохраняем разметку в файл
             with open(self.main_page, 'w', encoding='utf-8') as file:
@@ -88,28 +83,6 @@ class WebScraper:
         else:
             print("main_page не определена. Сначала загрузите страницу и установите main_page.")
 
-    def create_faculty_dirs(self):
-        json_file_path = self.faculty_data
 
-        self.faculties_dir.mkdir(exist_ok=True)
-
-        if json_file_path.is_file():
-            with open(json_file_path, 'r', encoding='utf-8') as json_file:
-                faculty_data = json.load(json_file)
-
-            for faculty, groups in faculty_data.items():
-                faculty_dir = self.faculties_dir / faculty
-                faculty_dir.mkdir(exist_ok=True)
-
-                for group_data in groups:
-                    group_name = group_data['group']
-                    group_dir = faculty_dir / group_name
-                    group_dir.mkdir(exist_ok=True)
-
-            print("Директории для факультетов и групп созданы в 'faculties'.")
-        else:
-            print(f"Файл {json_file_path} не найден. Сначала выполните парсинг данных.")
-            
-            
 # Создайте экземпляр класса и выполните необходимые действия
-web_scraper = WebScraper("WebScrapingData")
+web_scraper = WebScraper()
