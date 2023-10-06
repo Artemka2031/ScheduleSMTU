@@ -2,7 +2,7 @@ import json
 import requests
 from bs4 import BeautifulSoup
 
-from Paths import Paths
+from Parsing.Paths import Paths
 
 
 class GroupParser(Paths):

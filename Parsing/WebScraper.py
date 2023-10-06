@@ -3,7 +3,7 @@ import requests
 from bs4 import BeautifulSoup
 from pathlib import Path
 
-from Paths import Paths
+from Parsing.Paths import Paths
 
 
 class WebScraper(Paths):

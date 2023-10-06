@@ -1,6 +1,6 @@
 import json
 
-from Paths import Paths
+from Parsing.Paths import Paths
 
 class GroupData(Paths):
 

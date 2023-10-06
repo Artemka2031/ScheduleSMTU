@@ -4,8 +4,8 @@ from pathlib import Path
 
 class Paths:
     def __init__(self):
-        self.save_directory = Path("WebScrapingData")
-        self.schedule_smtu = Path("Schedule_smtu")
+        self.save_directory = Path("../WebScrapingData")
+        self.schedule_smtu = Path("../Schedule_smtu")
         self.main_page = self.save_directory / "listschedule.html"
         self.faculty_data = self.save_directory / "faculty_data.json"
         self.faculties_dir = self.save_directory / "faculties"

@@ -1,8 +1,4 @@
-import time
-
-from WebScraper import web_scraper
-from GroupParser import group_parser
-from GroupData import group_data
+from Parsing import web_scraper, group_data, group_parser
 
 start_url = "https://www.smtu.ru/ru/"
 main_page_name = "listschedule"
@@ -17,21 +13,18 @@ headers = {
     "Accept": "*/*",  # Пример: указание предпочтительных языков
 }
 
+# Загрузка расписания в свои папки
 # web_scraper.load_and_save_main_page(main_page_url, headers)
-#
 # web_scraper.parse_main_page(start_url)
-#
 # web_scraper.create_faculty_dirs()
 
-
-# groups_len = len(groups)
-#
+# Парсинг всех групп и запись в свои папки
 # for group in groups:
 #     group_parser.get_group(group, headers)
 #     time.sleep(15)
 
-
-group_data.create_smtu_schedule()
+# Создание папки с расписанием в папке расписания
+# group_data.create_smtu_schedule()
 
 
 
