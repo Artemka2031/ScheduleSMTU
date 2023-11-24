@@ -26,7 +26,7 @@ headers = {
 # Создание папки с расписанием в папке расписания
 # group_data.create_smtu_schedule()
 
-
+print("hello")
 
 
 
