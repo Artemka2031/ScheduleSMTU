@@ -14,9 +14,9 @@ headers = {
 }
 
 # Загрузка расписания в свои папки
-# web_scraper.load_and_save_main_page(main_page_url, headers)
-# web_scraper.parse_main_page(start_url)
-# web_scraper.create_faculty_dirs()
+web_scraper.load_and_save_main_page(main_page_url, headers)
+web_scraper.parse_main_page(start_url)
+web_scraper.create_faculty_dirs()
 
 # Парсинг всех групп и запись в свои папки
 # for group in groups:

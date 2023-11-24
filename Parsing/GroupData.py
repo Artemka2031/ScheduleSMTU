@@ -39,14 +39,14 @@ class GroupData(Paths):
                 schedule_data[faculty] = faculty_schedule
 
             # Создаем папку, если она не существует
-            self.schedule_smtu.mkdir(parents=True, exist_ok=True)
+            self.schedule_smtu_dir.mkdir(parents=True, exist_ok=True)
 
             # Создаем и записываем файл Schedule_smtu.json
-            file_path = self.schedule_smtu / 'Schedule_smtu.json'
+            file_path = self.schedule_smtu_dir / 'Schedule_smtu.json'
             with open(file_path, 'w', encoding='utf-8') as schedule_file:
                 json.dump(schedule_data, schedule_file, ensure_ascii=False, indent=4)
 
-            file_path = self.schedule_smtu / 'Schedule_smtu.min.json'
+            file_path = self.schedule_smtu_dir / 'Schedule_smtu.min.json'
             with open(file_path, 'w', encoding='utf-8') as schedule_file:
                 json.dump(schedule_data, schedule_file, ensure_ascii=False, separators=(',', ':'))
 
