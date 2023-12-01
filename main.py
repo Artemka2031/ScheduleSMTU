@@ -1,3 +1,5 @@
+import time
+
 from Parsing import web_scraper, group_data, group_parser
 
 start_url = "https://www.smtu.ru/ru/"
@@ -19,9 +21,11 @@ web_scraper.parse_main_page(start_url)
 web_scraper.create_faculty_dirs()
 
 # Парсинг всех групп и запись в свои папки
+# groups = group_parser.get_all_group_numbers()
+#
 # for group in groups:
 #     group_parser.get_group(group, headers)
-#     time.sleep(15)
+#     time.sleep(1)
 
 # Создание папки с расписанием в папке расписания
 # group_data.create_smtu_schedule()

@@ -2,7 +2,7 @@ import json
 import requests
 from bs4 import BeautifulSoup
 
-from Parsing.Paths import Paths
+from Paths import Paths
 
 
 class GroupParser(Paths):
@@ -151,7 +151,7 @@ class GroupParser(Paths):
         except Exception as e:
             print(f"Произошла ошибка при разборе HTML-разметки: {str(e)}")
 
-    def get_group(self, group_id, headers):
+    def get_group(self, group_id: int, headers):
         self.save_group_schedule_to_html(group_id, headers)
         self.parse_schedule_html(group_id)
 
