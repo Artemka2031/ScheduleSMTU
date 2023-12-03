@@ -2,19 +2,20 @@ import json
 import requests
 from bs4 import BeautifulSoup
 
-from Paths import Paths
+from config import headers
+from Paths import find_group_dir_by_group_number, find_schedule_link_by_group_number, \
+    get_group_html_path, get_group_json_path
 
 
-class GroupParser(Paths):
-
-    def save_group_schedule_to_html(self, group_id, headers):
+def get_group(group_id: int):
+    def save_group_schedule_to_html(group_id):
         # Находим директорию группы по её ID
-        group_dir = self.find_group_dir_by_group_id(group_id)
+        group_dir = find_group_dir_by_group_number(group_id)
         if not group_dir:
             raise FileNotFoundError(f"Директория для группы {group_id} не найдена.")
 
         # Находим ссылку на расписание для группы
-        schedule_link = self.find_schedule_link_by_group_id(group_id)
+        schedule_link = find_schedule_link_by_group_number(group_id)
         if not schedule_link:
             raise ValueError(f"Ссылка на расписание для группы {group_id} не найдена.")
 
@@ -45,9 +46,9 @@ class GroupParser(Paths):
 
         print(f"Расписание для группы {group_id} сохранено в {file_path}")
 
-    def parse_schedule_html(self, group_id):
-        html_path = self.get_group_html_path(group_id)
-        json_path = self.get_group_json_path(group_id)
+    def parse_schedule_html(group_id):
+        html_path = get_group_html_path(group_id)
+        json_path = get_group_json_path(group_id)
 
         try:
             with open(html_path, 'r', encoding='utf-8') as file:
@@ -151,9 +152,5 @@ class GroupParser(Paths):
         except Exception as e:
             print(f"Произошла ошибка при разборе HTML-разметки: {str(e)}")
 
-    def get_group(self, group_id: int, headers):
-        self.save_group_schedule_to_html(group_id, headers)
-        self.parse_schedule_html(group_id)
-
-
-group_parser = GroupParser()
+    save_group_schedule_to_html(group_id)
+    parse_schedule_html(group_id)
