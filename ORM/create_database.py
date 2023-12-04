@@ -1,12 +1,23 @@
 import json
 from datetime import datetime, timedelta
 
+import peewee
+
+from Parsing.GroupParser import load_group_from_site
 from Paths import path_base, get_faculties_and_groups, get_group_json_path
 from peewee import SqliteDatabase, Model, CharField, IntegrityError, ForeignKeyField, IntegerField, DateTimeField, SQL, \
     DoesNotExist
 
 # Определение модели
 db = SqliteDatabase(path_base.db_path)
+
+
+class DataBaseException(BaseException):
+    def __init__(self, m):
+        self.message = m
+
+    def __str__(self):
+        return self.message
 
 
 class BaseModel(Model):
@@ -19,7 +30,7 @@ class WeekType(BaseModel):
 
     @staticmethod
     def initialize_week_types():
-        week_types_data = ['Верхняя неделя', 'Нижняя неделя']
+        week_types_data = ['Верхняя неделя', 'Нижняя неделя', 'Обе недели']
 
         for week_type_name in week_types_data:
             try:
@@ -75,6 +86,18 @@ class ClassTime(BaseModel):
                 print(f"Время занятия с {start} до {end} успешно добавлено.")
             except IntegrityError:
                 print(f"Время занятия с {start} до {end} уже существует в базе данных.")
+
+    @staticmethod
+    def get_class_time_id(time_range):
+        start_time, end_time = map(lambda x: x.strip(), time_range.split('-'))
+
+        try:
+            class_time = ClassTime.get(start_time=start_time, end_time=end_time)
+        except ClassTime.DoesNotExist:
+            raise ValueError(
+                f"Время занятия с {start_time} до {end_time} не было добавлено при инициализации либо недопустимо.")
+
+        return class_time.id
 
 
 class LessonType(BaseModel):
@@ -160,8 +183,9 @@ class Teacher(BaseModel):
     @staticmethod
     def add_teacher(last_name, first_name, middle_name):
         try:
-            Teacher.create(last_name=last_name, first_name=first_name, middle_name=middle_name)
+            teacher = Teacher.create(last_name=last_name, first_name=first_name, middle_name=middle_name)
             print(f"Преподаватель {last_name} {first_name} {middle_name} успешно добавлен.")
+            return teacher.get_id()
         except IntegrityError:
             print(f"Преподаватель {last_name} {first_name} {middle_name} уже существует в базе данных.")
 
@@ -184,23 +208,24 @@ class Subject(BaseModel):
     @staticmethod
     def add_subject(name):
         try:
-            Subject.create(name=name)
+            subject = Subject.create(name=name)
             print(f"Предмет '{name}' успешно добавлен.")
+            return subject.get_id()
         except IntegrityError:
             print(f"Предмет '{name}' уже существует в базе данных.")
 
     @staticmethod
     def get_subject_id(subject_name):
         try:
-            subject = Subject.get(Subject.subject_name == subject_name)
+            subject = Subject.get(Subject.name == subject_name)
             return subject.id
-        except Subject.DoesNotExist:
-            raise ValueError(f"Предмет с названием {subject_name} не найден")
+        except Exception as e:
+            raise ValueError(f"Предмет с названием {subject_name} не найден: {str(e)}")
 
 
 class Classroom(BaseModel):
     building = CharField()
-    room_number = CharField(unique=True)
+    room_number = CharField()
 
     @staticmethod
     def add_classroom(building, room_number):
@@ -225,13 +250,13 @@ class Classroom(BaseModel):
 
 class GroupSchedule(BaseModel):
     group_id = ForeignKeyField(Group, backref='schedules')
-    weekday = ForeignKeyField(Weekday, backref='schedules')
+    day_id = ForeignKeyField(Weekday, backref='schedules')
     week_type_id = ForeignKeyField(WeekType, backref='schedules')
-    class_time = ForeignKeyField(ClassTime, backref='schedules')
-    subject = ForeignKeyField(Subject, backref='schedules')
-    lesson_type = ForeignKeyField(LessonType, backref='schedules')
-    teacher = ForeignKeyField(Teacher, backref='schedules')
-    classroom = ForeignKeyField(Classroom, backref='schedules')
+    class_time_id = ForeignKeyField(ClassTime, backref='schedules')
+    subject_id = ForeignKeyField(Subject, backref='schedules')
+    lesson_type_id = ForeignKeyField(LessonType, backref='schedules')
+    teacher_id = ForeignKeyField(Teacher, backref='schedules')
+    classroom_id = ForeignKeyField(Classroom, backref='schedules')
     creation_time = DateTimeField(constraints=[SQL('DEFAULT CURRENT_TIMESTAMP')])
 
     class Meta:
@@ -250,6 +275,9 @@ class GroupSchedule(BaseModel):
     @staticmethod
     def update_group_table(group_number):
         try:
+            # Загружаем данные с сайта
+            load_group_from_site(group_number)
+
             # Получаем путь к JSON-файлу для группы
             json_path = get_group_json_path(group_number)
 
@@ -258,6 +286,7 @@ class GroupSchedule(BaseModel):
 
             group_id = Group.get_group_id(group_number)
 
+            option = ""
             for day_data in schedule_data:
                 day_name = day_data['День недели']
                 day_id = Weekday.get_weekday_id(day_name)
@@ -273,32 +302,104 @@ class GroupSchedule(BaseModel):
                     classroom_number = classroom_info["Номер аудитории"]
 
                     subject_data = pair_data['Предмет']
+                    subject_name = subject_data['Наименование предмета']
+                    subject_type = subject_data['Тип занятия']
                     teacher_data = pair_data['Преподаватель']
-                    print(time, week, classroom_info, subject_data, teacher_data)
+
+                    teacher_last_name = teacher_data['Фамилия']
+                    teacher_first_name = teacher_data['Имя']
+                    teacher_middle_name = teacher_data['Отчество']
 
                     # Получаем или создаем записи для связанных с парой данных
                     try:
                         classroom_id = Classroom.get_classroom_id(classroom_building, classroom_number)
                     except ValueError:
-                        print("Добавление нового кабинета...")
                         classroom_id = Classroom.add_classroom(classroom_building, classroom_number)
-                    except Exception as e:
-                        raise f"Ошибка при добавлении нового кабинета. Ошибка: {e} "
+                    except DataBaseException as e:
+                        raise f"Ошибка при добавлении нового кабинета: {str(e)} "
 
-                    week_type_id = WeekType.get_week_type_id(week)
-                    class_time_id = ClassTime.get_or_create_class_time_id(time)
-                    subject_id = Subject.get_or_create_subject_id(subject_data)
-                    lesson_type_id = LessonType.get_or_create_lesson_type_id(subject_data['Тип занятия'])
-                    teacher_id = Teacher.get_or_create_teacher_id(teacher_data)
+                    try:
+                        week_type_id = WeekType.get_week_type_id(week)
+                    except ValueError as e:
+                        raise ValueError(f"Неизвестный тип недели. Ошибка: {e}")
+                    except DataBaseException as e:
+                        raise f"Ошибка при чтении id типа недели: {e}"
 
-            print(f"Данные для группы {group_number} успешно обновлены.")
+                    try:
+                        class_time_id = ClassTime.get_class_time_id(time)
+                    except ValueError as e:
+                        raise ValueError(f"Неизвестное время занятий. Ошибка: {e}")
+                    except DataBaseException as e:
+                        raise f"Ошибка при чтении id типа недели: {e}"
+
+                    try:
+                        subject_id = Subject.get_subject_id(subject_name)
+                    except ValueError:
+                        subject_id = Subject.add_subject(subject_name)
+                    except DataBaseException as e:
+                        raise f"Ошибка при добавлении предмета: {e}"
+
+                    try:
+                        lesson_type_id = LessonType.get_lesson_type_id(subject_type)
+                    except ValueError as e:
+                        raise ValueError(f"Неизвестное тип занятий. Ошибка: {e}")
+                    except DataBaseException as e:
+                        raise f"Ошибка при чтении типа предмета: {e}"
+
+                    try:
+                        teacher_id = Teacher.get_teacher_id(teacher_last_name, teacher_first_name, teacher_middle_name)
+                    except ValueError:
+                        teacher_id = Teacher.add_teacher(teacher_last_name, teacher_first_name, teacher_middle_name)
+                    except DataBaseException as e:
+                        raise f"Ошибка при чтении id преподавателя: {e}"
+
+                    # Проверяем, существует ли запись для данного дня, времени и группы
+                    try:
+                        pair_record = GroupSchedule.get(
+                            day_id=day_id,
+                            group_id=group_id,
+                            class_time_id=class_time_id,
+                            week_type_id=week_type_id
+                        )
+                        # Если запись существует, обновляем ее
+                        pair_record.classroom_id = classroom_id
+                        pair_record.subject_id = subject_id
+                        pair_record.lesson_type_id = lesson_type_id
+                        pair_record.teacher_id = teacher_id
+                        pair_record.creation_time = datetime.now()
+                        pair_record.save()
+
+                        option = "update"
+                    except DoesNotExist:
+                        # Если записи нет, создаем новую запись
+                        GroupSchedule.create(
+                            day_id=day_id,
+                            group_id=group_id,
+                            class_time_id=class_time_id,
+                            week_type_id=week_type_id,
+                            classroom_id=classroom_id,
+                            subject_id=subject_id,
+                            lesson_type_id=lesson_type_id,
+                            teacher_id=teacher_id,
+                            creation_time_id=datetime.now()
+                        )
+
+                        option = "create"
+
+            if option == "create":
+                message = f"Данные для группы {group_number} успешно добавлены."
+            else:
+                message = f"Данные для группы {group_number} успешно обновлены."
+
+            print(message)
+
         except FileNotFoundError as e:
             print(f"JSON-файл для группы {group_number} не найден. Ошибка: {e}")
         except Exception as e:
             print(f"Произошла ошибка при обновлении данных для группы {group_number}: {str(e)}")
 
     @staticmethod
-    def should_update_schedule(group_number: int):
+    def get_schedule(group_number: int):
         try:
             # Получаем идентификатор группы
             group_id = Group.get_group_id(group_number)
@@ -328,13 +429,13 @@ def create_tables_if_not_exist():
     db.connect()
     db.create_tables(tables, safe=True)
 
-    # WeekType.initialize_week_types()
-    # Weekday.initialize_weekdays()
-    # ClassTime.initialize_class_times()
-    # LessonType.initialize_lesson_type()
-    #
-    # Faculty.add_faculties_and_groups()
-    GroupSchedule.should_update_schedule(2251)
+    WeekType.initialize_week_types()
+    Weekday.initialize_weekdays()
+    ClassTime.initialize_class_times()
+    LessonType.initialize_lesson_type()
+
+    Faculty.add_faculties_and_groups()
+    GroupSchedule.get_schedule(2150)
 
     db.close()
 

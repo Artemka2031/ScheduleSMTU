@@ -7,7 +7,7 @@ from Paths import find_group_dir_by_group_number, find_schedule_link_by_group_nu
     get_group_html_path, get_group_json_path
 
 
-def get_group(group_id: int):
+def load_group_from_site(group_id: int):
     def save_group_schedule_to_html(group_id):
         # Находим директорию группы по её ID
         group_dir = find_group_dir_by_group_number(group_id)

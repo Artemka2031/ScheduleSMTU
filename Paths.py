@@ -71,6 +71,8 @@ def get_group_html_path(group_number):
 
 
 def find_schedule_link_by_group_number(group_number):
+    group_number = str(group_number)
+
     # Путь к JSON-файлу с данными о группах
     json_file_path = path_base.faculty_data
 
