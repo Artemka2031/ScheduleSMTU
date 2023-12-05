@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 import peewee
 
 from Parsing.GroupParser import load_group_from_site
-from Paths import path_base, get_faculties_and_groups, get_group_json_path
+from Paths import path_base, get_faculties_and_groups, get_group_json_path, get_all_group_numbers
 from peewee import SqliteDatabase, Model, CharField, IntegrityError, ForeignKeyField, IntegerField, DateTimeField, SQL, \
     DoesNotExist
 
@@ -429,13 +429,17 @@ def create_tables_if_not_exist():
     db.connect()
     db.create_tables(tables, safe=True)
 
-    WeekType.initialize_week_types()
-    Weekday.initialize_weekdays()
-    ClassTime.initialize_class_times()
-    LessonType.initialize_lesson_type()
-
-    Faculty.add_faculties_and_groups()
-    GroupSchedule.get_schedule(2150)
+    # WeekType.initialize_week_types()
+    # Weekday.initialize_weekdays()
+    # ClassTime.initialize_class_times()
+    # LessonType.initialize_lesson_type()
+    #
+    # Faculty.add_faculties_and_groups()
+    for i, group in enumerate(get_all_group_numbers()):
+        print(i)
+        GroupSchedule.get_schedule(group)
+        if i > 20:
+            return
 
     db.close()
 
