@@ -259,9 +259,6 @@ class GroupSchedule(BaseModel):
     classroom_id = ForeignKeyField(Classroom, backref='schedules')
     creation_time = DateTimeField(constraints=[SQL('DEFAULT CURRENT_TIMESTAMP')])
 
-    class Meta:
-        database = db
-
     @staticmethod
     def get_last_update_time(group_id):
         try:
@@ -399,7 +396,7 @@ class GroupSchedule(BaseModel):
             print(f"Произошла ошибка при обновлении данных для группы {group_number}: {str(e)}")
 
     @staticmethod
-    def get_schedule(group_number: int):
+    def set_schedule(group_number: int):
         try:
             # Получаем идентификатор группы
             group_id = Group.get_group_id(group_number)
@@ -423,23 +420,108 @@ class GroupSchedule(BaseModel):
             print(f"Группа с номером {group_number} не найдена.")
             return False
 
+    @staticmethod
+    async def get_schedule(group_number: int):
+        """
+        Get the schedule for a given group number.
+
+        Args:
+            group_number (int): The group number.
+
+        Returns:
+            dict: The schedule in a structured format.
+        """
+        try:
+            GroupSchedule.set_schedule(group_number)
+
+            # Get the group id
+            group_id = Group.get_group_id(group_number)
+
+            # Perform a query to get the schedule with JOIN for related tables
+            schedule_data = (GroupSchedule
+                             .select(GroupSchedule, Weekday, ClassTime, WeekType, Classroom, Subject, LessonType,
+                                     Teacher)
+                             .join(Weekday)
+                             .switch(GroupSchedule)
+                             .join(ClassTime)
+                             .switch(GroupSchedule)
+                             .join(WeekType)
+                             .switch(GroupSchedule)
+                             .join(Classroom)
+                             .switch(GroupSchedule)
+                             .join(Subject)
+                             .switch(GroupSchedule)
+                             .join(LessonType)
+                             .switch(GroupSchedule)
+                             .join(Teacher)
+                             .where(GroupSchedule.group_id == group_id))
+
+            # Transform the query result into a structured format
+            schedule = {}
+            for record in schedule_data:
+                day_name = record.day_id.name
+                start_class_time = record.class_time_id.start_time
+                end_class_time = record.class_time_id.end_time
+                classroom_building = record.classroom_id.building
+                classroom_number = record.classroom_id.room_number
+                subject_name = record.subject_id.name
+                lesson_type = record.lesson_type_id.name
+                teacher_last_name = record.teacher_id.last_name
+                teacher_first_name = record.teacher_id.first_name
+                teacher_middle_name = record.teacher_id.middle_name
+                week_type = record.week_type_id.name
+
+                if day_name not in schedule:
+                    schedule[day_name] = {}
+
+                if start_class_time not in schedule[day_name]:
+                    schedule[day_name][start_class_time] = {
+                        "Обе недели": None,
+                        "Верхняя неделя": None,
+                        "Нижняя неделя": None
+                    }
+
+                pair_data = {
+                    'Время начала': start_class_time,
+                    'Время конца': end_class_time,
+                    'Корпус': classroom_building,
+                    'Номер аудитории': classroom_number,
+                    'Наименование предмета': subject_name,
+                    'Тип занятия': lesson_type,
+                    'Фамилия преподавателя': teacher_last_name,
+                    'Имя преподавателя': teacher_first_name,
+                    'Отчество преподавателя': teacher_middle_name
+                }
+
+                schedule[day_name][start_class_time][week_type] = pair_data
+
+            return schedule
+
+        except DoesNotExist:
+            print(f"Группа с номером {group_number} не найдена.")
+            return None
+        except Exception as e:
+            print(f"Произошла ошибка при получении расписания для группы {group_number}: {str(e)}")
+            return None
+
 
 def create_tables_if_not_exist():
     tables = [WeekType, Weekday, ClassTime, LessonType, Faculty, Group, Teacher, Subject, Classroom, GroupSchedule]
     db.connect()
     db.create_tables(tables, safe=True)
 
-    # WeekType.initialize_week_types()
-    # Weekday.initialize_weekdays()
-    # ClassTime.initialize_class_times()
-    # LessonType.initialize_lesson_type()
-    #
-    # Faculty.add_faculties_and_groups()
-    for i, group in enumerate(get_all_group_numbers()):
-        print(i)
-        GroupSchedule.get_schedule(group)
-        if i > 20:
-            return
+    WeekType.initialize_week_types()
+    Weekday.initialize_weekdays()
+    ClassTime.initialize_class_times()
+    LessonType.initialize_lesson_type()
+
+    Faculty.add_faculties_and_groups()
+
+    # for i, group in enumerate(get_all_group_numbers()):
+    #     print(i)
+    #     GroupSchedule.set_schedule(group)
+    #     if i > 20:
+    #         return
 
     db.close()
 

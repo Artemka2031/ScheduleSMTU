@@ -23,5 +23,4 @@ main_page_url = start_url + main_page_name + "/"
 # Создание папки с расписанием в папке расписания
 # group_data.create_smtu_schedule()
 
-print(get_group_json_path(2251))
 
