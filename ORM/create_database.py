@@ -1,15 +1,17 @@
+import concurrent.futures
 import json
 from datetime import datetime, timedelta
-
-import peewee
+import asyncio
+from typing import List, Dict, Optional
 
 from Parsing.GroupParser import load_group_from_site
-from Paths import path_base, get_faculties_and_groups, get_group_json_path, get_all_group_numbers
-from peewee import SqliteDatabase, Model, CharField, IntegrityError, ForeignKeyField, IntegerField, DateTimeField, SQL, \
-    DoesNotExist
+from Paths import get_faculties_and_groups, get_group_json_path, get_all_group_numbers
+from peewee import Model, CharField, IntegrityError, ForeignKeyField, IntegerField, DateTimeField, SQL, \
+    DoesNotExist, SqliteDatabase, PostgresqlDatabase
 
 # Определение модели
-db = SqliteDatabase(path_base.db_path)
+# db = SqliteDatabase(db_path)
+db = PostgresqlDatabase('postgres', user='postgres', password='0000', host='localhost', port=5432)
 
 
 class DataBaseException(BaseException):
@@ -69,6 +71,21 @@ class Weekday(BaseModel):
             return weekday.id
         except Weekday.DoesNotExist:
             raise ValueError(f"День недели '{weekday_name}' не найден")
+
+    @staticmethod
+    def get_order(day_name: str) -> int:
+        # Ваш код для определения порядка дня недели
+        order = {
+            'Понедельник': 1,
+            'Вторник': 2,
+            'Среда': 3,
+            'Четверг': 4,
+            'Пятница': 5,
+            'Суббота': 6
+        }
+
+        # Вернуть порядок текущего дня
+        return order.get(day_name, 0)
 
 
 class ClassTime(BaseModel):
@@ -400,7 +417,6 @@ class GroupSchedule(BaseModel):
         try:
             # Получаем идентификатор группы
             group_id = Group.get_group_id(group_number)
-
             # Получаем время последнего обновления таблицы
             last_update_time = GroupSchedule.get_last_update_time(group_id)
 
@@ -421,18 +437,9 @@ class GroupSchedule(BaseModel):
             return False
 
     @staticmethod
-    async def get_schedule(group_number: int):
-        """
-        Get the schedule for a given group number.
-
-        Args:
-            group_number (int): The group number.
-
-        Returns:
-            dict: The schedule in a structured format.
-        """
+    def get_schedule(group_number: int,  current_day: Optional[str] = None) -> Dict[str, List[Dict]]:
         try:
-            GroupSchedule.set_schedule(group_number)
+            # GroupSchedule.set_schedule(group_number)
 
             # Get the group id
             group_id = Group.get_group_id(group_number)
@@ -471,16 +478,7 @@ class GroupSchedule(BaseModel):
                 teacher_middle_name = record.teacher_id.middle_name
                 week_type = record.week_type_id.name
 
-                if day_name not in schedule:
-                    schedule[day_name] = {}
-
-                if start_class_time not in schedule[day_name]:
-                    schedule[day_name][start_class_time] = {
-                        "Обе недели": None,
-                        "Верхняя неделя": None,
-                        "Нижняя неделя": None
-                    }
-
+                # Создаем данные для пары
                 pair_data = {
                     'Время начала': start_class_time,
                     'Время конца': end_class_time,
@@ -490,24 +488,39 @@ class GroupSchedule(BaseModel):
                     'Тип занятия': lesson_type,
                     'Фамилия преподавателя': teacher_last_name,
                     'Имя преподавателя': teacher_first_name,
-                    'Отчество преподавателя': teacher_middle_name
+                    'Отчество преподавателя': teacher_middle_name,
                 }
 
-                schedule[day_name][start_class_time][week_type] = pair_data
+                # Добавляем пару в расписание
+                if day_name not in schedule:
+                    schedule[day_name] = []
 
-            return schedule
+                schedule[day_name].append({'Неделя': week_type, 'Данные пары': pair_data})
+
+            # Если указан текущий день, фильтруем расписание
+            if current_day:
+                    schedule = {current_day: schedule.get(current_day, [])}
+
+            # Сортируем дни недели
+            sorted_schedule = dict(sorted(schedule.items(), key=lambda x: Weekday.get_order(x[0])))
+
+            # Сортируем пары внутри каждого дня недели по времени начала
+            for day_schedule in sorted_schedule.values():
+                day_schedule.sort(key=lambda x: datetime.strptime(x['Данные пары']['Время начала'], '%H:%M'))
+
+            return sorted_schedule
 
         except DoesNotExist:
             print(f"Группа с номером {group_number} не найдена.")
-            return None
+            return {}
         except Exception as e:
             print(f"Произошла ошибка при получении расписания для группы {group_number}: {str(e)}")
-            return None
+            return {}
 
 
 def create_tables_if_not_exist():
     tables = [WeekType, Weekday, ClassTime, LessonType, Faculty, Group, Teacher, Subject, Classroom, GroupSchedule]
-    db.connect()
+    print(db.connect())
     db.create_tables(tables, safe=True)
 
     WeekType.initialize_week_types()
@@ -516,12 +529,6 @@ def create_tables_if_not_exist():
     LessonType.initialize_lesson_type()
 
     Faculty.add_faculties_and_groups()
-
-    # for i, group in enumerate(get_all_group_numbers()):
-    #     print(i)
-    #     GroupSchedule.set_schedule(group)
-    #     if i > 20:
-    #         return
 
     db.close()
 

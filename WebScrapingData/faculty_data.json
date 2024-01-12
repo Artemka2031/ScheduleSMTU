@@ -355,14 +355,6 @@
         {
             "group": "5430",
             "link": "https://www.smtu.ru/ru/viewschedule/5430/"
-        },
-        {
-            "group": "5510",
-            "link": "https://www.smtu.ru/ru/viewschedule/5510/"
-        },
-        {
-            "group": "5530",
-            "link": "https://www.smtu.ru/ru/viewschedule/5530/"
         }
     ],
     "Факультет корабельной энергетики и автоматики": [
@@ -733,18 +725,6 @@
         {
             "group": "5470",
             "link": "https://www.smtu.ru/ru/viewschedule/5470/"
-        },
-        {
-            "group": "5520",
-            "link": "https://www.smtu.ru/ru/viewschedule/5520/"
-        },
-        {
-            "group": "5540",
-            "link": "https://www.smtu.ru/ru/viewschedule/5540/"
-        },
-        {
-            "group": "5570",
-            "link": "https://www.smtu.ru/ru/viewschedule/5570/"
         }
     ],
     "Факультет морского приборостроения": [
@@ -1465,32 +1445,12 @@
             "link": "https://www.smtu.ru/ru/viewschedule/8260/"
         },
         {
-            "group": "8310",
-            "link": "https://www.smtu.ru/ru/viewschedule/8310/"
-        },
-        {
-            "group": "8320",
-            "link": "https://www.smtu.ru/ru/viewschedule/8320/"
-        },
-        {
-            "group": "8330",
-            "link": "https://www.smtu.ru/ru/viewschedule/8330/"
-        },
-        {
             "group": "8340",
             "link": "https://www.smtu.ru/ru/viewschedule/8340/"
         },
         {
             "group": "8350",
             "link": "https://www.smtu.ru/ru/viewschedule/8350/"
-        },
-        {
-            "group": "8410",
-            "link": "https://www.smtu.ru/ru/viewschedule/8410/"
-        },
-        {
-            "group": "8420",
-            "link": "https://www.smtu.ru/ru/viewschedule/8420/"
         },
         {
             "group": "8430",

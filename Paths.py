@@ -3,6 +3,7 @@ from pathlib import Path
 
 
 class PathBase:
+    cwd: Path
     save_directory: Path
     schedule_smtu_dir: Path
     main_page: Path
@@ -13,14 +14,14 @@ class PathBase:
     db_path: Path
 
     def __init__(self):
-        self.save_directory = Path("WebScrapingData")
-        self.schedule_smtu_dir = Path("../Schedule_smtu")
+        self.cwd = Path("P:\Python\pars_smtu")
+        self.save_directory = self.cwd / Path("WebScrapingData")
+        self.schedule_smtu_dir = self.cwd / Path("Schedule_smtu")
         self.main_page = self.save_directory / "listschedule.html"
         self.faculty_data = self.save_directory / "faculty_data.json"
         self.faculties_dir = self.save_directory / "faculties"
         self.schedule_smtu_json = self.schedule_smtu_dir / 'Schedule_smtu.json'
         self.schedule_smtu_min_json = self.schedule_smtu_dir / 'Schedule_smtu.min.json'
-        self.db_path = Path("ORM") / "database.db"
 
 
 path_base = PathBase()

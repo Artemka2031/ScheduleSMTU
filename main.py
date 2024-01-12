@@ -1,7 +1,9 @@
 import json
 import time
 
+from ORM.create_database import GroupSchedule
 from Parsing import get_main_page
+from Parsing.GroupData import create_smtu_schedule
 from Parsing.GroupParser import load_group_from_site
 from Paths import get_all_group_numbers, get_group_json_path
 
@@ -11,7 +13,7 @@ main_page_name = "listschedule"
 main_page_url = start_url + main_page_name + "/"
 
 # Загрузка расписания в свои папки
-# get_main_page()
+get_main_page()
 
 # Парсинг всех групп и запись в свои папки
 # groups = get_all_group_numbers()
@@ -21,6 +23,6 @@ main_page_url = start_url + main_page_name + "/"
 #     time.sleep(1)
 
 # Создание папки с расписанием в папке расписания
-# group_data.create_smtu_schedule()
+# create_smtu_schedule()
 
-
+# print(GroupSchedule.get_schedule(2251))

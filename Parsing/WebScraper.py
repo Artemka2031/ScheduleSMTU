@@ -21,16 +21,6 @@ def load_and_save_main_page():
         # Создаем объект Beautiful Soup для разбора разметки
         soup = BeautifulSoup(html, 'html.parser')
 
-        # Теперь в переменной 'soup' у вас есть доступ к разметке страницы
-        # Вы можете использовать Beautiful Soup для извлечения данных
-
-        # Пример: вывести заголовок страницы
-        print(soup.title.text)
-
-        # # Определяем имя файла для сохранения (например, "главная_страница.html")
-        # if path_base.main_page is None:
-        #     path_base.set_main_page(path_base.save_directory / file_name)
-
         # Сохраняем разметку в файл
         with open(path_base.main_page, 'w', encoding='utf-8') as file:
             file.write(html)
