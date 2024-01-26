@@ -17,4 +17,4 @@ class Initialization(StatesGroup):
 @startRouter.message(CommandStart())
 async def start_messaging(message: Message, state: FSMContext) -> None:
     await state.set_state(Initialization.user_id)
-    await message.answer(f"Здравствуй студент, {message.from_user.username}!")
+    await message.answer(f"Здравствуй, студент {message.from_user.username}!")
