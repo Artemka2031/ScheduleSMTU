@@ -1,1 +1,1 @@
-from Bot.Routers.StartRouter import startRouter
+from Bot.Routers.SettingsRouter import InitializationRouter
