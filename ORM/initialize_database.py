@@ -30,5 +30,5 @@ def drop_tables():
 
 
 if __name__ == "__main__":
+    drop_tables()
     create_tables_if_not_exist()
-    # drop_tables()

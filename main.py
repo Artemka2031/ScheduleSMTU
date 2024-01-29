@@ -11,10 +11,10 @@ main_page_url = start_url + main_page_name + "/"
 get_main_page()
 
 # Парсинг всех групп и запись в свои папки
-groups = get_all_group_numbers()
-
-for group in groups:
-    load_group_from_site(group)
+# groups = get_all_group_numbers()
+#
+# for group in groups:
+#     load_group_from_site(group)
 
 # Создание папки с расписанием в папке расписания
 # create_smtu_schedule()

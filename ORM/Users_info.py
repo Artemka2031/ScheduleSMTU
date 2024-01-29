@@ -1,4 +1,6 @@
-from peewee import ForeignKeyField, IntegerField, IntegrityError, DoesNotExist
+from datetime import datetime
+
+from peewee import ForeignKeyField, IntegerField, IntegrityError, DoesNotExist, TextField, DateTimeField, fn
 
 from ORM.Schedule_information import Group
 from ORM.base import BaseModel
@@ -56,3 +58,40 @@ class User(BaseModel):
         except DoesNotExist:
             print(f"Группа с номером {new_group_number} не найдена.")
             print(f"Или пользователь с идентификатором '{user_id}' не найден.")
+
+
+class Suggestion(BaseModel):
+    user_id = ForeignKeyField(User, backref='suggestions')
+    suggestion = TextField()
+    date = DateTimeField(default=datetime.now)
+
+    @staticmethod
+    def add_suggestion(user_id: int, suggestion: str):
+        try:
+            user = User.get(User.user_id == user_id)
+
+            # Создаем запись в таблице Suggestion
+            Suggestion.create(user_id=user, suggestion=suggestion)
+            print("Предложение успешно добавлено.")
+        except DoesNotExist:
+            print(f"Пользователь с user_id {user_id} не найден.")
+        except IntegrityError:
+            print(f"Предложение от пользователя {user_id} уже существует в базе данных.")
+
+    @staticmethod
+    def get_user_suggestions_count(user_id: int) -> int:
+        try:
+            # Получаем текущую дату
+            current_date = datetime.now().date()
+
+            # Используем count для подсчета строк по заданным условиям
+            count = Suggestion.select().where(
+                (Suggestion.user_id == user_id) &  # Фильтр по пользователю
+                (fn.DATE(Suggestion.date) == current_date)  # Фильтр по текущей дате
+            ).count()
+
+            return count
+        except DoesNotExist:
+            print(f"Пользователь с user_id {user_id} не найден.")
+            return 0
+

@@ -14,7 +14,7 @@ class PathBase:
     db_path: Path
 
     def __init__(self):
-        self.cwd = Path("E:\code\Python\pars_smtu")
+        self.cwd = Path("P:\Python\pars_smtu")
         self.save_directory = self.cwd / Path("WebScrapingData")
         self.schedule_smtu_dir = self.cwd / Path("Schedule_smtu")
         self.main_page = self.save_directory / "listschedule.html"

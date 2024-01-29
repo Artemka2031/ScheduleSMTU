@@ -1,15 +1,20 @@
 from aiogram import Router, F
+from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 from aiogram.utils.markdown import hbold
 
+from Bot.Middlewares.IsReg import IsRegMiddleware
 from ORM.Schedule_information import GroupSchedule, Weekday, WeekType
 from ORM.Users_info import User
 
 tempRouter = Router()
 
+tempRouter.message.middleware(IsRegMiddleware())
+
 
 @tempRouter.message(F.text == "Сегодня")
-async def start_messaging(message: Message) -> None:
+async def start_messaging(message: Message, state: FSMContext) -> None:
+    await state.clear()
     user_id = message.from_user.id
 
     group_number = User.get_group_number(user_id)
@@ -29,13 +34,14 @@ async def start_messaging(message: Message) -> None:
         week_type = WeekType.get_current_week()
         # Отправляем отформатированное расписание
         formatted_schedule = format_schedule(sorted_schedule, week_type)
-        await message.answer(f"{hbold('Расписание')}:\n\n{formatted_schedule}")
+        await message.answer(f"{hbold(f'Расписание {group_number}')}:\n\n{formatted_schedule}")
     else:
         await message.answer("Извините, расписание не найдено.")
 
 
 @tempRouter.message(F.text == "Завтра")
-async def start_messaging(message: Message) -> None:
+async def start_messaging(message: Message, state: FSMContext) -> None:
+    await state.clear()
     user_id = message.from_user.id
 
     group_number = User.get_group_number(user_id)
@@ -55,14 +61,14 @@ async def start_messaging(message: Message) -> None:
         week_type = WeekType.get_tomorrow_week()
         # Отправляем отформатированное расписание
         formatted_schedule = format_schedule(sorted_schedule, week_type)
-        await message.answer(f"{hbold('Расписание')}:\n\n{formatted_schedule}")
+        await message.answer(f"{hbold(f'Расписание {group_number}')}:\n\n{formatted_schedule}")
     else:
         await message.answer("Извините, расписание не найдено.")
 
 
 def format_schedule(sorted_schedule: dict, week_type: str) -> str:
     # Форматируем данные для отправки
-    formatted_schedule = f"{hbold('Текущая неделя:')} {week_type}:\n\n"
+    formatted_schedule = f"{hbold('Текущая неделя:')} {week_type}\n\n"
 
     for day, day_schedule in sorted_schedule.items():
         formatted_schedule += f"{hbold(day)}\n"
