@@ -6,6 +6,7 @@ from aiogram.types import Message
 from aiogram.utils.markdown import hbold
 
 from Bot.Filters.Check_group_number import CheckGroupFilter
+from Bot.Filters.isReg import isRegFilter
 from Bot.Keyboards.TT_kb import tt_kb
 from ORM.Users_info import User
 
@@ -18,7 +19,7 @@ class RegistrationState(StatesGroup):
     messages_to_delete = State()
 
 
-@RegistrationRouter.message(Command("registration"))
+@RegistrationRouter.message(Command("registration"), ~isRegFilter())
 async def start_messaging(message: Message, state: FSMContext) -> None:
     await state.clear()
     await state.set_state(RegistrationState.user_id)
@@ -28,6 +29,15 @@ async def start_messaging(message: Message, state: FSMContext) -> None:
     await state.update_data(user_id=message.from_user.id,
                             messages_to_delete=[sent_message.message_id, message.message_id])
     await state.set_state(RegistrationState.group_number)
+
+
+@RegistrationRouter.message(Command("registration"), isRegFilter())
+async def already_registered(message: Message, state: FSMContext):
+    await state.clear()
+    await message.answer(
+        text=f"Вы уже зарегистрированы. Ваша текущая группа: {User.get_group_number(message.from_user.id)}.\n\n"
+             f"Чтобы изменить группу, напишите /change_group.",
+        reply_markup=tt_kb())
 
 
 @RegistrationRouter.message(RegistrationState.group_number, CheckGroupFilter())

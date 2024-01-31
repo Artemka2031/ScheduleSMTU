@@ -68,10 +68,10 @@ async def start_messaging(message: Message, state: FSMContext) -> None:
 
 def format_schedule(sorted_schedule: dict, week_type: str) -> str:
     # Форматируем данные для отправки
-    formatted_schedule = f"{hbold('Текущая неделя:')} {week_type}\n\n"
+    formatted_schedule = f"{hbold('Неделя:')} {week_type}\n\n"
 
     for day, day_schedule in sorted_schedule.items():
-        formatted_schedule += f"{hbold(day)}\n"
+        formatted_schedule += f"День недели: {hbold(day)}\n\n"
 
         for pair_data in day_schedule:
             # Проверяем, соответствует ли пара запрошенной неделе
@@ -84,5 +84,43 @@ def format_schedule(sorted_schedule: dict, week_type: str) -> str:
                     formatted_schedule += f"Преподаватель: {hbold(pair['Фамилия преподавателя'])} " \
                                           f"{hbold(pair['Имя преподавателя'][:1] + '.' + pair['Отчество преподавателя'][:1])}.\n"
                 formatted_schedule += f"Аудитория: {pair['Корпус']} {pair['Номер аудитории']}\n\n"
+
+    return formatted_schedule
+
+
+def format_dual_week_schedule(sorted_schedule: dict) -> str:
+    # Форматируем данные для отправки
+    formatted_schedule = ""
+
+    for day, day_schedule in sorted_schedule.items():
+        formatted_schedule += f"День недели: {hbold(day)}\n\n"
+
+        # Список для хранения времени пар, на которые уже выведена информация
+        displayed_times = set()
+
+        for pair_data in day_schedule:
+            pair = pair_data['Данные пары']
+            week_type = pair_data['Неделя']
+            pair_time = pair['Время начала']
+
+            # Проверяем, было ли уже выведено время для данной пары
+            if pair_time not in displayed_times:
+                # Выводим время пары с символом 🔹
+                formatted_schedule += f"🔹 {pair_time}-{pair['Время конца']}\n"
+                # Добавляем время в список уже выведенных
+                displayed_times.add(pair_time)
+
+            # Пишем в какую неделю будет конкретная пара
+            formatted_schedule += f"{hbold(week_type)}:\n"
+
+            # Пишем данные о паре
+            formatted_schedule += f"{pair['Наименование предмета']} "
+            formatted_schedule += f"({pair['Тип занятия']})\n"
+
+            if pair['Фамилия преподавателя']:
+                formatted_schedule += f"Преподаватель: {pair['Фамилия преподавателя']}. "
+                formatted_schedule += f"{pair['Имя преподавателя'][:1]}. "
+                formatted_schedule += f"{pair['Отчество преподавателя'][:1]}.\n"
+            formatted_schedule += f"Аудитория: {pair['Корпус']} {pair['Номер аудитории']}\n\n"
 
     return formatted_schedule

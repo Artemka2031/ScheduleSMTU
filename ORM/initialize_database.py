@@ -1,12 +1,12 @@
 from ORM.Schedule_information import WeekType, Weekday, ClassTime, LessonType, Faculty, Group, Teacher, Classroom, \
     Subject, GroupSchedule
-from ORM.Users_info import User
+from ORM.Users_info import User, Suggestion
 from ORM.base import db
 
 
 def create_tables_if_not_exist():
     tables = [WeekType, Weekday, ClassTime, LessonType, Faculty, Group, Teacher, Subject, Classroom, GroupSchedule,
-              User]
+              User, Suggestion]
     print(db.connect())
     db.create_tables(tables, safe=True)
 
@@ -22,7 +22,7 @@ def create_tables_if_not_exist():
 
 def drop_tables():
     tables = [WeekType, Weekday, ClassTime, LessonType, Faculty, Group, Teacher, Subject, Classroom, GroupSchedule,
-              User]
+              User, Suggestion]
 
     with db:
         db.drop_tables(tables, safe=True)

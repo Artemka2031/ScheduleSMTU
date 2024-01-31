@@ -4,7 +4,7 @@ from aiogram import Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
 
 from Routers.StartRouter import StartRouter, RegistrationRouter
-from Routers.ScheduleRouters import tempRouter
+from Routers.ScheduleRouters import tempRouter, WeekScheduleRouter
 from Routers.SettingsRouter import SuggestionRouter, ChangeGroupRouter
 from create_bot import bot
 
@@ -17,6 +17,7 @@ async def main():
     dp.include_router(StartRouter)
 
     dp.include_router(tempRouter)
+    dp.include_router(WeekScheduleRouter)
 
     dp.include_router(SuggestionRouter)
     dp.include_router(ChangeGroupRouter)
