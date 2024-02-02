@@ -15,7 +15,7 @@ class SuggestionLimitMiddleware(BaseMiddleware):
             event: Message,
             data: Dict[str, Any]
     ) -> Any:
-        if Suggestion.get_user_suggestions_count(event.from_user.id) > 4:
+        if Suggestion.get_user_suggestions_count(event.from_user.id) >= 4:
             await bot(
                 SendMessage(
                     chat_id=event.from_user.id,

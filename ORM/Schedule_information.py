@@ -1,11 +1,13 @@
 import json
 from datetime import datetime, timedelta
+
 from typing import List, Dict, Optional
 
+import pytz
 from peewee import CharField, IntegrityError, ForeignKeyField, IntegerField, DateTimeField, SQL, \
     DoesNotExist
 
-from ORM.base import BaseModel, DataBaseException
+from ORM.base import BaseModel, DataBaseException, moscow_tz
 from Parsing.GroupParser import load_group_from_site
 from Paths import get_faculties_and_groups, get_group_json_path
 
@@ -34,12 +36,12 @@ class WeekType(BaseModel):
 
     @staticmethod
     def get_current_week():
-        week_number = datetime.now().isocalendar()[1]
+        week_number = datetime.now(moscow_tz).isocalendar()[1]
         return 'Верхняя неделя' if week_number % 2 == 0 else 'Нижняя неделя'
 
     @staticmethod
     def get_tomorrow_week():
-        tomorrow_date = datetime.now() + timedelta(days=1)
+        tomorrow_date = datetime.now(moscow_tz) + timedelta(days=1)
         week_number = tomorrow_date.isocalendar()[1]
         return 'Верхняя неделя' if week_number % 2 == 0 else 'Нижняя неделя'
 
@@ -83,7 +85,7 @@ class Weekday(BaseModel):
 
     @staticmethod
     def get_today():
-        current_date = datetime.now()
+        current_date = datetime.now(moscow_tz)
         try:
             today_weekday = Weekday.get(id=current_date.weekday() + 1)
             return today_weekday.name
@@ -293,9 +295,17 @@ class GroupSchedule(BaseModel):
     def get_last_update_time(group_id):
         try:
             # Получаем последнее время обновления для группы
-            last_update_time = GroupSchedule.select().where(GroupSchedule.group_id == group_id).order_by(
-                GroupSchedule.creation_time.desc()).get().creation_time
-            return last_update_time
+            last_update_time_str = GroupSchedule.select().where(
+                GroupSchedule.group_id == group_id
+            ).order_by(
+                GroupSchedule.creation_time.desc()
+            ).get().creation_time
+
+            # Преобразуем строку в объект datetime с учетом временной зоны
+            last_update_time_moscow = datetime.fromisoformat(last_update_time_str)
+            last_update_time_moscow = last_update_time_moscow.replace(tzinfo=pytz.timezone('Europe/Moscow'))
+
+            return last_update_time_moscow
         except DoesNotExist:
             return None
 
@@ -393,7 +403,7 @@ class GroupSchedule(BaseModel):
                         pair_record.subject_id = subject_id
                         pair_record.lesson_type_id = lesson_type_id
                         pair_record.teacher_id = teacher_id
-                        pair_record.creation_time = datetime.now()
+                        pair_record.creation_time = datetime.now(moscow_tz)
                         pair_record.save()
 
                         option = "update"
@@ -408,7 +418,7 @@ class GroupSchedule(BaseModel):
                             subject_id=subject_id,
                             lesson_type_id=lesson_type_id,
                             teacher_id=teacher_id,
-                            creation_time_id=datetime.now()
+                            creation_time=datetime.now(moscow_tz)
                         )
 
                         option = "create"
@@ -439,10 +449,10 @@ class GroupSchedule(BaseModel):
                 return
 
             # Вычисляем разницу между текущим временем и временем последнего обновления
-            time_difference = datetime.now() - last_update_time
+            time_difference = datetime.now(moscow_tz) - last_update_time
 
             # Если прошло более часа, нужно обновить
-            if time_difference >= timedelta(hours=1):
+            if time_difference >= timedelta(hours=5):
                 GroupSchedule.update_group_table(group_number)
 
         except DoesNotExist:

@@ -1,9 +1,9 @@
-import datetime
+from datetime import datetime
 
 from peewee import ForeignKeyField, IntegerField, IntegrityError, DoesNotExist, TextField, DateTimeField, fn, DateField
 
 from ORM.Schedule_information import Group
-from ORM.base import BaseModel
+from ORM.base import BaseModel, moscow_tz
 
 
 class User(BaseModel):
@@ -63,7 +63,7 @@ class User(BaseModel):
 class Suggestion(BaseModel):
     user_id = ForeignKeyField(User, backref='suggestions')
     suggestion = TextField()
-    date = DateField(default=datetime.date.today)
+    date = DateField()
 
     @staticmethod
     def add_suggestion(user_id: int, suggestion: str):
@@ -71,7 +71,7 @@ class Suggestion(BaseModel):
             user = User.get(User.user_id == user_id)
 
             # Создаем запись в таблице Suggestion
-            Suggestion.create(user_id=user, suggestion=suggestion)
+            Suggestion.create(user_id=user, suggestion=suggestion, date=datetime.now(moscow_tz).date().day)
             print("Предложение успешно добавлено.")
         except DoesNotExist:
             print(f"Пользователь с user_id {user_id} не найден.")
@@ -82,7 +82,7 @@ class Suggestion(BaseModel):
     def get_user_suggestions_count(user_id: int) -> int:
         try:
             # Получаем текущую дату
-            current_date = datetime.date.today()
+            current_date = datetime.now(moscow_tz).date().day
 
             # Используем count для подсчета строк по заданным условиям
             count = Suggestion.select().where(

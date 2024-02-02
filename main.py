@@ -8,7 +8,8 @@ main_page_name = "listschedule"
 main_page_url = start_url + main_page_name + "/"
 
 # Загрузка расписания в свои папки
-get_main_page()
+# get_main_page()
+
 
 # Парсинг всех групп и запись в свои папки
 # groups = get_all_group_numbers()
