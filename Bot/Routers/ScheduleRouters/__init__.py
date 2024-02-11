@@ -1,2 +1,2 @@
-from ..ScheduleRouters.TempRouter import tempRouter
-from ..ScheduleRouters.WeekRouter import WeekScheduleRouter
+from ..ScheduleRouters.temp_router import tempRouter
+from ..ScheduleRouters.week_router import WeekScheduleRouter
