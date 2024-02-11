@@ -1,8 +1,8 @@
 from aiogram.filters import Filter
 from aiogram.types import Message
 
-from ORM.Schedule_information import Group
-from ORM.Users_info import User
+from ORM.schedule_information import Group
+from ORM.users_info import User
 
 
 class CheckGroupFilter(Filter):

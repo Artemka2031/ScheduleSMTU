@@ -4,9 +4,9 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import Message
 
-from Bot.Keyboards.TT_kb import tt_kb
+from Bot.Keyboards.today_tomorrow_rep_kb import today_tomorrow_rep_keyboard
 from Bot.Middlewares import IsRegMiddleware, SuggestionLimitMiddleware
-from ORM.Users_info import Suggestion
+from ORM.users_info import Suggestion
 
 SuggestionRouter = Router()
 
@@ -51,5 +51,5 @@ async def sent_suggestion(message: Message, state: FSMContext):
     except Exception as e:
         print(e)
 
-    await message.answer(f"Спасибо за пожелание: {suggestion}", reply_markup=tt_kb())
+    await message.answer(f"Спасибо за пожелание: {suggestion}", reply_markup=today_tomorrow_rep_keyboard())
     await state.clear()

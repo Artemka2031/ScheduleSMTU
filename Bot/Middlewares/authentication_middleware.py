@@ -4,8 +4,8 @@ from aiogram import BaseMiddleware
 from aiogram.methods import SendMessage
 from aiogram.types import Message
 
-from Bot.create_bot import bot
-from ORM.Users_info import User
+from Bot.bot_initialization import bot
+from ORM.users_info import User
 
 
 class IsRegMiddleware(BaseMiddleware):

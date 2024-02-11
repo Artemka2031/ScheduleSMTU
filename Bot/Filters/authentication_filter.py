@@ -1,7 +1,7 @@
 from aiogram.filters import Filter
 from aiogram.types import Message
 
-from ORM.Users_info import User
+from ORM.users_info import User
 
 
 class isRegFilter(Filter):

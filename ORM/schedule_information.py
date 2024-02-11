@@ -7,8 +7,8 @@ import pytz
 from peewee import CharField, IntegrityError, ForeignKeyField, IntegerField, DateTimeField, SQL, \
     DoesNotExist
 
-from ORM.base import BaseModel, DataBaseException, moscow_tz
-from Parsing.GroupParser import load_group_from_site
+from ORM.database_declaration_and_exceptions import BaseModel, DataBaseException, moscow_tz
+from Parsing.group_parser import load_group_from_site
 from Paths import get_faculties_and_groups, get_group_json_path
 
 

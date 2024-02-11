@@ -5,10 +5,10 @@ from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import Message
 from aiogram.utils.markdown import hbold
 
-from Bot.Filters.Check_group_number import CheckGroupFilter
-from Bot.Filters.isReg import isRegFilter
-from Bot.Keyboards.TT_kb import tt_kb
-from ORM.Users_info import User
+from Bot.Filters.check_group_number_filter import CheckGroupFilter
+from Bot.Filters.authentication_filter import isRegFilter
+from Bot.Keyboards.today_tomorrow_rep_kb import today_tomorrow_rep_keyboard
+from ORM.users_info import User
 
 RegistrationRouter = Router()
 
@@ -37,7 +37,7 @@ async def already_registered(message: Message, state: FSMContext):
     await message.answer(
         text=f"Вы уже зарегистрированы. Ваша текущая группа: {User.get_group_number(message.from_user.id)}.\n\n"
              f"Чтобы изменить группу, напишите /change_group.",
-        reply_markup=tt_kb())
+        reply_markup=today_tomorrow_rep_keyboard())
 
 
 @RegistrationRouter.message(RegistrationState.group_number, CheckGroupFilter())
@@ -64,7 +64,7 @@ async def set_group_number(message: Message, state: FSMContext):
 
     # Отправляем сообщение пользователю
     await message.answer(f"Выбрана группа {group_number}.",
-                         reply_markup=tt_kb())
+                         reply_markup=today_tomorrow_rep_keyboard())
 
 
 @RegistrationRouter.message(RegistrationState.group_number, ~CheckGroupFilter())

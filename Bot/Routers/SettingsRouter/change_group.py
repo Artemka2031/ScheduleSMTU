@@ -4,11 +4,11 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import Message
 
-from Bot.Filters.Check_group_number import CheckGroupFilter, CheckCurrentGroupFilter
-from Bot.Keyboards.ChangeCurrentGroup_kb import create_change_current_group_kb, ChangeCurrentGroupCallback
-from Bot.Keyboards.TT_kb import tt_kb
+from Bot.Filters.check_group_number_filter import CheckGroupFilter, CheckCurrentGroupFilter
+from Bot.Keyboards.change_current_group_kb import create_change_current_group_kb, ChangeCurrentGroupCallback
+from Bot.Keyboards.today_tomorrow_rep_kb import today_tomorrow_rep_keyboard
 from Bot.Middlewares import IsRegMiddleware
-from ORM.Users_info import User
+from ORM.users_info import User
 
 ChangeGroupRouter = Router()
 
@@ -46,7 +46,7 @@ async def cancel_change_group(query: Message, state: FSMContext):
     except Exception as e:
         print(e)
 
-    await query.message.answer(f"Выбрана группа {User.get_group_number(query.from_user.id)}", reply_markup=tt_kb())
+    await query.message.answer(f"Выбрана группа {User.get_group_number(query.from_user.id)}", reply_markup=today_tomorrow_rep_keyboard())
     await state.clear()
 
 
@@ -71,7 +71,7 @@ async def set_group_number(message: Message, state: FSMContext):
 
     # Отправляем сообщение пользователю
     await message.answer(f"Выбрана группа {group_number}",
-                         reply_markup=tt_kb())
+                         reply_markup=today_tomorrow_rep_keyboard())
 
 
 @ChangeGroupRouter.message(ChangeGroupState.group_number, ~CheckGroupFilter())

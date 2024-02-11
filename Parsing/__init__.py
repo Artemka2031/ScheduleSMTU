@@ -1,1 +1,1 @@
-from Parsing.WebScraper import get_main_page
+from Parsing.web_scraper import get_main_page

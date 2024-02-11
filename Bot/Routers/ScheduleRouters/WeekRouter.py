@@ -5,11 +5,11 @@ from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import Message, CallbackQuery
 from aiogram.utils.markdown import hbold
 
-from Bot.Keyboards.Week_kb import week_type_kb, WeekTypeCallback, week_day_kb, WeekDayCallback
+from Bot.Keyboards.week_schedule_inl_kb import week_type_kb, WeekTypeCallback, week_day_kb, WeekDayCallback
 from Bot.Middlewares import IsRegMiddleware
 from Bot.Routers.ScheduleRouters.TempRouter import format_schedule, format_dual_week_schedule
-from ORM.Schedule_information import WeekType, GroupSchedule
-from ORM.Users_info import User
+from ORM.schedule_information import WeekType, GroupSchedule
+from ORM.users_info import User
 
 WeekScheduleRouter = Router()
 

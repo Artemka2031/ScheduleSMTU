@@ -2,8 +2,8 @@ from datetime import datetime
 
 from peewee import ForeignKeyField, IntegerField, IntegrityError, DoesNotExist, TextField, DateTimeField, fn, DateField
 
-from ORM.Schedule_information import Group
-from ORM.base import BaseModel, moscow_tz
+from ORM.schedule_information import Group
+from ORM.database_declaration_and_exceptions import BaseModel, moscow_tz
 
 
 class User(BaseModel):

@@ -3,9 +3,9 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 from aiogram.utils.markdown import hbold
 
-from Bot.Middlewares.IsReg import IsRegMiddleware
-from ORM.Schedule_information import GroupSchedule, Weekday, WeekType
-from ORM.Users_info import User
+from Bot.Middlewares.authentication_middleware import IsRegMiddleware
+from ORM.schedule_information import GroupSchedule, Weekday, WeekType
+from ORM.users_info import User
 
 tempRouter = Router()
 

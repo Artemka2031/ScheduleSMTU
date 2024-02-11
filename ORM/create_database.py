@@ -1,7 +1,7 @@
-from ORM.Schedule_information import WeekType, Weekday, ClassTime, LessonType, Faculty, Group, Teacher, Classroom, \
+from ORM.schedule_information import WeekType, Weekday, ClassTime, LessonType, Faculty, Group, Teacher, Classroom, \
     Subject, GroupSchedule
-from ORM.Users_info import User, Suggestion
-from ORM.base import db
+from ORM.users_info import User, Suggestion
+from ORM.database_declaration_and_exceptions import db
 
 
 def create_tables_if_not_exist():

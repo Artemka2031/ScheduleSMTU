@@ -6,7 +6,7 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from Routers.StartRouter import StartRouter, RegistrationRouter
 from Routers.ScheduleRouters import tempRouter, WeekScheduleRouter
 from Routers.SettingsRouter import SuggestionRouter, ChangeGroupRouter
-from create_bot import bot
+from bot_initialization import bot
 
 
 async def main():

@@ -1,5 +1,5 @@
 from Parsing import get_main_page
-from Parsing.GroupParser import load_group_from_site
+from Parsing.group_parser import load_group_from_site
 from Paths import get_all_group_numbers
 
 start_url = "https://www.smtu.ru/ru/"
