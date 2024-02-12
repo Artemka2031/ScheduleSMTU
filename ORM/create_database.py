@@ -1,13 +1,13 @@
-from ORM.schedule_information import WeekType, Weekday, ClassTime, LessonType, Faculty, Group, Teacher, Classroom, \
-    Subject, GroupSchedule
-from ORM.users_info import User, Suggestion
 from ORM.database_declaration_and_exceptions import db
+from ORM.schedule_information import WeekType, ClassTime, LessonType, Weekday, Faculty, Teacher, Subject, Classroom, \
+    GroupSchedule, Group
+from ORM.users_info import Suggestion, User
 
 
 def create_tables_if_not_exist():
     tables = [WeekType, Weekday, ClassTime, LessonType, Faculty, Group, Teacher, Subject, Classroom, GroupSchedule,
               User, Suggestion]
-    print(db.connect())
+    db.connect()
     db.create_tables(tables, safe=True)
 
     WeekType.initialize_week_types()
