@@ -8,7 +8,7 @@ from peewee import CharField, IntegrityError, ForeignKeyField, IntegerField, Dat
     DoesNotExist
 
 from ORM.database_declaration_and_exceptions import BaseModel, DataBaseException, moscow_tz
-from Parsing.group_parser import load_group_from_site
+from Parsing.Parsers.group_parser import load_group
 from Paths import get_faculties_and_groups, get_group_json_path
 
 
@@ -313,7 +313,7 @@ class GroupSchedule(BaseModel):
     def update_group_table(group_number):
         try:
             # Загружаем данные с сайта
-            load_group_from_site(group_number)
+            load_group(group_number)
 
             # Получаем путь к JSON-файлу для группы
             json_path = get_group_json_path(group_number)
