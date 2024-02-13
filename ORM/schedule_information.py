@@ -4,15 +4,15 @@ from datetime import datetime, timedelta
 from typing import List, Dict, Optional
 
 import pytz
-from peewee import CharField, IntegrityError, ForeignKeyField, IntegerField, DateTimeField, SQL, \
+from peewee import ForeignKeyField, DateTimeField, SQL, \
     DoesNotExist
 
 from ORM.Tables.group_tables import Group
 from ORM.Tables.subject_tables import Subject, Classroom, Teacher, LessonType
 from ORM.Tables.time_tables import Weekday, ClassTime, WeekType
 from ORM.database_declaration_and_exceptions import BaseModel, DataBaseException, moscow_tz
-from Parsing.Parsers.group_parser import load_group
-from Paths import get_faculties_and_groups, get_group_json_path_sync
+from Parsing.Parsers.group_parser import load_group_sync
+from Paths import get_group_json_path_sync
 
 
 # class WeekType(BaseModel):
@@ -336,7 +336,7 @@ class GroupSchedule(BaseModel):
             return None
 
     @staticmethod
-    def update_group_table(group_number):
+    def update_group_table(group_number: int):
         """
             Asynchronously updates the schedule table for a specified group by loading data from an external source.
 
@@ -345,7 +345,7 @@ class GroupSchedule(BaseModel):
         """
         try:
             # Загружаем данные с сайта
-            load_group(group_number)
+            load_group_sync(group_number)
 
             # Получаем путь к JSON-файлу для группы
             json_path = get_group_json_path_sync(group_number)
@@ -513,6 +513,9 @@ class GroupSchedule(BaseModel):
                 Dict[str, List[Dict]]: The schedule for the group, structured by day.
         """
         try:
+
+            group_number = int(group_number)
+
             GroupSchedule.set_schedule(group_number)
 
             # Get the group id

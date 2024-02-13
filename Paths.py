@@ -123,6 +123,34 @@ async def find_schedule_link_by_group_number(group_number):
     return None
 
 
+def find_schedule_link_by_group_number_sync(group_number):
+    """
+    Synchronously finds the schedule link for a given group number by reading through a JSON file.
+
+    :param group_number: The group number to find the schedule link for.
+    :return: The schedule link as a string if found, otherwise None.
+    """
+    group_number = str(group_number)
+    json_file_path = path_base.faculty_data
+
+    if json_file_path.is_file():
+        try:
+            # Synchronously read from the JSON file
+            with open(json_file_path, 'r', encoding='utf-8') as json_file:
+                faculty_data = json.load(json_file)
+
+            # Search for the schedule link by group number
+            for faculty, groups in faculty_data.items():
+                for group_data in groups:
+                    if 'group' in group_data and 'link' in group_data:
+                        if group_data['group'] == group_number:
+                            return group_data['link']
+        except Exception as e:
+            print(f"An error occurred while searching for the schedule link for group number {group_number}: {e}")
+
+    return None
+
+
 async def find_group_dir_by_group_number(group_number):
     """
     Asynchronously finds the directory for a given group number by reading and searching through a JSON file.
