@@ -27,9 +27,11 @@ async def send_suggestion(message: Message, state: FSMContext):
     await state.set_state(SuggestionState.user_id)
 
     sent_message = await message.answer("Команда разработчиков будет рада твоим пожеланиям:")
+
     await state.update_data(user_id=message.from_user.id,
                             messages_to_delete=[message.message_id, sent_message.message_id])
     await state.set_state(SuggestionState.sent_suggestion)
+
 
 
 @SuggestionRouter.message(SuggestionState.sent_suggestion)
@@ -39,6 +41,10 @@ async def sent_suggestion(message: Message, state: FSMContext):
     data.append(message.message_id)
 
     suggestion = message.text
+
+    if message.text[0] == '/':
+        await state.clear()
+        return
 
     try:
         Suggestion.add_suggestion(user_id, suggestion)
