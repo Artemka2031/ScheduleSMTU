@@ -1,5 +1,7 @@
-from ORM.schedule_information import WeekType, Weekday, ClassTime, LessonType, Faculty, Group, Teacher, Classroom, \
-    Subject, GroupSchedule
+from ORM.Tables.group_tables import Faculty, Group
+from ORM.Tables.subject_tables import LessonType, Teacher, Subject, Classroom
+from ORM.Tables.time_tables import WeekType, Weekday, ClassTime
+from ORM.schedule_information import GroupSchedule
 from ORM.users_info import User, Suggestion
 from ORM.database_declaration_and_exceptions import db
 
@@ -30,5 +32,7 @@ def drop_tables():
 
 
 if __name__ == "__main__":
-    drop_tables()
-    create_tables_if_not_exist()
+    # drop_tables()
+    # create_tables_if_not_exist()
+
+    print(GroupSchedule.get_schedule(2251))

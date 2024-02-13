@@ -17,9 +17,9 @@ class PathBase:
     db_path: Path
 
     def __init__(self):
-        self.cwd = Path("E:\code\Python\ScheduleSMTU")
+        self.cwd = Path("C:/Users/perei/PycharmProjects/ScheduleSMTU")
         self.parsing = self.cwd / Path("Parsing")
-        self.save_directory = self.parsing / Path("Parsing/WebScrapingData")
+        self.save_directory = self.parsing / Path("WebScrapingData")
         self.schedule_smtu_dir = self.save_directory / Path("Schedule_smtu")
         self.main_page = self.save_directory / "listschedule.html"
         self.faculty_data = self.save_directory / "faculty_data.json"
@@ -43,6 +43,23 @@ async def get_group_json_path(group_number):
     if group_dir:
         json_file_name = f"{group_number}.json"
         json_file_path = group_dir / json_file_name
+        return json_file_path
+    else:
+        print(f"Directory for group {group_number} not found.")
+        return None
+
+
+def get_group_json_path_sync(group_number):
+    """
+    Get the JSON file path for a given group number synchronously.
+
+    :param group_number: The group number for which to find the JSON file path.
+    :return: The path to the JSON file if the group directory exists, None otherwise.
+    """
+    group_dir = find_group_dir_by_group_number_sync(group_number)  # Assuming this is now a synchronous call
+    if group_dir:
+        json_file_name = f"{group_number}.json"
+        json_file_path = group_dir / json_file_name  # Ensure that group_dir is a Path object for this to work
         return json_file_path
     else:
         print(f"Directory for group {group_number} not found.")
@@ -132,6 +149,40 @@ async def find_group_dir_by_group_number(group_number):
                         group_dir = path_base.faculties_dir / faculty / group_number
                         # Asynchronous check for directory existence might not be directly available,
                         # so this remains a synchronous operation
+                        if group_dir.is_dir():
+                            return group_dir
+
+        raise FileNotFoundError(f"Directory for group {group_number} not found.")
+    except FileNotFoundError as e:
+        raise e
+    except Exception as e:
+        raise Exception(f"An error occurred while searching for the group directory {group_number}: {str(e)}")
+
+
+def find_group_dir_by_group_number_sync(group_number):
+    """
+    Finds the directory for a given group number by reading and searching through a JSON file.
+
+    :param group_number: The group number to find the directory for.
+    :return: A Path object pointing to the group's directory if found, raises FileNotFoundError otherwise.
+    """
+    group_number = str(group_number)
+
+    # Check if the JSON file with faculty and group data exists
+    if not path_base.faculty_data.is_file():
+        raise FileNotFoundError("JSON file with faculty and group data not found.")
+
+    try:
+        # Synchronously read from the JSON file
+        with open(path_base.faculty_data, 'r', encoding='utf-8') as json_file:
+            faculty_data = json.load(json_file)
+
+        # Search for the group by number in the faculty and group data
+        for faculty, groups in faculty_data.items():
+            for group_data in groups:
+                if 'group' in group_data and 'link' in group_data:
+                    if group_data['group'] == group_number:
+                        group_dir = path_base.faculties_dir / faculty / group_number
                         if group_dir.is_dir():
                             return group_dir
 
