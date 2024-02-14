@@ -60,6 +60,12 @@ class User(BaseModel):
             print(f"Или пользователь с идентификатором '{user_id}' не найден.")
 
 
+    @staticmethod
+    def get_all_users():
+        user_ids = [user.user_id for user in User.select(User.user_id)]
+        return user_ids
+
+
 class Suggestion(BaseModel):
     user_id = ForeignKeyField(User, backref='suggestions')
     suggestion = TextField()
@@ -94,3 +100,6 @@ class Suggestion(BaseModel):
         except DoesNotExist:
             print(f"Пользователь с user_id {user_id} не найден.")
             return 0
+
+if __name__=="__main__":
+    print(User.get_all_users())

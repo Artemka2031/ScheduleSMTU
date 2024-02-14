@@ -7,7 +7,7 @@ from Bot.Routers.SettingsRouter.change_group_suggestions_router import SettingsR
 from Routers.StartRouter import StartRouter, RegistrationRouter
 from Bot.Routers.ScheduleRouter.temp_week_schedule_router import ScheduleRouter
 from bot_initialization import bot
-
+from Mailing.mailing_function import MailRouter
 
 async def main():
     storage = MemoryStorage()
@@ -19,6 +19,8 @@ async def main():
     # dp.include_router(tempRouter)
     # dp.include_router(WeekScheduleRouter)
     dp.include_router(ScheduleRouter)
+
+    dp.include_router(MailRouter)
 
     # dp.include_router(SuggestionRouter)
     # dp.include_router(ChangeGroupRouter)
