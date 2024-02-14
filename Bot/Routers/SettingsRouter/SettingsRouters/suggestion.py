@@ -5,8 +5,8 @@ from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import Message
 
 from Bot.Keyboards.today_tomorrow_rep_kb import today_tomorrow_rep_keyboard
-from Bot.Middlewares import IsRegMiddleware, SuggestionLimitMiddleware
-from ORM.users_info import Suggestion
+from Bot.Middlewares import SuggestionLimitMiddleware
+from ORM.Tables.UserTables.suggestion_table import Suggestion
 
 SuggestionRouter = Router()
 

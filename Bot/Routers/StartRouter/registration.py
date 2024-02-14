@@ -1,5 +1,5 @@
 from aiogram import Router
-from aiogram.filters import CommandStart, Command
+from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import Message
@@ -8,7 +8,7 @@ from aiogram.utils.markdown import hbold
 from Bot.Filters.check_group_number_filter import CheckGroupFilter
 from Bot.Filters.authentication_filter import isRegFilter
 from Bot.Keyboards.today_tomorrow_rep_kb import today_tomorrow_rep_keyboard
-from ORM.users_info import User
+from ORM.Tables.UserTables.user_table import User
 
 RegistrationRouter = Router()
 

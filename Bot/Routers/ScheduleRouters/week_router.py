@@ -8,8 +8,9 @@ from aiogram.utils.markdown import hbold
 from Bot.Keyboards.week_schedule_inl_kb import week_type_kb, WeekTypeCallback, week_day_kb, WeekDayCallback
 from Bot.Middlewares import IsRegMiddleware
 from Bot.Routers.ScheduleRouters.temp_router import format_schedule, format_dual_week_schedule
-from ORM.Tables.group_schedule import WeekType, GroupSchedule
-from ORM.users_info import User
+from ORM.Tables.SceduleTables.group_schedule import WeekType, GroupSchedule
+from ORM.Tables.UserTables.user_table import User
+
 
 WeekScheduleRouter = Router()
 

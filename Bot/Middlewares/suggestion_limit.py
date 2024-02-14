@@ -5,7 +5,7 @@ from aiogram.methods import SendMessage
 from aiogram.types import Message
 
 from Bot.bot_initialization import bot
-from ORM.users_info import User, Suggestion
+from ORM.Tables.UserTables.suggestion_table import Suggestion
 
 
 class SuggestionLimitMiddleware(BaseMiddleware):

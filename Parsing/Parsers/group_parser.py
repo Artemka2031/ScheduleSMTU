@@ -6,7 +6,7 @@ import requests
 from bs4 import BeautifulSoup
 
 from Paths import find_group_dir_by_group_number, find_schedule_link_by_group_number, get_group_json_path_sync, \
-    find_group_dir_by_group_number_sync, find_schedule_link_by_group_number_sync
+    find_group_dir_by_group_number_sync, find_schedule_link_by_group_number_sync, get_group_json_path
 
 
 async def load_group(group_id: int):
@@ -130,7 +130,7 @@ async def load_group(group_id: int):
             print(f"An error occurred while parsing the HTML markup: {str(e)}")
 
     markup = await get_group_schedule_markup()
-    json_path = await get_group_json_path_sync(group_id)
+    json_path = await get_group_json_path(group_id)
 
     await parse_schedule_html(markup, json_path)
 

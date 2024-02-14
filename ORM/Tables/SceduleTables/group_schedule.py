@@ -7,9 +7,9 @@ import pytz
 from peewee import ForeignKeyField, DateTimeField, SQL, \
     DoesNotExist
 
-from ORM.Tables.group_tables import Group
-from ORM.Tables.subject_tables import Subject, Classroom, Teacher, LessonType
-from ORM.Tables.time_tables import Weekday, ClassTime, WeekType
+from ORM.Tables.SceduleTables.group_tables import Group
+from ORM.Tables.SceduleTables.subject_tables import Subject, Classroom, Teacher, LessonType
+from ORM.Tables.SceduleTables.time_tables import Weekday, ClassTime, WeekType
 from ORM.database_declaration_and_exceptions import BaseModel, DataBaseException, moscow_tz
 from Parsing.Parsers.group_parser import load_group_sync
 from Paths import get_group_json_path_sync
@@ -202,7 +202,7 @@ class GroupSchedule(BaseModel):
     @staticmethod
     def set_schedule(group_number: int):
         """
-            Asynchronously sets the schedule for a specified group, updating it if necessary.
+            Synchronously sets the schedule for a specified group, updating it if necessary.
 
             Params:
                 group_number (int): The number of the group to set the schedule for.

@@ -1,8 +1,8 @@
-from ORM.Tables.group_tables import Faculty, Group
-from ORM.Tables.subject_tables import LessonType, Teacher, Subject, Classroom
-from ORM.Tables.time_tables import WeekType, Weekday, ClassTime
-from ORM.Tables.group_schedule import GroupSchedule
-from ORM.users_info import User, Suggestion
+from ORM.Tables.SceduleTables.group_tables import Faculty, Group
+from ORM.Tables.SceduleTables.subject_tables import LessonType, Teacher, Subject, Classroom
+from ORM.Tables.SceduleTables.time_tables import WeekType, Weekday, ClassTime
+from ORM.Tables.SceduleTables.group_schedule import GroupSchedule
+from ORM.Tables.UserTables.suggestion_table import User, Suggestion
 from ORM.database_declaration_and_exceptions import db
 
 
