@@ -12,7 +12,8 @@ from ORM.users_info import User
 
 ChangeGroupRouter = Router()
 
-ChangeGroupRouter.message.middleware(IsRegMiddleware())
+
+# ChangeGroupRouter.message.middleware(IsRegMiddleware())
 
 class ChangeGroupState(StatesGroup):
     user_id = State()
@@ -46,7 +47,8 @@ async def cancel_change_group(query: Message, state: FSMContext):
     except Exception as e:
         print(e)
 
-    await query.message.answer(f"Выбрана группа {User.get_group_number(query.from_user.id)}", reply_markup=today_tomorrow_rep_keyboard())
+    await query.message.answer(f"Выбрана группа {User.get_group_number(query.from_user.id)}",
+                               reply_markup=today_tomorrow_rep_keyboard())
     await state.clear()
 
 

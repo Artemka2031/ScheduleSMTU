@@ -10,7 +10,7 @@ from ORM.users_info import Suggestion
 
 SuggestionRouter = Router()
 
-SuggestionRouter.message.middleware(IsRegMiddleware())
+# SuggestionRouter.message.middleware(IsRegMiddleware())
 SuggestionRouter.message.middleware(SuggestionLimitMiddleware())
 
 
