@@ -6,12 +6,12 @@ from Paths import get_group_json_path_sync, path_base
 
 async def create_schedule_file():
     """
-        Asynchronously creates a schedule file containing the compiled schedules for all faculties and groups.
+        Synchronously creates a schedule file containing the compiled schedules for all faculties and groups.
 
         This function performs several key operations:
         1. Checks if the JSON file with faculty and group data exists. If not, it raises a FileNotFoundError.
-        2. Reads the faculty and group data from the JSON file asynchronously to avoid blocking.
-        3. Iterates through each faculty and their respective groups, fetching the group's schedule asynchronously.
+        2. Reads the faculty and group data from the JSON file synchronously to avoid blocking.
+        3. Iterates through each faculty and their respective groups, fetching the group's schedule synchronously.
         4. Compiles all fetched schedules into a single dictionary, organized by faculty and group.
         5. Creates the necessary directory (if it doesn't exist) to store the compiled schedule files.
         6. Writes two versions of the compiled schedule to the filesystem:
