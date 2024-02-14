@@ -4,9 +4,10 @@ from aiogram.types import Message
 from aiogram.utils.markdown import hbold
 
 from Bot.Middlewares.authentication_middleware import IsRegMiddleware
-from ORM.schedule_information import GroupSchedule, Weekday, WeekType
-from ORM.users_info import User
 from Bot.Routers.ScheduleRouter.ScheduleRouters.format_functions import format_schedule
+from ORM.Tables.SceduleTables.group_schedule import GroupSchedule
+from ORM.Tables.SceduleTables.time_tables import WeekType, Weekday
+from ORM.Tables.UserTables.user_table import User
 
 tempRouter = Router()
 

@@ -2,7 +2,7 @@ from datetime import datetime
 
 from peewee import ForeignKeyField, IntegerField, IntegrityError, DoesNotExist, TextField, DateTimeField, fn, DateField
 
-from ORM.schedule_information import Group
+from ORM.Tables.SceduleTables.group_tables import Group
 from ORM.database_declaration_and_exceptions import BaseModel, moscow_tz
 
 
@@ -17,6 +17,11 @@ class User(BaseModel):
             return User.get(User.user_id == user_id)
         except DoesNotExist:
             return None
+
+    @staticmethod
+    def get_all_users():
+        user_ids = [user.user_id for user in User.select(User.user_id)]
+        return user_ids
 
     @staticmethod
     def get_group_number(user_id: int):
@@ -58,8 +63,3 @@ class User(BaseModel):
         except DoesNotExist:
             print(f"Группа с номером {new_group_number} не найдена.")
             print(f"Или пользователь с идентификатором '{user_id}' не найден.")
-
-    @staticmethod
-    def get_all_users():
-        user_ids = [user.user_id for user in User.select(User.user_id)]
-        return user_ids

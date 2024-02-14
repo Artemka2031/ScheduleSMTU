@@ -27,7 +27,7 @@ class Notification(BaseModel):
             return False, str(e)
 
     @staticmethod
-    def cancel_all_notifications(user_id):
+    def cancel_notification(user_id):
         try:
             # Поиск всех уведомлений для данного пользователя
             query = Notification.delete().where(Notification.user == user_id)
@@ -50,5 +50,14 @@ class Notification(BaseModel):
                 return True, "User has subscription."
             else:
                 return False, "User has no subscription."
+        except Exception as e:
+            return False, str(e)
+
+    @staticmethod
+    def get_all_notifications():
+        try:
+            user_ids = [{user.user_id: user.notification_time} for user in Notification.select(Notification.user) if
+                        user.notification_time]
+            return user_ids
         except Exception as e:
             return False, str(e)
