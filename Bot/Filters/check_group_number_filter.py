@@ -1,7 +1,7 @@
 from aiogram.filters import Filter
 from aiogram.types import Message
 
-from ORM.schedule_information import Group
+from ORM.Tables.group_schedule import Group
 from ORM.users_info import User
 
 

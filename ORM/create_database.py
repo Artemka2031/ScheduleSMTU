@@ -1,7 +1,7 @@
 from ORM.Tables.group_tables import Faculty, Group
 from ORM.Tables.subject_tables import LessonType, Teacher, Subject, Classroom
 from ORM.Tables.time_tables import WeekType, Weekday, ClassTime
-from ORM.schedule_information import GroupSchedule
+from ORM.Tables.group_schedule import GroupSchedule
 from ORM.users_info import User, Suggestion
 from ORM.database_declaration_and_exceptions import db
 

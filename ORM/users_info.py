@@ -1,8 +1,8 @@
 from datetime import datetime
 
-from peewee import ForeignKeyField, IntegerField, IntegrityError, DoesNotExist, TextField, DateTimeField, fn, DateField
+from peewee import ForeignKeyField, IntegerField, IntegrityError, DoesNotExist, TextField, DateField
 
-from ORM.schedule_information import Group
+from ORM.Tables.group_schedule import Group
 from ORM.database_declaration_and_exceptions import BaseModel, moscow_tz
 
 
