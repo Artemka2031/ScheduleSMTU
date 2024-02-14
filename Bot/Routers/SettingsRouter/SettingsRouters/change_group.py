@@ -7,8 +7,7 @@ from aiogram.types import Message
 from Bot.Filters.check_group_number_filter import CheckGroupFilter, CheckCurrentGroupFilter
 from Bot.Keyboards.change_current_group_kb import create_change_current_group_kb, ChangeCurrentGroupCallback
 from Bot.Keyboards.today_tomorrow_rep_kb import today_tomorrow_rep_keyboard
-from Bot.Middlewares import IsRegMiddleware
-from ORM.users_info import User
+from ORM.Tables.UserTables.user_table import User
 
 ChangeGroupRouter = Router()
 

@@ -1,13 +1,15 @@
+from ORM.Tables.SceduleTables.group_tables import Faculty, Group
+from ORM.Tables.SceduleTables.subject_tables import LessonType, Teacher, Subject, Classroom
+from ORM.Tables.SceduleTables.time_tables import WeekType, Weekday, ClassTime
+from ORM.Tables.SceduleTables.group_schedule import GroupSchedule
+from ORM.Tables.UserTables.suggestion_table import User, Suggestion
 from ORM.database_declaration_and_exceptions import db
-from ORM.schedule_information import WeekType, ClassTime, LessonType, Weekday, Faculty, Teacher, Subject, Classroom, \
-    GroupSchedule, Group
-from ORM.users_info import Suggestion, User
 
 
 def create_tables_if_not_exist():
     tables = [WeekType, Weekday, ClassTime, LessonType, Faculty, Group, Teacher, Subject, Classroom, GroupSchedule,
               User, Suggestion]
-    db.connect()
+    print(db.connect())
     db.create_tables(tables, safe=True)
 
     WeekType.initialize_week_types()
@@ -30,5 +32,7 @@ def drop_tables():
 
 
 if __name__ == "__main__":
-    drop_tables()
-    create_tables_if_not_exist()
+    # drop_tables()
+    # create_tables_if_not_exist()
+
+    print(GroupSchedule.get_schedule(2251))
