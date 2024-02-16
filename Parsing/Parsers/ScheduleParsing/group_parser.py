@@ -5,7 +5,7 @@ import aiohttp
 import requests
 from bs4 import BeautifulSoup
 
-from Paths import find_group_dir_by_group_number, find_schedule_link_by_group_number, get_group_json_path_sync, \
+from Path.schedule_path_functions import find_group_dir_by_group_number, find_schedule_link_by_group_number, get_group_json_path_sync, \
     find_group_dir_by_group_number_sync, find_schedule_link_by_group_number_sync, get_group_json_path
 
 

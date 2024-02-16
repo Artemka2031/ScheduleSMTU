@@ -3,32 +3,7 @@ from pathlib import Path
 
 import aiofiles
 
-
-class PathBase:
-    cwd: Path
-    parsing: Path
-    save_directory: Path
-    schedule_smtu_dir: Path
-    main_page: Path
-    faculty_data: Path
-    faculties_dir: Path
-    schedule_smtu_json: Path
-    schedule_smtu_min_json: Path
-    db_path: Path
-
-    def __init__(self):
-        self.cwd = Path("C:/Users/perei/PycharmProjects/ScheduleSMTU")
-        self.parsing = self.cwd / Path("Parsing")
-        self.save_directory = self.parsing / Path("WebScrapingData")
-        self.schedule_smtu_dir = self.save_directory / Path("Schedule_smtu")
-        self.main_page = self.save_directory / "listschedule.html"
-        self.faculty_data = self.save_directory / "faculty_data.json"
-        self.faculties_dir = self.save_directory / "faculties"
-        self.schedule_smtu_json = self.schedule_smtu_dir / 'Schedule_smtu.json'
-        self.schedule_smtu_min_json = self.schedule_smtu_dir / 'Schedule_smtu.min.json'
-
-
-path_base = PathBase()
+from Path.path_base import path_base
 
 
 async def get_group_json_path(group_number):

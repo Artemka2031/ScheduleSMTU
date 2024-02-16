@@ -11,8 +11,8 @@ from ORM.Tables.SceduleTables.group_tables import Group
 from ORM.Tables.SceduleTables.subject_tables import Subject, Classroom, Teacher, LessonType
 from ORM.Tables.SceduleTables.time_tables import Weekday, ClassTime, WeekType
 from ORM.database_declaration_and_exceptions import BaseModel, DataBaseException, moscow_tz
-from Parsing.Parsers.group_parser import load_group_sync
-from Paths import get_group_json_path_sync
+from Parsing.Parsers.ScheduleParsing.group_parser import load_group_sync
+from Path.schedule_path_functions import get_group_json_path_sync
 
 
 class GroupSchedule(BaseModel):

@@ -1,7 +1,7 @@
 import asyncio
 
-from Parsers import get_main_page, load_group, create_schedule_file
-from Paths import get_all_group_numbers, path_base
+from Parsing.Parsers.ScheduleParsing import get_main_page, load_group, create_schedule_file
+from Path.schedule_path_functions import get_all_group_numbers, path_base
 from config import main_page_url, headers
 
 

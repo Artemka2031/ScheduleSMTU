@@ -1,12 +1,12 @@
 from peewee import CharField, IntegrityError, DoesNotExist, IntegerField, ForeignKeyField
 
 from ORM.database_declaration_and_exceptions import BaseModel
-from Paths import get_faculties_and_groups
+from Path.schedule_path_functions import get_faculties_and_groups
 
 
 class Faculty(BaseModel):
     """
-    A class to manage faculties within an educational institution.
+    A class to manage Schedule within an educational institution.
 
     Attributes:
         name (CharField): Unique name of the faculty.
@@ -49,7 +49,7 @@ class Faculty(BaseModel):
     @staticmethod
     def add_faculties_and_groups():
         """
-        Adds faculties and their associated groups to the database based on predefined data.
+        Adds Schedule and their associated groups to the database based on predefined data.
         """
         faculties_and_groups = get_faculties_and_groups()
 
@@ -62,7 +62,7 @@ class Faculty(BaseModel):
 
 class Group(BaseModel):
     """
-    A class to manage student groups within faculties.
+    A class to manage student groups within Schedule.
 
     Attributes:
         group_number (IntegerField): Unique number of the group.

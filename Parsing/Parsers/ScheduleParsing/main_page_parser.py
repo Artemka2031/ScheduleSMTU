@@ -99,7 +99,7 @@ def get_main_page(main_page_url: str, headers: dict, save_directory: Path, main_
                     group_dir = faculty_dir / group_name
                     group_dir.mkdir(exist_ok=True)
 
-            print("Directories for faculties and groups created in 'faculties'.")
+            print("Directories for Schedule and groups created in 'Schedule'.")
         else:
             print(f"File {faculty_data_file_path} not found. Execute data parsing first.")
 

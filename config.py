@@ -1,7 +1,9 @@
 start_url = "https://www.smtu.ru/ru/"
 main_page_name = "listschedule"
+faculty_page_name = "listdepartment"
 
 main_page_url = start_url + main_page_name + "/"
+faculty_page_url = start_url + faculty_page_name + "/"
 
 # Определите заголовки (headers)
 headers = {

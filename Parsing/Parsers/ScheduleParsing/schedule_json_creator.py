@@ -1,12 +1,13 @@
 import json
 import aiofiles
 
-from Paths import get_group_json_path_sync, path_base
+from Path.schedule_path_functions import get_group_json_path_sync
+from Path.path_base import path_base
 
 
 async def create_schedule_file():
     """
-        Synchronously creates a schedule file containing the compiled schedules for all faculties and groups.
+        Synchronously creates a schedule file containing the compiled schedules for all Schedule and groups.
 
         This function performs several key operations:
         1. Checks if the JSON file with faculty and group data exists. If not, it raises a FileNotFoundError.
