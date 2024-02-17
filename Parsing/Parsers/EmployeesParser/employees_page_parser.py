@@ -14,7 +14,8 @@ def get_employee_page(url, path):
         html = response.text
         soup = BeautifulSoup(html, 'html.parser')
         target_h2 = soup.find('h2', class_='h3 pt-4 mb-2',
-                              text="ГРУППА СТРУКТУРНЫХ ПОДРАЗДЕЛЕНИЙ, ПОДЧИНЕННЫХ ПРОРЕКТОРУ ПО ОБРАЗОВАТЕЛЬНОЙ ДЕЯТЕЛЬНОСТИ")
+                              text="ГРУППА СТРУКТУРНЫХ ПОДРАЗДЕЛЕНИЙ, ПОДЧИНЕННЫХ ПРОРЕКТОРУ ПО ОБРАЗОВАТЕЛЬНОЙ "
+                                   "ДЕЯТЕЛЬНОСТИ")
         parent_div = target_h2.find_next_sibling('div', class_='card mb-4')
         return parent_div
 
@@ -31,8 +32,11 @@ def get_employee_page(url, path):
             faculties_data.append({'faculty': faculty_name, 'departments': departments})
         return faculties_data
 
-    def write_json(data, path):
-        """Запись данных в файл JSON."""
+    def write_json(data, path, directory=path_base.employees_data):
+        """Функция для записи данных в файл JSON."""
+        if not directory.exists():
+            directory.mkdir(parents=True)
+
         with open(path, 'w', encoding='utf-8') as f:
             json.dump(data, f, ensure_ascii=False, indent=4)
 
@@ -44,4 +48,5 @@ def get_employee_page(url, path):
 def main():
     get_employee_page(employee_page_url, path_base.employees_data)
 
-main() # Вызов основной функции закомментирован для предотвращения автоматического выполнения
+
+main()  # Вызов основной функции закомментирован для предотвращения автоматического выполнения
