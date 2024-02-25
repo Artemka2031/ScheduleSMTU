@@ -16,13 +16,13 @@ class PathBase:
     db_path: Path
 
     employees_dir: Path
-    employees_main_page: Path
+    department_data: Path
     employees_data: Path
 
     def __init__(self):
-        self.cwd = Path("C:/Users/perei/PycharmProjects/ScheduleSMTU")
+        self.cwd = Path("P:/Python/ScheduleSMTU")
         self.parsing = self.cwd / Path("Parsing")
-        self.data = self.cwd / Path("Data")
+        self.data = self.parsing / Path("Data")
 
         self.save_directory = self.data / Path("ScheduleByFaculties")
         self.schedule_smtu_dir = self.save_directory / Path("ScheduleSMTU")
@@ -33,7 +33,7 @@ class PathBase:
         self.schedule_smtu_min_json = self.schedule_smtu_dir / 'Schedule_smtu.min.json'
 
         self.employees_dir = self.data / Path("EmployeesByFaculties")
-        self.employees_main_page = self.employees_dir / "employees_main_page.html"
+        self.department_data = self.employees_dir / "department_data.json"
         self.employees_data = self.employees_dir / "employees_data.json"
 
 
