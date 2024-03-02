@@ -19,7 +19,7 @@ class User(BaseModel):
             return None
 
     @staticmethod
-    def get_all_users():
+    def get_all_users_ids():
         user_ids = [user.user_id for user in User.select(User.user_id)]
         return user_ids
 
