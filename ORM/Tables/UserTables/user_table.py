@@ -1,7 +1,9 @@
-from peewee import IntegerField, ForeignKeyField, DoesNotExist, IntegrityError
+from datetime import datetime
+
+from peewee import ForeignKeyField, IntegerField, IntegrityError, DoesNotExist, TextField, DateTimeField, fn, DateField
 
 from ORM.Tables.SceduleTables.group_tables import Group
-from ORM.database_declaration_and_exceptions import BaseModel
+from ORM.database_declaration_and_exceptions import BaseModel, moscow_tz
 
 
 class User(BaseModel):
@@ -15,6 +17,11 @@ class User(BaseModel):
             return User.get(User.user_id == user_id)
         except DoesNotExist:
             return None
+
+    @staticmethod
+    def get_all_users_ids():
+        user_ids = [user.user_id for user in User.select(User.user_id)]
+        return user_ids
 
     @staticmethod
     def get_group_number(user_id: int):

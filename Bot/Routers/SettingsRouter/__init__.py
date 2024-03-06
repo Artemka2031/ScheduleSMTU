@@ -1,2 +1,2 @@
-from Bot.Routers.SettingsRouter.settings_router import SettingsRouter
+from Bot.Routers.SettingsRouter.change_group_suggestions_router import SettingsRouter
 
