@@ -35,8 +35,9 @@ async def main():
 
 
 if __name__ == '__main__':
+
+    asyncio.run(main())
     try:
         print("Бот запущен")
-        asyncio.run(main())
-    except:
+    except Exception as e:
         print('Закрываю бота')

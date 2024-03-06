@@ -1,35 +1,31 @@
 import asyncio
 
-from Parsing.Parsers.ScheduleParsing import get_main_page, load_group, create_schedule_file
-from Path.schedule_path_functions import get_all_group_numbers, path_base
-from config import main_page_url, headers
+from Parsers import fetch_employees_data, set_schedule_data
 
 
-async def load_group_with_rate_limiting(group, semaphore):
-    """
-    Wrapper around load_group to use with rate limiting.
-    """
-    async with semaphore:
-        await load_group(group)
+async def parsing():
+    print("Starting university data parsing...")
+
+    try:
+        print("Fetching employees data from faculties and departments...")
+        await fetch_employees_data()
+        print("Successfully fetched employees data.")
+    except Exception as e:
+        print(f"An error occurred while fetching employees data: {e}")
+        # Дополнительные действия при возникновении ошибки (например, логгирование или повторный вызов)
+        return  # Прерывание выполнения, если обработка данных о сотрудниках не удалась
+
+    try:
+        print("Setting schedule data for all available groups...")
+        # await set_schedule_data()
+        print("Successfully set schedule data for all groups.")
+    except Exception as e:
+        print(f"An error occurred while setting schedule data: {e}")
+        # Дополнительные действия при возникновении ошибки
+        return  # Прерывание выполнения, если установка расписания не удалась
+
+    print("University data parsing completed successfully.")
 
 
-async def main():
-    # Synchronously get main page and parse all group numbers
-    get_main_page(main_page_url, headers, path_base.save_directory, path_base.main_page, path_base.faculty_data,
-                  path_base.faculties_dir)
-    groups = get_all_group_numbers()
-
-    # # Create a semaphore to limit the number of concurrent load_group calls to 20
-    # semaphore = asyncio.Semaphore(5)
-    #
-    # # Schedule load_group calls for each group with rate limiting
-    # tasks = [load_group_with_rate_limiting(group, semaphore) for group in groups]
-    # await asyncio.gather(*tasks)
-    #
-    # # Once all groups are processed, create the schedule directory
-    # await create_schedule_file()
-
-
-# Run the main function
 if __name__ == "__main__":
-    asyncio.run(main())
+    asyncio.run(parsing())

@@ -1,7 +1,7 @@
 import json
 import aiofiles
 
-from Path.schedule_path_functions import get_group_json_path_sync
+from Path.schedule_path_functions import get_group_json_path_sync, get_group_json_path
 from Path.path_base import path_base
 
 
@@ -52,7 +52,7 @@ async def create_schedule_file():
                     group_id = group_data['group']
                     link = group_data['link']
 
-                    schedule_path = await get_group_json_path_sync(group_id)
+                    schedule_path = await get_group_json_path(group_id)
                     async with aiofiles.open(schedule_path, 'r', encoding='utf-8') as schedule_file:
                         schedule = json.loads(await schedule_file.read())
 

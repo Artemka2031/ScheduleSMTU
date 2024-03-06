@@ -11,7 +11,7 @@ from ORM.Tables.SceduleTables.group_tables import Group
 from ORM.Tables.SceduleTables.subject_tables import Subject, Classroom, Teacher, LessonType
 from ORM.Tables.SceduleTables.time_tables import Weekday, ClassTime, WeekType
 from ORM.database_declaration_and_exceptions import BaseModel, DataBaseException, moscow_tz
-from Parsing.Parsers.ScheduleParsing.group_parser import load_group_sync
+from Parsing.Parsers.ScheduleParsing.SubParsers.group_parser import load_group_sync
 from Path.schedule_path_functions import get_group_json_path_sync
 
 
@@ -68,7 +68,7 @@ class GroupSchedule(BaseModel):
             return None
 
     @staticmethod
-    def update_group_table(group_number: int):
+    def update_group_table(group_number: int, forced_update: bool = True):
         """
             Asynchronously updates the schedule table for a specified group by loading data from an external source.
 
@@ -76,8 +76,9 @@ class GroupSchedule(BaseModel):
                 group_number (int): The number of the group to update the schedule for.
         """
         try:
-            # Загружаем данные с сайта
-            load_group_sync(group_number)
+            if forced_update:
+                # Загружаем данные с сайта
+                load_group_sync(group_number)
 
             # Получаем путь к JSON-файлу для группы
             json_path = get_group_json_path_sync(group_number)
@@ -200,7 +201,7 @@ class GroupSchedule(BaseModel):
             print(f"Произошла ошибка при обновлении данных для группы {group_number}: {str(e)}")
 
     @staticmethod
-    def set_schedule(group_number: int):
+    def set_schedule(group_number: int, forced_update: bool = True):
         """
             Synchronously sets the schedule for a specified group, updating it if necessary.
 
@@ -218,15 +219,15 @@ class GroupSchedule(BaseModel):
 
             # Если таблица не обновлялась, нужно обновить
             if last_update_time is None:
-                GroupSchedule.update_group_table(group_number)
+                GroupSchedule.update_group_table(group_number, forced_update=forced_update)
                 return
 
             # Вычисляем разницу между текущим временем и временем последнего обновления
             time_difference = datetime.now(moscow_tz) - last_update_time
 
-            # Если прошло более часа, нужно обновить
-            if time_difference >= timedelta(hours=5):
-                GroupSchedule.update_group_table(group_number)
+            # Если прошло более 23 часов, нужно обновить
+            if time_difference >= timedelta(hours=23):
+                GroupSchedule.update_group_table(group_number, forced_update=forced_update)
 
         except DoesNotExist:
             print(f"Группа с номером {group_number} не найдена.")

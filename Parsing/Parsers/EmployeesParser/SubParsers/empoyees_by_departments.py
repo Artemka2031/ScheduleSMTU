@@ -1,10 +1,9 @@
 import json
 from datetime import datetime, timedelta
-import asyncio
 
 import aiohttp
-from bs4 import BeautifulSoup
 from aiolimiter import AsyncLimiter
+from bs4 import BeautifulSoup
 
 from Path.path_base import path_base
 
@@ -12,15 +11,34 @@ limiter = AsyncLimiter(10, 1)  # 10 запросов в секунду
 
 
 async def fetch_page(url: str, session: aiohttp.ClientSession, params=None):
+    """
+    Asynchronously fetches the content of a webpage.
+
+    Args:
+        url (str): The URL of the page to fetch.
+        session (aiohttp.ClientSession): The session used to make the HTTP request.
+        params (dict, optional): Additional parameters to pass to the request. Defaults to None.
+
+    Returns:
+        str: The text content (HTML) of the fetched webpage.
+    """
     async with limiter:
         async with session.get(url, params=params) as response:
             return await response.text()
 
 
 async def parse_department_page(url: str, session: aiohttp.ClientSession):
-    # Пример использования параметров запроса, если они необходимы
-    params = {'example_param': 'value'}  # Пример параметров
-    html = await fetch_page(url, session, params=params)
+    """
+        Asynchronously parses the department page to extract employee data.
+
+        Args:
+            url (str): The URL of the department page to parse.
+            session (aiohttp.ClientSession): The session used to fetch the page.
+
+        Returns:
+            list: A list of dictionaries, each containing data about an employee.
+    """
+    html = await fetch_page(url, session)
     soup = BeautifulSoup(html, 'html.parser')
 
     employees = []
@@ -45,6 +63,16 @@ async def parse_department_page(url: str, session: aiohttp.ClientSession):
 
 
 async def process_faculties(faculties_data, session: aiohttp.ClientSession):
+    """
+       Asynchronously processes each faculty's departments to fetch and update employee data.
+
+       Args:
+           faculties_data (list): A list of faculty data dictionaries to be processed.
+           session (aiohttp.ClientSession): The session used to make HTTP requests.
+
+       Returns:
+           list: The updated faculties data with employee information and last accessed timestamps.
+    """
     department_count = 0  # Счётчик обработанных кафедр
 
     for faculty in faculties_data:
@@ -65,14 +93,22 @@ async def process_faculties(faculties_data, session: aiohttp.ClientSession):
                 department_count += 1
                 print(
                     f"Faculty: {faculty['faculty']}, Department: {department['name']}, Departments processed: {department_count}")
-
     return faculties_data
 
 
 async def get_employees_data():
+    """
+        The main asynchronous function to fetch and update employee data for all faculties and departments.
+
+        This function orchestrates the fetching of faculty and department data, parsing of department pages to
+        extract employee information, and updating the data with timestamps. The final updated data is saved
+        to a JSON file.
+
+        Utilizes global path configurations from `path_base` for input and output data.
+    """
     async with aiohttp.ClientSession() as session:
-        input_path = path_base.department_data
-        output_path = path_base.employees_data
+        input_path = path_base.employees_data
+        output_path = path_base.department_data
 
         with open(input_path, 'r', encoding='utf-8') as file:
             faculties_data = json.load(file)
@@ -81,7 +117,3 @@ async def get_employees_data():
 
         with open(output_path, 'w', encoding='utf-8') as file:
             json.dump(updated_faculties_data, file, ensure_ascii=False, indent=4)
-
-
-if __name__ == "__main__":
-    asyncio.run(get_employees_data())
