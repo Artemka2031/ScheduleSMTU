@@ -1,4 +1,5 @@
 from aiogram.filters.callback_data import CallbackData
+from aiogram.types import InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 
@@ -6,14 +7,17 @@ class WeekTypeCallback(CallbackData, prefix="week_type"):
     week_type: str
 
 
-def week_type_kb():
+def week_type_kb(back_to_menu: bool = False):
     builder = InlineKeyboardBuilder()
 
     builder.button(text="Верхняя неделя", callback_data=WeekTypeCallback(week_type="Верхняя неделя").pack())
-    builder.button(text="Нижняя неделя", callback_data=WeekTypeCallback(week_type="Нижняя неделя").pack())
     builder.button(text="Обе недели", callback_data=WeekTypeCallback(week_type="Обе недели").pack())
+    builder.button(text="Нижняя неделя", callback_data=WeekTypeCallback(week_type="Нижняя неделя").pack())
 
-    builder.adjust(2)
+    if back_to_menu:
+        builder.button(text="<< Назад", callback_data=WeekTypeCallback(week_type="Назад").pack())
+
+    builder.adjust(1)
 
     return builder.as_markup()
 
@@ -33,5 +37,6 @@ def week_day_kb():
     builder.button(text="Суббота", callback_data=WeekDayCallback(week_day="Суббота").pack())
 
     builder.adjust(2)
+    builder.row(InlineKeyboardButton(text="<< Назад", callback_data=WeekDayCallback(week_day="Назад").pack()))
 
     return builder.as_markup()

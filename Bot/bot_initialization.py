@@ -1,7 +1,8 @@
 from aiogram import Bot
 from aiogram.enums import ParseMode
-from ORM.Tables.UserTables.user_table import User
 from aiogram.types import BotCommand, BotCommandScopeDefault, BotCommandScopeChat
+
+from ORM.Tables.UserTables.user_table import User
 from config import token
 
 bot = Bot(token=str(token.get("token")), parse_mode=ParseMode.HTML)
@@ -30,7 +31,8 @@ async def setup_bot_commands(status: str, user_id: int | str):
         print("Неверный статус пользователя")
         return
 
-#Без этой функции админам исходно выдается админ-панель
+
+# Без этой функции админам исходно выдается админ-панель
 async def default_commands():
     for user_id in User.get_all_users_ids():
         await setup_bot_commands("user", user_id)

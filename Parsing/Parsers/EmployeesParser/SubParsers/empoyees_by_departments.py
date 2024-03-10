@@ -98,7 +98,7 @@ async def process_faculties(faculties_data, session: aiohttp.ClientSession):
 
 async def get_employees_data():
     """
-        The main asynchronous function to fetch and update employee data for all faculties and departments.
+        The start_bot asynchronous function to fetch and update employee data for all faculties and departments.
 
         This function orchestrates the fetching of faculty and department data, parsing of department pages to
         extract employee information, and updating the data with timestamps. The final updated data is saved

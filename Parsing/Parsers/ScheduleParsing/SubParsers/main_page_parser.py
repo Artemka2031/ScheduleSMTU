@@ -10,21 +10,21 @@ from config import start_url
 def get_main_page(main_page_url: str, headers: dict, save_directory: Path, main_page_file_path: Path,
                   faculty_data_file_path: Path, faculties_dir: Path):
     """
-    Main function that orchestrates loading, parsing, and directory creation for the main page.
+    Main function that orchestrates loading, parsing, and directory creation for the start_bot page.
     Nested functions use provided parameters to handle their specific tasks.
 
     Params:
-    - main_page_url (str): URL of the main page to fetch.
+    - main_page_url (str): URL of the start_bot page to fetch.
     - headers (dict): Request headers for the HTTP GET request.
-    - save_directory (Path): Directory where the main page HTML will be saved.
-    - main_page_file_path (Path): Full path to save the main page HTML file.
+    - save_directory (Path): Directory where the start_bot page HTML will be saved.
+    - main_page_file_path (Path): Full path to save the start_bot page HTML file.
     - faculty_data_file_path (Path): Path to save the extracted faculty data as JSON.
     - faculties_dir (Path): Base directory where faculty and group directories will be created.
     """
 
     def load_and_save_main_page():
         """
-        Fetches the main page using requests and saves it to a file.
+        Fetches the start_bot page using requests and saves it to a file.
         """
         # Ensure the directory exists before saving
         save_directory.mkdir(parents=True, exist_ok=True)
@@ -41,7 +41,7 @@ def get_main_page(main_page_url: str, headers: dict, save_directory: Path, main_
 
     def read_main_page():
         """
-        Reads the content of the main page from a file.
+        Reads the content of the start_bot page from a file.
         """
         if main_page_file_path.is_file():
             with open(main_page_file_path, 'r', encoding='utf-8') as file:
@@ -52,7 +52,7 @@ def get_main_page(main_page_url: str, headers: dict, save_directory: Path, main_
 
     def parse_main_page():
         """
-        Parses the HTML content of the main page and saves extracted data as JSON.
+        Parses the HTML content of the start_bot page and saves extracted data as JSON.
         """
         html_content = read_main_page()
         if html_content:

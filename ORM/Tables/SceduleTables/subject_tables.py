@@ -3,59 +3,6 @@ from peewee import CharField, IntegrityError, DoesNotExist
 from ORM.database_declaration_and_exceptions import BaseModel
 
 
-class Teacher(BaseModel):
-    """
-    A class to manage teacher records in an educational institution.
-
-    Attributes:
-        last_name (CharField): The last name of the teacher.
-        first_name (CharField): The first name of the teacher.
-        middle_name (CharField): The middle name of the teacher.
-    """
-
-    last_name = CharField()
-    first_name = CharField()
-    middle_name = CharField()
-
-    @staticmethod
-    def add_teacher(last_name, first_name, middle_name):
-        """
-        Adds a new teacher to the database.
-
-        Params:
-            last_name (str): The last name of the teacher.
-            first_name (str): The first name of the teacher.
-            middle_name (str): The middle name of the teacher.
-        """
-        try:
-            teacher = Teacher.create(last_name=last_name, first_name=first_name, middle_name=middle_name)
-            print(f"Teacher {last_name} {first_name} {middle_name} successfully added.")
-            return teacher.id
-        except IntegrityError:
-            print(f"Teacher {last_name} {first_name} {middle_name} already exists in the database.")
-
-    @staticmethod
-    def get_teacher_id(last_name, first_name, middle_name):
-        """
-        Returns the ID of a teacher by their full name.
-
-        Params:
-            last_name (str), first_name (str), middle_name (str): Full name of the teacher.
-
-        Returns:
-            int: The ID of the teacher.
-        """
-        try:
-            teacher = Teacher.get(
-                Teacher.last_name == last_name,
-                Teacher.first_name == first_name,
-                Teacher.middle_name == middle_name
-            )
-            return teacher.id
-        except DoesNotExist:
-            raise ValueError(f"Teacher {last_name} {first_name} {middle_name} not found")
-
-
 class Subject(BaseModel):
     """
     A class to manage subjects in an educational institution.

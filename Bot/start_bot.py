@@ -1,18 +1,16 @@
-import asyncio
-
 from aiogram import Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
 
+from Bot.Routers.MenuRouter import MenuRouter
 from Bot.Routers.MailingRouter.mail_router import MailRouter
 from Bot.Routers.RoleRouter.role_router import RoleRouter
-from Bot.Routers.SettingsRouter.change_group_suggestions_router import SettingsRouter
-from Routers.StartRouter import StartRouter, RegistrationRouter
-from Bot.Routers.ScheduleRouter.temp_week_schedule_router import ScheduleRouter
-from bot_initialization import bot, default_commands
+from Bot.Routers.ScheduleRouter import ScheduleRouter
+from Bot.Routers.SettingsRouter import SettingsRouter
+from Bot.Routers.StartRouter import StartRouter, RegistrationRouter
+from Bot.bot_initialization import bot, default_commands
 
 
-
-async def main():
+async def start_bot():
     storage = MemoryStorage()
 
     dp = Dispatcher(storage=storage)
@@ -25,6 +23,8 @@ async def main():
 
     dp.include_router(ScheduleRouter)
 
+    dp.include_router(MenuRouter)
+
     dp.include_router(MailRouter)
 
     dp.include_router(SettingsRouter)
@@ -33,11 +33,10 @@ async def main():
 
     await dp.start_polling(bot)
 
-
-if __name__ == '__main__':
-
-    asyncio.run(main())
-    try:
-        print("Бот запущен")
-    except Exception as e:
-        print('Закрываю бота')
+# if __name__ == '__main__':
+#
+#     asyncio.run(start_bot())
+#     try:
+#         print("Бот запущен")
+#     except Exception as e:
+#         print('Закрываю бота')

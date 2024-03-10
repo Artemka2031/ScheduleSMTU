@@ -13,5 +13,5 @@ headers = {
 }
 
 token = {
-    "token": "6523290565:AAGn4cBjfaZjmvFXhEJs9ZYNN6Y2p812gkE"
+    "token": "6397282799:AAG-kCn6jHua9W9y48L20K_IDM-5kPEY3P0"  # Токен от бота @MyNewTestBotAbot.
 }

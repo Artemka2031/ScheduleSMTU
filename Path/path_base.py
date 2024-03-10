@@ -36,5 +36,7 @@ class PathBase:
         self.department_data = self.employees_dir / "department_data.json"
         self.employees_data = self.employees_dir / "employees_data.json"
 
+        self.db_path = self.cwd / Path("ORM") / Path("database.db")
+
 
 path_base = PathBase()

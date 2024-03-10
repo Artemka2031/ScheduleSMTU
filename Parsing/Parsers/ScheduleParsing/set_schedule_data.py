@@ -20,17 +20,17 @@ async def load_group_with_rate_limiting(group: str, semaphore: asyncio.Semaphore
 
 async def set_schedule_data():
     """
-    Orchestrates the asynchronous fetching and setting of schedule data for all groups listed on the main page.
+    Orchestrates the asynchronous fetching and setting of schedule data for all groups listed on the start_bot page.
 
     Steps performed:
-    1. Synchronously fetches the main page and parses all group numbers.
+    1. Synchronously fetches the start_bot page and parses all group numbers.
     2. Initializes a semaphore to limit the number of concurrent `load_group` operations.
     3. Asynchronously schedules and executes `load_group` calls for each group within the rate limit.
     4. Upon completion of all group data fetching, generates the final schedule file.
 
     Configuration for fetching and file generation are obtained from global settings, including URLs, headers, and file paths.
     """
-    # Fetch the main page and parse group numbers synchronously
+    # Fetch the start_bot page and parse group numbers synchronously
     get_main_page(main_page_url, headers, path_base.save_directory, path_base.main_page, path_base.faculty_data,
                   path_base.faculties_dir)
     groups = get_all_group_numbers()

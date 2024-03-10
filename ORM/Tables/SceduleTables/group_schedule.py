@@ -1,14 +1,13 @@
 import json
 from datetime import datetime, timedelta
-
 from typing import List, Dict, Optional
 
 import pytz
 from peewee import ForeignKeyField, DateTimeField, SQL, \
     DoesNotExist
 
-from ORM.Tables.SceduleTables.group_tables import Group
-from ORM.Tables.SceduleTables.subject_tables import Subject, Classroom, Teacher, LessonType
+from ORM.Tables.SceduleTables.group_tables import Group, Teacher
+from ORM.Tables.SceduleTables.subject_tables import Subject, Classroom, LessonType
 from ORM.Tables.SceduleTables.time_tables import Weekday, ClassTime, WeekType
 from ORM.database_declaration_and_exceptions import BaseModel, DataBaseException, moscow_tz
 from Parsing.Parsers.ScheduleParsing.SubParsers.group_parser import load_group_sync
@@ -226,7 +225,7 @@ class GroupSchedule(BaseModel):
             time_difference = datetime.now(moscow_tz) - last_update_time
 
             # Если прошло более 23 часов, нужно обновить
-            if time_difference >= timedelta(hours=23):
+            if time_difference >= timedelta(hours=1):
                 GroupSchedule.update_group_table(group_number, forced_update=forced_update)
 
         except DoesNotExist:
@@ -234,30 +233,21 @@ class GroupSchedule(BaseModel):
             return False
 
     @staticmethod
-    def get_schedule(group_number: int, current_day: Optional[str] = None) -> Dict[str, List[Dict]]:
+    def get_schedule_teacher(teacher_id: int, current_day: Optional[str] = None) -> Dict[str, List[Dict]]:
         """
-            Asynchronously retrieves the schedule for a specified group, optionally filtered by the current day.
+        Retrieves the schedule for a specified teacher, optionally filtered by the current day.
 
-            Params:
-                group_number (int): The number of the group to retrieve the schedule for.
-                current_day (Optional[str]): If specified, filters the schedule to only include this day.
+        Params:
+            teacher_id (int): The ID of the teacher to retrieve the schedule for.
+            current_day (Optional[str]): If specified, filters the schedule to only include this day.
 
-            Returns:
-                Dict[str, List[Dict]]: The schedule for the group, structured by day.
+        Returns:
+            Dict[str, List[Dict]]: The schedule for the teacher, structured by day.
         """
         try:
-
-            group_number = int(group_number)
-
-            GroupSchedule.set_schedule(group_number)
-
-            # Get the group id
-            group_id = Group.get_group_id(group_number)
-
             # Perform a query to get the schedule with JOIN for related tables
             schedule_data = (GroupSchedule
-                             .select(GroupSchedule, Weekday, ClassTime, WeekType, Classroom, Subject, LessonType,
-                                     Teacher)
+                             .select(GroupSchedule, Group, Weekday, ClassTime, WeekType, Classroom, Subject, LessonType)
                              .join(Weekday)
                              .switch(GroupSchedule)
                              .join(ClassTime)
@@ -270,55 +260,126 @@ class GroupSchedule(BaseModel):
                              .switch(GroupSchedule)
                              .join(LessonType)
                              .switch(GroupSchedule)
-                             .join(Teacher)
-                             .where(GroupSchedule.group_id == group_id))
+                             .join(Group)
+                             .where(GroupSchedule.teacher_id == teacher_id))
 
             # Transform the query result into a structured format
             schedule = {}
             for record in schedule_data:
                 day_name = record.day_id.name
-                start_class_time = record.class_time_id.start_time
-                end_class_time = record.class_time_id.end_time
-                classroom_building = record.classroom_id.building
-                classroom_number = record.classroom_id.room_number
-                subject_name = record.subject_id.name
-                lesson_type = record.lesson_type_id.name
-                teacher_last_name = record.teacher_id.last_name
-                teacher_first_name = record.teacher_id.first_name
-                teacher_middle_name = record.teacher_id.middle_name
                 week_type = record.week_type_id.name
 
-                # Создаем данные для пары
+                # Create data for each class period
                 pair_data = {
-                    'Время начала': start_class_time,
-                    'Время конца': end_class_time,
-                    'Корпус': classroom_building,
-                    'Номер аудитории': classroom_number,
-                    'Наименование предмета': subject_name,
-                    'Тип занятия': lesson_type,
-                    'Фамилия преподавателя': teacher_last_name,
-                    'Имя преподавателя': teacher_first_name,
-                    'Отчество преподавателя': teacher_middle_name,
+                    'Время начала': record.class_time_id.start_time,
+                    'Время конца': record.class_time_id.end_time,
+                    'Корпус': record.classroom_id.building,
+                    'Номер аудитории': record.classroom_id.room_number,
+                    'Наименование предмета': record.subject_id.name,
+                    'Тип занятия': record.lesson_type_id.name,
+                    'Группы': [record.group_id.group_number]
                 }
 
-                # Добавляем пару в расписание
+                # Add the class period to the schedule
+                if day_name not in schedule:
+                    schedule[day_name] = []
+
+                # Aggregate groups for the same class period
+                existing_period = next((item for item in schedule[day_name] if
+                                        item['Данные пары']['Время начала'] == pair_data['Время начала'] and
+                                        item['Данные пары']['Номер аудитории'] == pair_data['Номер аудитории']), None)
+                if existing_period:
+                    existing_period['Данные пары']['Группы'].extend(pair_data['Группы'])
+                else:
+                    schedule[day_name].append({'Неделя': week_type, 'Данные пары': pair_data})
+
+            # If the current day is specified, filter the schedule
+            if current_day:
+                schedule = {current_day: schedule.get(current_day, [])}
+
+            # Sort the days of the week
+            sorted_schedule = {day: sorted(day_schedule, key=lambda x: x['Данные пары']['Время начала']) for
+                               day, day_schedule in schedule.items()}
+
+            return sorted_schedule
+
+        except DoesNotExist:
+            print(f"Преподаватель с ID {teacher_id} не найден.")
+            return {}
+        except Exception as e:
+            print(f"Произошла ошибка при получении расписания для преподавателя с ID {teacher_id}: {str(e)}")
+            return {}
+
+    @staticmethod
+    def get_schedule(group_number: int, current_day: Optional[str] = None) -> Dict[str, List[Dict]]:
+        try:
+            group_number = int(group_number)
+            GroupSchedule.set_schedule(group_number)
+            group_id = Group.get_group_id(group_number)
+
+            # Получение расписания для группы
+            group_schedule_data = (GroupSchedule
+                                   .select()
+                                   .join(Weekday)
+                                   .switch(GroupSchedule)
+                                   .join(ClassTime)
+                                   .switch(GroupSchedule)
+                                   .join(WeekType)
+                                   .switch(GroupSchedule)
+                                   .join(Classroom)
+                                   .switch(GroupSchedule)
+                                   .join(Subject)
+                                   .switch(GroupSchedule)
+                                   .join(LessonType)
+                                   .switch(GroupSchedule)
+                                   .join(Teacher)
+                                   .where(GroupSchedule.group_id == group_id)
+                                   .order_by(Weekday.id, ClassTime.id, WeekType.id))
+
+            # Структура для хранения расписания группы
+            schedule = {}
+
+            # Сопоставление расписания группы с расписанием преподавателя
+            for record in group_schedule_data:
+                teacher_schedule = GroupSchedule.get_schedule_teacher(
+                    record.teacher_id)  # Получение расписания преподавателя
+
+                day_name = record.day_id.name
+                week_type = record.week_type_id.name
+
+                pair_data = {
+                    'Время начала': record.class_time_id.start_time,
+                    'Время конца': record.class_time_id.end_time,
+                    'Корпус': record.classroom_id.building,
+                    'Номер аудитории': record.classroom_id.room_number,
+                    'Наименование предмета': record.subject_id.name,
+                    'Тип занятия': record.lesson_type_id.name,
+                    'Фамилия преподавателя': record.teacher_id.last_name,
+                    'Имя преподавателя': record.teacher_id.first_name,
+                    'Отчество преподавателя': record.teacher_id.middle_name,
+                    'Группы': []
+                }
+
+                # Проверяем, есть ли у преподавателя другие группы в это время
+                for teacher_day, teacher_day_schedule in teacher_schedule.items():
+                    if teacher_day == day_name:
+                        for teacher_pair in teacher_day_schedule:
+                            if teacher_pair['Данные пары']['Время начала'] == pair_data['Время начала'] and \
+                                    teacher_pair['Данные пары']['Номер аудитории'] == pair_data['Номер аудитории']:
+                                # Исключаем текущую группу из списка
+                                other_groups = [grp for grp in teacher_pair['Данные пары']['Группы'] if
+                                                grp != group_number]
+                                pair_data['Группы'].extend(other_groups)
+
                 if day_name not in schedule:
                     schedule[day_name] = []
 
                 schedule[day_name].append({'Неделя': week_type, 'Данные пары': pair_data})
 
-            # Если указан текущий день, фильтруем расписание
             if current_day:
                 schedule = {current_day: schedule.get(current_day, [])}
 
-            # Сортируем дни недели
-            sorted_schedule = dict(sorted(schedule.items(), key=lambda x: Weekday.get_order(x[0])))
-
-            # Сортируем пары внутри каждого дня недели по времени начала
-            for day_schedule in sorted_schedule.values():
-                day_schedule.sort(key=lambda x: datetime.strptime(x['Данные пары']['Время начала'], '%H:%M'))
-
-            return sorted_schedule
+            return schedule
 
         except DoesNotExist:
             print(f"Группа с номером {group_number} не найдена.")

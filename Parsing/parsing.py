@@ -1,6 +1,6 @@
 import asyncio
 
-from Parsers import fetch_employees_data, set_schedule_data
+from .Parsers import fetch_employees_data, set_schedule_data
 
 
 async def parsing():
@@ -17,7 +17,7 @@ async def parsing():
 
     try:
         print("Setting schedule data for all available groups...")
-        # await set_schedule_data()
+        await set_schedule_data()
         print("Successfully set schedule data for all groups.")
     except Exception as e:
         print(f"An error occurred while setting schedule data: {e}")
