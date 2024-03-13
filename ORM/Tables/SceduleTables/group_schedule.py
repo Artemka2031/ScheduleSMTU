@@ -25,7 +25,7 @@ class GroupSchedule(BaseModel):
             class_time_id (ForeignKeyField): Reference to the class time slot.
             subject_id (ForeignKeyField): Reference to the subject being taught.
             lesson_type_id (ForeignKeyField): Reference to the type of lesson (e.g., lecture, lab).
-            teacher_id (ForeignKeyField): Reference to the teacher.
+            teacher_id (ForeignKeyField): Reference to the teacher_text.
             classroom_id (ForeignKeyField): Reference to the classroom.
             creation_time (DateTimeField): Timestamp of when the schedule entry was created or last updated.
     """
@@ -235,14 +235,14 @@ class GroupSchedule(BaseModel):
     @staticmethod
     def get_schedule_teacher(teacher_id: int, current_day: Optional[str] = None) -> Dict[str, List[Dict]]:
         """
-        Retrieves the schedule for a specified teacher, optionally filtered by the current day.
+        Retrieves the schedule for a specified teacher_text, optionally filtered by the current day.
 
         Params:
-            teacher_id (int): The ID of the teacher to retrieve the schedule for.
+            teacher_id (int): The ID of the teacher_text to retrieve the schedule for.
             current_day (Optional[str]): If specified, filters the schedule to only include this day.
 
         Returns:
-            Dict[str, List[Dict]]: The schedule for the teacher, structured by day.
+            Dict[str, List[Dict]]: The schedule for the teacher_text, structured by day.
         """
         try:
             # Perform a query to get the schedule with JOIN for related tables
@@ -387,3 +387,34 @@ class GroupSchedule(BaseModel):
         except Exception as e:
             print(f"Произошла ошибка при получении расписания для группы {group_number}: {str(e)}")
             return {}
+
+    @staticmethod
+    def get_teachers_for_group(group_number: int) -> List[Dict]:
+        try:
+            group_id = Group.get(Group.group_number == group_number).id
+
+            # Получаем список преподавателей для группы
+            teachers = (Teacher
+                        .select(Teacher.id, Teacher.last_name, Teacher.first_name, Teacher.middle_name)
+                        .join(GroupSchedule)
+                        .where(GroupSchedule.group_id == group_id)
+                        .distinct())
+
+            # Преобразовываем результат в список словарей
+            teacher_list = []
+            for teacher in teachers:
+                teacher_list.append({
+                    'id': teacher.id,
+                    'last_name': teacher.last_name,
+                    'first_name': teacher.first_name,
+                    'middle_name': teacher.middle_name
+                })
+
+            return teacher_list
+
+        except DoesNotExist:
+            print(f"Группа с номером {group_number} не найдена.")
+            return []
+        except Exception as e:
+            print(f"Произошла ошибка: {str(e)}")
+            return []

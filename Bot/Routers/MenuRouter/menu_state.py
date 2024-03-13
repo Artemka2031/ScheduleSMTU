@@ -7,3 +7,7 @@ class MenuState(StatesGroup):
 
     week_type = State()
     week_day = State()
+
+    teacher = State()
+    teacher_week_type = State()
+    teacher_week_day = State()

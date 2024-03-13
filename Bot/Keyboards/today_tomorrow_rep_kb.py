@@ -1,12 +1,17 @@
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from aiogram.utils.keyboard import ReplyKeyboardBuilder
 
 
-def today_tomorrow_rep_keyboard():
-    today_tomorrow_rep_kb = ReplyKeyboardBuilder()
+def today_tomorrow_rep_keyboard() -> ReplyKeyboardMarkup:
+    builder = ReplyKeyboardBuilder()
 
-    today_tomorrow_rep_kb.button(text="Сегодня")
-    today_tomorrow_rep_kb.button(text="Завтра")
+    builder.row(
+        KeyboardButton(text="Сегодня"),
+        KeyboardButton(text="Завтра")
+    )
 
-    today_tomorrow_rep_kb.adjust(2)
+    builder.row(
+        KeyboardButton(text="Расписание")
+    )
 
-    return today_tomorrow_rep_kb.as_markup(resize_keyboard=True)
+    return builder.as_markup(resize_keyboard=True)

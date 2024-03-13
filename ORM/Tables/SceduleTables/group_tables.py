@@ -1,8 +1,10 @@
 import json
+from typing import Dict, List
 
+from aiogram.utils.markdown import hbold
 from peewee import CharField, IntegrityError, DoesNotExist, IntegerField, ForeignKeyField, CompositeKey
 
-from ORM.database_declaration_and_exceptions import BaseModel, db
+from ORM.database_declaration_and_exceptions import BaseModel
 from Path.path_base import path_base
 from Path.schedule_path_functions import get_faculties_and_groups
 
@@ -106,7 +108,7 @@ class Department(BaseModel):
 
 class Teacher(BaseModel):
     """
-    Represents a teacher in an educational institution.
+    Represents a teacher_text in an educational institution.
     """
     last_name = CharField()
     first_name = CharField()
@@ -115,12 +117,12 @@ class Teacher(BaseModel):
     @staticmethod
     def add_teacher(last_name, first_name, middle_name):
         """
-        Adds a new teacher to the database.
+        Adds a new teacher_text to the database.
 
         Params:
-            last_name (str): The last name of the teacher.
-            first_name (str): The first name of the teacher.
-            middle_name (str): The middle name of the teacher.
+            last_name (str): The last name of the teacher_text.
+            first_name (str): The first name of the teacher_text.
+            middle_name (str): The middle name of the teacher_text.
         """
         try:
             teacher = Teacher.create(last_name=last_name, first_name=first_name, middle_name=middle_name)
@@ -132,15 +134,15 @@ class Teacher(BaseModel):
     @staticmethod
     def get_teacher_id(last_name, first_name, middle_name):
         """
-        Retrieves the ID of a teacher based on their full name.
+        Retrieves the ID of a teacher_text based on their full name.
 
         Params:
-            last_name (str): The last name of the teacher.
-            first_name (str): The first name of the teacher.
-            middle_name (str): The middle name of the teacher.
+            last_name (str): The last name of the teacher_text.
+            first_name (str): The first name of the teacher_text.
+            middle_name (str): The middle name of the teacher_text.
 
         Returns:
-            int: The ID of the teacher if found, otherwise raises ValueError.
+            int: The ID of the teacher_text if found, otherwise raises ValueError.
         """
         try:
             teacher = Teacher.get(
@@ -152,31 +154,60 @@ class Teacher(BaseModel):
         except DoesNotExist:
             raise ValueError(f"Teacher {last_name} {first_name} {middle_name} not found")
 
+    @staticmethod
+    def get_teacher_by_last_name(last_name) -> List[Dict]:
+        # Используем запрос LIKE для поиска всех преподавателей, чьи фамилии соответствуют или содержат заданную строку
+        teachers = Teacher.select().where(Teacher.last_name.contains(last_name))
+
+        if not teachers:
+            # Если преподаватели с такой фамилией не найдены, выбрасываем исключение
+            raise ValueError(f"Преподаватель с фамилией {hbold(last_name)} не найден.")
+
+        # Если преподаватели найдены, возвращаем список словарей с их данными
+        return [{'id': teacher.id, 'last_name': teacher.last_name, 'first_name': teacher.first_name,
+                 'middle_name': teacher.middle_name} for teacher in teachers]
+
+    @staticmethod
+    def get_teacher(teacher_id) -> Dict:
+        try:
+            teacher = Teacher.get(Teacher.id == teacher_id)
+            return {
+                'last_name': teacher.last_name,
+                'first_name': teacher.first_name,
+                'middle_name': teacher.middle_name
+            }
+        except DoesNotExist:
+            print(f"Преподаватель с ID {teacher_id} не найден.")
+            return {}
+        except Exception as e:
+            print(f"Произошла ошибка при получении данных о преподавателе: {str(e)}")
+            return {}
+
 
 class TeacherDepartment(BaseModel):
     """
-    Represents the association between a teacher and a department.
+    Represents the association between a teacher_text and a department.
     """
     teacher = ForeignKeyField(Teacher, backref='department_associations')
     department = ForeignKeyField(Department, backref='teacher_associations')
 
     class Meta:
-        primary_key = CompositeKey('teacher', 'department')
+        primary_key = CompositeKey('teacher_text', 'department')
         indexes = (
-            (('teacher', 'department'), True),
+            (('teacher_text', 'department'), True),
         )
 
     @staticmethod
     def get_teacher_department_id(teacher_id, department_id):
         """
-        Retrieves the ID of a teacher department association based on their IDs.
+        Retrieves the ID of a teacher_text department association based on their IDs.
 
         Params:
-            teacher_id (int): The ID of the teacher.
+            teacher_id (int): The ID of the teacher_text.
             department_id (int): The ID of the department.
 
         Returns:
-            int: The ID of the teacher department association if found, otherwise raises ValueError.
+            int: The ID of the teacher_text department association if found, otherwise raises ValueError.
         """
         try:
             teacher_department = TeacherDepartment.get(
@@ -190,7 +221,7 @@ class TeacherDepartment(BaseModel):
     @staticmethod
     def set_teachers_department():
         """
-        Sets the department for each teacher in the database based on the department data file.
+        Sets the department for each teacher_text in the database based on the department data file.
         If a department is not found, it will be added.
         """
         with open(path_base.department_data, 'r', encoding='utf-8') as file:

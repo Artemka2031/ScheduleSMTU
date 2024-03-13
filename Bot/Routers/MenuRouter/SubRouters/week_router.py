@@ -31,7 +31,7 @@ async def start_messaging(call: CallbackQuery, state: FSMContext) -> None:
 @WeekScheduleRouter.callback_query(MenuState.week_type, WeekTypeCallback.filter(F.week_type == "Назад"))
 async def back_to_menu(call: CallbackQuery, state: FSMContext):
     await call.answer()
-    await call.message.edit_text(text="Вы в главном меню!", reply_markup=create_menu_kb())
+    await call.message.edit_text(text="Вы находитесь в меню расписания!", reply_markup=create_menu_kb())
     await state.set_state(MenuState.menu_option)
 
 
@@ -79,6 +79,6 @@ async def send_day_schedule(call: CallbackQuery, state: FSMContext, callback_dat
 
     await state.clear()
 
-    await call.message.edit_text(text="Вы в главном меню!", reply_markup=create_menu_kb())
+    await call.message.edit_text(text="Вы находитесь в меню расписания!", reply_markup=create_menu_kb())
     await state.update_data(menu_message_id=call.message.message_id)
     await state.set_state(MenuState.menu_option)
