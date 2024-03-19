@@ -20,7 +20,7 @@ class PathBase:
     employees_data: Path
 
     def __init__(self):
-        self.cwd = Path("P:/Python/ScheduleSMTU")
+        self.cwd = Path("C:/Users/homos/PycharmProjects/ScheduleSMTU")
         self.parsing = self.cwd / Path("Parsing")
         self.data = self.parsing / Path("Data")
 

@@ -9,22 +9,21 @@ bot = Bot(token=str(token.get("token")), parse_mode=ParseMode.HTML)
 
 
 async def setup_bot_commands(status: str, user_id: int | str):
+    await bot.delete_my_commands(scope=BotCommandScopeChat(chat_id=user_id))
     if status == "user":
-        await bot.delete_my_commands(scope=BotCommandScopeChat(chat_id=user_id))
 
         user_commands = [
             BotCommand(command="change_group", description="Поменять номер группы"),
-            # BotCommand(command="week_schedule", description="Посмотреть расписание на конкретный день"),
-            BotCommand(command="suggestion", description="Оставить пожелание (максимум - 4 в день)")
+            BotCommand(command="suggestion", description="Оставить пожелание (максимум - 4 в день)"),
+            BotCommand(command="notification", description="Отправлять расписание на день в заданное время")
         ]
-        await bot.set_my_commands(user_commands, scope=BotCommandScopeDefault())
+        await bot.set_my_commands(user_commands, scope=BotCommandScopeChat(chat_id=user_id))
 
     elif status == "admin":
-        await bot.delete_my_commands(scope=BotCommandScopeChat(chat_id=user_id))
         admin_commands = [
             BotCommand(command="mailing", description="Отправить рассылку"),
             BotCommand(command="suggestion_reply", description="Ответить на предложение"),
-            BotCommand(command="ВУЦ", description="Добавить расписание на военную кафедру")
+            BotCommand(command="vuc", description="Добавить расписание на военную кафедру")
         ]
         await bot.set_my_commands(admin_commands, scope=BotCommandScopeChat(chat_id=user_id))
 

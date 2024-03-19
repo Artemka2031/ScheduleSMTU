@@ -9,11 +9,13 @@ from Path.schedule_path_functions import get_all_group_numbers
 
 
 def create_tables_if_not_exist():
-    tables = [WeekType, Weekday, ClassTime,
-              Faculty, Department, Group, Teacher, TeacherDepartment,
-              LessonType, Subject, Classroom,
-              GroupSchedule,
-              User, Suggestion, Notification]
+    # tables = [WeekType, Weekday, ClassTime,
+    #           Faculty, Department, Group, Teacher, TeacherDepartment,
+    #           LessonType, Subject, Classroom,
+    #           GroupSchedule,
+    #           User, Suggestion, Notification]
+    tables = [Notification]
+
     db.create_tables(tables, safe=True)
 
     # WeekType.initialize_week_types()
@@ -21,23 +23,11 @@ def create_tables_if_not_exist():
     # ClassTime.initialize_class_times()
     # LessonType.initialize_lesson_type()
 
-    Faculty.add_faculties_and_groups()
-
-    groups = get_all_group_numbers()
-    for group in groups:
-        GroupSchedule.set_schedule(group, forced_update=False)
-
-    TeacherDepartment.set_teachers_department()
-
     db.close()
 
 
 def drop_tables():
-    tables = [WeekType, Weekday, ClassTime,
-              Faculty, Department, Group, Teacher, TeacherDepartment,
-              LessonType, Subject, Classroom,
-              GroupSchedule,
-              User, Suggestion, Notification]
+    tables = [Suggestion]
 
     with db:
         db.drop_tables(tables, safe=True)
@@ -55,4 +45,4 @@ def refresh_database():
 
 
 if __name__ == "__main__":
-    refresh_database()
+    create_tables_if_not_exist()

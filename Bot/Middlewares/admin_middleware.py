@@ -9,7 +9,6 @@ from ORM.Tables.UserTables.user_table import User
 
 admins = [964593325, 410191942]
 
-
 class IsAdmMiddleware(BaseMiddleware):
     async def __call__(
             self,

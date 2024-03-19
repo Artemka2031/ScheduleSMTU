@@ -19,18 +19,39 @@ class Notification(BaseModel):
 
             # Добавление новой записи об уведомлении
             notification = Notification.create(user=user, notification_time=notification_time)
+
             notification.save()
-            return True, "Notification added successfully."
+
+            return True
         except DoesNotExist:
-            return False, "User not found."
+            return False
         except Exception as e:
             return False, str(e)
 
     @staticmethod
+    def update_notification(user_id, new_notification_time):
+        try:
+            # Поиск уведомления для данного пользователя
+
+            user = User.get(User.user_id == user_id)
+            notification = Notification.get(Notification.user == user)
+
+            # Обновление времени уведомления
+            notification.notification_time = new_notification_time
+            notification.save()
+
+            return True
+        except DoesNotExist:
+            return False
+        except Exception as e:
+            return False
+
+    @staticmethod
     def cancel_notification(user_id):
         try:
+            user = User.get(User.user_id == user_id)
             # Поиск всех уведомлений для данного пользователя
-            query = Notification.delete().where(Notification.user == user_id)
+            query = Notification.delete().where(Notification.user == user)
             num_deleted = query.execute()  # Выполнение запроса на удаление и получение количества удаленных записей
 
             if num_deleted > 0:
@@ -43,21 +64,27 @@ class Notification(BaseModel):
     @staticmethod
     def has_subscription(user_id):
         try:
-            # Проверка наличия пользователя в таблице
-            notification_exists = Notification.select().where(Notification.user == user_id).exists()
+            user = User.get(User.user_id == user_id)
+            notification_exists = Notification.select().where(Notification.user == user).exists()
 
             if notification_exists:
-                return True, "User has subscription."
+                return True
             else:
-                return False, "User has no subscription."
+                return False
         except Exception as e:
-            return False, str(e)
+            return False
 
     @staticmethod
     def get_all_notifications():
         try:
-            user_ids = [{user.user_id: user.notification_time} for user in Notification.select(Notification.user) if
-                        user.notification_time]
-            return user_ids
+            # user_notifications = {user.user_id: user.notification_time for user in
+            #                       Notification.select(Notification.user) if user.notification_time}
+            user_notifications = {}
+            notifications = Notification.select(Notification.user, Notification.notification_time)
+            for notification in notifications:
+                user_id = notification.user.user_id
+                user_notifications[user_id] = notification.notification_time
+
+            return user_notifications
         except Exception as e:
             return False, str(e)

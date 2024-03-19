@@ -1,35 +1,38 @@
 from datetime import datetime
-from typing import Dict
+from typing import Dict, Any
 
-from peewee import ForeignKeyField, IntegrityError, DoesNotExist, TextField, DateField
+from peewee import ForeignKeyField, IntegrityError, DoesNotExist, TextField, DateField, DateTimeField, fn, CharField
 
 from ORM.Tables.UserTables.user_table import User
 from ORM.database_declaration_and_exceptions import BaseModel, moscow_tz
 
 
 class Suggestion(BaseModel):
-    user_id = ForeignKeyField(User, backref='suggestions')
+    user_id = ForeignKeyField(User, backref='suggestions', unique=False)
     suggestion = TextField()
     date = DateField()
+    closed_date = DateField(default="", null=False)
+    closed_text = DateField(default="", null=False)
 
     @staticmethod
     def add_suggestion(user_id: int, suggestion: str):
         try:
             user = User.get(User.user_id == user_id)
-
             # Создаем запись в таблице Suggestion
-            Suggestion.create(user_id=user, suggestion=suggestion, date=datetime.now(moscow_tz).date().day)
+            Suggestion.create(user_id=user, suggestion=suggestion, date=datetime.now(moscow_tz).date())
             print("Предложение успешно добавлено.")
-        except DoesNotExist:
-            print(f"Пользователь с user_id {user_id} не найден.")
-        except IntegrityError:
-            print(f"Предложение от пользователя {user_id} уже существует в базе данных.")
+        # except DoesNotExist:
+        #     print(f"Пользователь с user_id {user_id} не найден.")
+        # except IntegrityError:
+        #     print(f"Предложение от пользователя {user_id} уже существует в базе данных.")
+        except Exception as e:
+            print(f"Произошла ошибка при добавлении предложения: {e}")
 
     @staticmethod
     def get_user_suggestions_count(user_id: int) -> int:
         try:
             # Получаем текущую дату
-            current_date = datetime.now(moscow_tz).date().day
+            current_date = datetime.now(moscow_tz).date()
 
             # Используем count для подсчета строк по заданным условиям
             count = Suggestion.select().where(
@@ -43,28 +46,32 @@ class Suggestion(BaseModel):
             return 0
 
     @staticmethod
-    def get_user_suggestion() -> Dict[int, str]:
+    def get_user_suggestion() -> Dict[Any, dict]:
         user_suggestions = {}
         try:
-            # Get all users who sent suggestions
-            users = User.select().join(Suggestion).distinct()
+            suggestions = Suggestion.select().where(Suggestion.closed_text == '')
 
-            for user in users:
-                # Get the latest suggestion for each user
-                latest_suggestion = Suggestion.select().where(Suggestion.user_id == user.id).order_by(
-                    Suggestion.date.desc()).get()
-                user_suggestions[user.user_id] = latest_suggestion.suggestion  # Change id to user_id
+            for suggestion in suggestions:
+                user_id = suggestion.user_id.user_id
+                suggestion_id = suggestion.id
+                if user_id not in user_suggestions:
+                    user_suggestions[user_id] = {}  # Создаем вложенный словарь для каждого user_id
+                user_suggestions[user_id][suggestion_id] = suggestion.suggestion
 
             return user_suggestions
         except DoesNotExist:
-            print("No suggestions found.")
-            return 0
+            print("Не найдено предложений.")
+            return {}
 
     @staticmethod
-    def delete_suggestion(user_id: int, suggestion: str):
+    def process_admin_response(user_id: int, suggestion_id: int, admin_response_date: date,
+                               admin_response_text: str):
         try:
             user = User.get(User.user_id == user_id)
-            Suggestion.get((Suggestion.user_id == user) & (Suggestion.suggestion == suggestion)).delete_instance()
-            print("Предложение успешно удалено.")
+            suggestion_instance = Suggestion.get((Suggestion.user_id == user) & (Suggestion.id == suggestion_id))
+            suggestion_instance.closed_date = admin_response_date
+            suggestion_instance.closed_text = admin_response_text
+            suggestion_instance.save()
+            print("Дата и ответ администратора успешно заполнены.")
         except DoesNotExist:
-            print(f"Предложение от пользователя с user_id {user_id} и текстом {suggestion} не найдено.")
+            print(f"Предложение от пользователя с user_id {user_id} и текстом {suggestion_id} не найдено.")

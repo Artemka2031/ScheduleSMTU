@@ -18,7 +18,7 @@ def create_menu_kb(cansel: bool = False) -> InlineKeyboardMarkup:
 
     builder.button(text="Группа", callback_data=MenuCallback(operation="schedule").pack())
     builder.button(text="Преподаватели", callback_data=MenuCallback(operation="teachers").pack())
-    builder.button(text="ВУЦ", callback_data=MenuCallback(operation="MTC").pack())
+    builder.button(text="ВУЦ", callback_data=MenuCallback(operation="vuc").pack())
 
     builder.adjust(2)
 

@@ -1,2 +1,2 @@
 from .authentication_middleware import IsRegMiddleware
-from  .suggestion_limit import SuggestionLimitMiddleware
+from .suggestion_limit import SuggestionLimitMiddleware

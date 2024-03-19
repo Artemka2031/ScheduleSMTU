@@ -1,12 +1,10 @@
 from aiogram import Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
 
-from Bot.Routers.MenuRouter import MenuRouter
-from Bot.Routers.MailingRouter.mail_router import MailRouter
-from Bot.Routers.RoleRouter.role_router import RoleRouter
-from Bot.Routers.ScheduleRouter import ScheduleRouter
-from Bot.Routers.SettingsRouter import SettingsRouter
-from Bot.Routers.StartRouter import StartRouter, RegistrationRouter
+from Bot.Routers import MailRouter, RepSuggestionRouter, RoleRouter, MenuRouter, ScheduleRouter, SettingsRouter, \
+    StartRouter, RegistrationRouter, NotificationRouter, AddScheduleVucRouter, VucRouter
+from Bot.Routers.AdminRouters.AddScheduleVucRouter.vuc_scheduler import vuc_scheduler
+from Bot.Routers.UserRouters.NotificationRouter.notification_scheduler import notification_scheduler
 from Bot.bot_initialization import bot, default_commands
 
 
@@ -21,15 +19,27 @@ async def start_bot():
 
     dp.include_router(StartRouter)
 
+    dp.include_router(NotificationRouter)
+
     dp.include_router(ScheduleRouter)
 
     dp.include_router(MenuRouter)
 
+    dp.include_router(VucRouter)
+
     dp.include_router(MailRouter)
+
+    dp.include_router(AddScheduleVucRouter)
 
     dp.include_router(SettingsRouter)
 
     dp.include_router(RegistrationRouter)
+
+    dp.include_router(RepSuggestionRouter)
+
+    await notification_scheduler()
+
+    await vuc_scheduler()
 
     await dp.start_polling(bot)
 
