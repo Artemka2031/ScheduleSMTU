@@ -1,7 +1,10 @@
+from datetime import datetime
+
 from aiogram import Router, F
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 from aiogram.utils.markdown import hbold
+from aiogram_calendar import DialogCalendar, get_user_locale, DialogCalendarCallback
 
 from Bot.Keyboards.menu_kb import create_teachers_kb, TeacherCallback, create_menu_kb
 from Bot.Keyboards.teacher_text_kb import TeacherTextCallback
@@ -12,7 +15,7 @@ from Bot.Routers.UserRouters.ScheduleRouter.ScheduleRouters.format_functions imp
 from Bot.bot_initialization import bot
 from ORM.Tables.SceduleTables.group_schedule import GroupSchedule
 from ORM.Tables.SceduleTables.group_tables import Teacher
-from ORM.Tables.SceduleTables.time_tables import WeekType
+from ORM.Tables.SceduleTables.time_tables import WeekType, Weekday
 from ORM.Tables.UserTables.user_table import User
 
 TeacherRouterCallback = Router()
@@ -44,6 +47,79 @@ async def back_to_teachers(call: CallbackQuery, state: FSMContext):
                                  reply_markup=create_teachers_kb(teachers))
 
     await state.set_state(MenuState.teacher)
+
+
+@TeacherRouterCallback.callback_query(MenuState.teacher_week_type,
+                                      WeekTypeCallback.filter(F.week_type == "Открыть календарь"))
+async def get_teachers_calendar(call: CallbackQuery, state: FSMContext):
+    await call.answer()
+    await call.message.edit_text(
+        "Пожалуйста, выберите дату: ",
+        reply_markup=await DialogCalendar(locale=await get_user_locale(call.from_user)).start_calendar(
+            year=datetime.now().year, month=datetime.now().month)
+    )
+    await state.set_state(MenuState.teacher_calendar)
+
+
+@TeacherRouterCallback.callback_query(DialogCalendarCallback.filter(F.act == "SET-YEAR"))
+async def init_dialog_calendar_teacher_month(callback_query: CallbackQuery, callback_data: DialogCalendarCallback, state:FSMContext):
+    await DialogCalendar(
+        locale=await get_user_locale(callback_query.from_user)
+    ).process_selection(callback_query, callback_data)
+    await state.set_state(MenuState.set_month_teacher)
+
+
+@TeacherRouterCallback.callback_query(DialogCalendarCallback.filter(F.act == "SET-MONTH"), MenuState.set_month_teacher)
+async def process_dialog_calendar_month(callback_query: CallbackQuery, callback_data: DialogCalendarCallback,
+                                        state: FSMContext):
+    await callback_query.message.edit_text(
+        "Пожалуйста, выберите дату: ",
+        reply_markup=await DialogCalendar(locale=await get_user_locale(callback_query.from_user)).start_calendar(
+            year=datetime.now().year, month=callback_data.month)
+    )
+    await state.set_state(MenuState.teacher_calendar)
+
+
+@TeacherRouterCallback.callback_query(MenuState.teacher_calendar, DialogCalendarCallback.filter(F.act == "SET-DAY"))
+async def process_dialog_teacher_calendar(callback_query: CallbackQuery, callback_data: DialogCalendarCallback,
+                                          state: FSMContext):
+    selected, date = await DialogCalendar(
+        locale=await get_user_locale(callback_query.from_user)
+    ).process_selection(callback_query, callback_data)
+
+    if selected:
+        await state.update_data(teacher_week_type=WeekType.determine_week_type(date))
+
+        data = await state.get_data()
+
+        teacher_id = data['teacher']
+        teacher_week_type = data['teacher_week_type']
+
+        teacher = Teacher.get_teacher(teacher_id)
+        name_weekday = Weekday.get_weekday_name(date)
+
+        sorted_schedule = GroupSchedule.get_schedule_teacher(teacher_id, name_weekday)
+
+        if sorted_schedule and any(sorted_schedule.values()):
+            schedule = format_teacher_schedule(sorted_schedule, teacher_week_type)
+            await bot.send_message(
+                chat_id=callback_query.message.chat.id,
+                text=f"Расписание для преподавателя: "
+                     f"{hbold(teacher['last_name'])} {hbold(teacher['first_name'])} {hbold(teacher['middle_name'])}:\n\n{schedule}"
+            )
+        else:
+            await bot.send_message(
+                chat_id=callback_query.message.chat.id,
+                text=f"Извините, у преподавателя {hbold(teacher['last_name'])} {hbold(teacher['first_name'])} {hbold(teacher['middle_name'])} нет пар в этот день."
+            )
+    await state.clear()
+
+    await callback_query.message.edit_text(
+        text="Вы находитесь в меню расписания!",
+        reply_markup=create_menu_kb()
+    )
+    await state.update_data(menu_message_id=callback_query.message.message_id)
+    await state.set_state(MenuState.menu_option)
 
 
 @TeacherRouterCallback.callback_query(MenuState.teacher_week_type, WeekTypeCallback.filter())

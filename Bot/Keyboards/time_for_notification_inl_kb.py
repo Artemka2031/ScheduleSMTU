@@ -21,6 +21,7 @@ def notification_time_kb():
     builder.button(text="07:00", callback_data=NotificationTimeCallback(notification_time="07").pack())
     builder.button(text="08:00", callback_data=NotificationTimeCallback(notification_time="08").pack())
     builder.button(text="09:00", callback_data=NotificationTimeCallback(notification_time="09").pack())
+    builder.button(text="<< Назад", callback_data=NotificationTimeCallback(notification_time='cancel').pack())
 
     builder.adjust(2)
 

@@ -1,3 +1,4 @@
+import locale
 from datetime import datetime, timedelta
 
 from peewee import CharField, IntegrityError, DoesNotExist
@@ -58,6 +59,20 @@ class WeekType(BaseModel):
         return 'Верхняя неделя' if week_number % 2 == 0 else 'Нижняя неделя'
 
     @staticmethod
+    def determine_week_type(date_to_check: datetime):
+        """
+        Determines the type of the week based on the given date.
+
+        Args:
+            date_to_check (datetime): The date to check.
+
+        Returns:
+            str: The type of the week for the given date.
+        """
+        week_number = date_to_check.isocalendar()[1]
+        return 'Верхняя неделя' if week_number % 2 == 0 else 'Нижняя неделя'
+
+    @staticmethod
     def get_tomorrow_week():
         """
         Determines the week type for tomorrow.
@@ -93,6 +108,21 @@ class Weekday(BaseModel):
                 print(f"Weekday '{weekday_name}' successfully added.")
             except IntegrityError:
                 print(f"Weekday '{weekday_name}' already exists in the database.")
+
+    @staticmethod
+    def get_weekday_name(date: datetime) -> str:
+        """
+        Returns the name of the weekday based on the given date.
+
+        Args:
+            date (datetime): The date to check.
+
+        Returns:
+            str: The name of the weekday for the given date.
+        """
+        locale.setlocale(locale.LC_TIME, 'ru_RU')
+        day_name = date.strftime("%A")
+        return day_name.capitalize()
 
     @staticmethod
     def get_weekday_id(weekday_name):

@@ -1,6 +1,6 @@
 from aiogram import Router
 
-from Bot.Routers.UserRouters.ScheduleRouter.ScheduleRouters import TodayTomorrowRouter, WeekScheduleRouter
+from Bot.Routers.UserRouters.ScheduleRouter.ScheduleRouters import TodayTomorrowRouter
 
 from Bot.Middlewares import IsRegMiddleware
 
@@ -10,6 +10,5 @@ ScheduleRouter.message.middleware(IsRegMiddleware())
 
 
 ScheduleRouter.include_router(TodayTomorrowRouter)
-ScheduleRouter.include_router(WeekScheduleRouter)
 
 

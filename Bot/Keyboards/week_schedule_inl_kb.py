@@ -13,11 +13,12 @@ def week_type_kb(back_to_menu: bool = False):
     builder.button(text="Верхняя неделя", callback_data=WeekTypeCallback(week_type="Верхняя неделя").pack())
     builder.button(text="Обе недели", callback_data=WeekTypeCallback(week_type="Обе недели").pack())
     builder.button(text="Нижняя неделя", callback_data=WeekTypeCallback(week_type="Нижняя неделя").pack())
+    builder.button(text="Открыть календарь", callback_data=WeekTypeCallback(week_type="Открыть календарь").pack())
 
     if back_to_menu:
         builder.button(text="<< Назад", callback_data=WeekTypeCallback(week_type="Назад").pack())
 
-    builder.adjust(1)
+    builder.adjust(2)
 
     return builder.as_markup()
 

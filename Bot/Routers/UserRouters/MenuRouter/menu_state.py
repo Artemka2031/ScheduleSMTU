@@ -11,3 +11,9 @@ class MenuState(StatesGroup):
     teacher = State()
     teacher_week_type = State()
     teacher_week_day = State()
+
+    teacher_calendar = State()
+    group_calendar = State()
+
+    set_month_teacher = State()
+    set_month_group = State()

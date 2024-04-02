@@ -3,6 +3,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import Message, CallbackQuery
 from aiogram.filters import Command
+from aiogram.utils.markdown import hbold
 
 from Bot.Keyboards.notification_inl_kb import notification_kb, NotificationCallback
 from Bot.Middlewares.authentication_middleware import IsRegMiddleware
@@ -47,6 +48,7 @@ async def choose_notification_time(call: CallbackQuery, state: FSMContext, callb
     else:
         if Notification.has_subscription(data):
             Notification.cancel_notification(data)
+        await call.message.answer("Вы успешно отменили подписку на уведомления")
         await state.clear()
         return
 
@@ -54,6 +56,12 @@ async def choose_notification_time(call: CallbackQuery, state: FSMContext, callb
 @NotificationRouter.callback_query(NotificationState.time_to_send, NotificationTimeCallback.filter())
 async def apply_notification_time(call: CallbackQuery, state: FSMContext,
                                   callback_data: NotificationTimeCallback) -> None:
+
+    if callback_data.notification_time == 'cancel':
+        await state.clear()
+        await notification_request(call.message, state)
+        return
+
     await state.update_data(time_to_send=callback_data.notification_time)
 
     data = await state.get_data()
@@ -64,6 +72,5 @@ async def apply_notification_time(call: CallbackQuery, state: FSMContext,
         Notification.add_notification(data["user_id"], data["time_to_send"])
 
     await call.message.bot.delete_messages(chat_id=call.message.chat.id, message_ids=[call.message.message_id])
-    await call.message.answer("Время для уведомления успешно установлено!  🎉")
+    await call.message.answer(f"Вы успешно установили время уведомлений на {hbold(data['time_to_send'] + ':00')}  🎉")
     await state.clear()
-

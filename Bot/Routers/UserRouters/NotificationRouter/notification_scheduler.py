@@ -27,7 +27,6 @@ async def send_notifications():
 
             # Получаем данные о расписании
             sorted_schedule = GroupSchedule.get_schedule(group_number, today)
-
             # Проверяем наличие данных
             if sorted_schedule:
 
@@ -36,8 +35,8 @@ async def send_notifications():
                 formatted_schedule = format_schedule(sorted_schedule, week_type)
                 await bot.send_message(text=f"{hbold(f'Расписание {group_number}')}:\n\n{formatted_schedule}",
                                                chat_id=user_id)
-            else:
-                await bot.send_message(text="Извините, расписание не найдено.", chat_id=user_id)
+            # else:
+            #     await bot.send_message(text="Извините, расписание не найдено.", chat_id=user_id)
 
 
 # Запуск асинхронного цикла для выполнения планировщика
