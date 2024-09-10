@@ -120,7 +120,7 @@ class Weekday(BaseModel):
         Returns:
             str: The name of the weekday for the given date.
         """
-        locale.setlocale(locale.LC_TIME, 'ru_RU')
+        locale.setlocale(locale.LC_TIME, 'ru_RU.utf8')
         day_name = date.strftime("%A")
         return day_name.capitalize()
 

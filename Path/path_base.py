@@ -20,7 +20,7 @@ class PathBase:
     employees_data: Path
 
     def __init__(self):
-        self.cwd = Path("C:/Users/homos/PycharmProjects/ScheduleSMTU")
+        self.cwd = Path("/root/SMTU/ScheduleSMTU")
         self.parsing = self.cwd / Path("Parsing")
         self.data = self.parsing / Path("Data")
 
@@ -37,6 +37,7 @@ class PathBase:
         self.employees_data = self.employees_dir / "employees_data.json"
 
         self.db_path = self.cwd / Path("ORM") / Path("database.db")
+        self.db_backups = self.cwd / Path("ORM") / Path("BackUps")
 
 
 path_base = PathBase()

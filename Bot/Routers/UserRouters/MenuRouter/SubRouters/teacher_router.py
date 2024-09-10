@@ -16,7 +16,7 @@ async def send_teachers(call: CallbackQuery, state: FSMContext):
     await call.answer()
     teachers = GroupSchedule.get_teachers_for_group(User.get_group_number(call.from_user.id))
 
-    await call.message.edit_text(text="Выберите преподавателя или напишите его фамилию",
+    await call.message.edit_text(text="👩‍🏫👨‍🏫 Выбери преподавателя из списка или просто напиши его фамилию в чат!",
                                  reply_markup=create_teachers_kb(teachers))
 
     await state.set_state(MenuState.teacher)
@@ -25,7 +25,7 @@ async def send_teachers(call: CallbackQuery, state: FSMContext):
 @TeacherRouter.callback_query(MenuState.teacher, TeacherCallback.filter(F.teacher_text == "Назад"))
 async def back_to_menu(call: CallbackQuery, state: FSMContext):
     await call.answer()
-    await call.message.edit_text(text="Вы находитесь в меню расписания!", reply_markup=create_menu_kb())
+    await call.message.edit_text(text="📚 Ты в меню расписания! Выбирай, что хочешь посмотреть! 😉", reply_markup=create_menu_kb())
     await state.set_state(MenuState.menu_option)
 
 

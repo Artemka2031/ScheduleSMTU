@@ -192,9 +192,9 @@ class TeacherDepartment(BaseModel):
     department = ForeignKeyField(Department, backref='teacher_associations')
 
     class Meta:
-        primary_key = CompositeKey('teacher_text', 'department')
+        primary_key = CompositeKey('teacher', 'department')  # Исправлено: 'teacher' вместо 'teacher_text'
         indexes = (
-            (('teacher_text', 'department'), True),
+            (('teacher', 'department'), True),  # Исправлено: 'teacher' вместо 'teacher_text'
         )
 
     @staticmethod

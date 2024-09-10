@@ -1,3 +1,5 @@
+#!/root/SMTU/ScheduleSMTU/venv/bin/python
+
 import asyncio
 import logging
 import time
@@ -34,7 +36,7 @@ async def run_parsing_and_refresh():
 
 async def main():
     scheduler = AsyncIOScheduler()
-    scheduler.add_job(run_parsing_and_refresh, 'cron', hour=4, minute=0)
+    scheduler.add_job(run_parsing_and_refresh, 'cron', hour=4, minute=0, second=0)
 
     scheduler.start()
 

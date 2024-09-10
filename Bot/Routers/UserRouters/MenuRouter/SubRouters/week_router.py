@@ -27,9 +27,9 @@ WeekScheduleRouter = Router()
 async def call_menu(call: CallbackQuery, state: FSMContext) -> None:
     await call.answer()
     await bot(EditMessageText(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                              text=f"Текущий тип недели: {hbold(WeekType.get_current_week())}.\n\n"
-                                   f"Выбранная группа: {hbold(User.get_group_number(call.message.chat.id))}\n\n"
-                                   f"Выберите тип недели или воспользуйтесь виджетом каледаря:",
+                              text=f"📅 Текущий тип недели: {hbold(WeekType.get_current_week())}\n\n"
+                                    f"🎓 Выбранная группа: {hbold(User.get_group_number(call.message.chat.id))}\n\n"
+                                    f"👇 Выбери тип недели или воспользуйся виджетом календаря для выбора конкретной даты!",
                               reply_markup=week_type_kb(back_to_menu=True)))
 
     await state.set_state(MenuState.week_type)
@@ -39,7 +39,7 @@ async def call_menu(call: CallbackQuery, state: FSMContext) -> None:
 async def open_calendar(call: CallbackQuery, state: FSMContext):
     await call.answer()
     await call.message.edit_text(
-        "Пожалуйста, выберите дату: ",
+        "📅 Выбери дату, которая тебя интересует:",
         reply_markup=await DialogCalendar(locale=await get_user_locale(call.from_user)).start_calendar(
             year=datetime.now().year, month=datetime.now().month)
     )
@@ -64,7 +64,7 @@ async def init_dialog_calendar_month(callback_query: CallbackQuery, callback_dat
 async def init_dialog_calendar_month(callback_query: CallbackQuery, callback_data: DialogCalendarCallback,
                                      state: FSMContext):
     await callback_query.message.edit_text(
-        "Пожалуйста, выберите дату: ",
+        "📅 Выбери дату, которая тебя интересует:",
         reply_markup=await DialogCalendar(locale=await get_user_locale(callback_query.from_user)).start_calendar(
             year=datetime.now().year, month=callback_data.month)
     )
@@ -101,11 +101,11 @@ async def process_dialog_calendar(callback_query: CallbackQuery, callback_data: 
                 SendMessage(chat_id=callback_query.message.chat.id,
                             text=f"{hbold(f'Расписание {group_id}')}:\n\n{schedule}"))
         else:
-            await bot(SendMessage(chat_id=callback_query.message.chat.id, text="Извините, расписание не найдено."))
+            await bot(SendMessage(chat_id=callback_query.message.chat.id, text="😅 Ой, не удалось найти расписание. Попробуй другой день или преподавателя!"))
 
     await state.clear()
 
-    await callback_query.message.edit_text(text="Вы находитесь в меню расписания!", reply_markup=create_menu_kb())
+    await callback_query.message.edit_text(text="📚 Ты в меню расписания! Выбирай, что хочешь посмотреть! 😉", reply_markup=create_menu_kb())
     await state.update_data(menu_message_id=callback_query.message.message_id)
     await state.set_state(MenuState.menu_option)
 
@@ -119,7 +119,7 @@ async def back_to_menu_from_calendar(callback_query: CallbackQuery, state: FSMCo
 @WeekScheduleRouter.callback_query(MenuState.week_type, WeekTypeCallback.filter(F.week_type == "Назад"))
 async def back_to_menu(call: CallbackQuery, state: FSMContext):
     await call.answer()
-    await call.message.edit_text(text="Вы находитесь в меню расписания!", reply_markup=create_menu_kb())
+    await call.message.edit_text(text="📚 Ты в меню расписания! Выбирай, что хочешь посмотреть! 😉", reply_markup=create_menu_kb())
     await state.set_state(MenuState.menu_option)
 
 
@@ -127,7 +127,7 @@ async def back_to_menu(call: CallbackQuery, state: FSMContext):
 async def send_choose_week_schedule(call: CallbackQuery, state: FSMContext, callback_data: WeekTypeCallback):
     await call.answer()
     await call.message.edit_text(
-        text=f"Выбранный тип недели: {hbold(callback_data.week_type)}.\n\nВыберите день недели:",
+        text=f"🔄 Выбранный тип недели: {hbold(callback_data.week_type)}.\n\n👉 Теперь выбери день недели:",
         reply_markup=week_day_kb())
     await state.update_data(week_type=callback_data.week_type)
     await state.set_state(MenuState.week_day)
@@ -164,10 +164,10 @@ async def send_day_schedule(call: CallbackQuery, state: FSMContext, callback_dat
         await bot(
             SendMessage(chat_id=call.message.chat.id, text=f"{hbold(f'Расписание {group_id}')}:\n\n{schedule}"))
     else:
-        await bot(SendMessage(chat_id=call.message.chat.id, text="Извините, расписание не найдено."))
+        await bot(SendMessage(chat_id=call.message.chat.id, text="😅 Ой, не удалось найти расписание. Попробуй другой день или преподавателя!"))
 
     await state.clear()
 
-    await call.message.edit_text(text="Вы находитесь в меню расписания!", reply_markup=create_menu_kb())
+    await call.message.edit_text(text="📚 Ты в меню расписания! Выбирай, что хочешь посмотреть! 😉", reply_markup=create_menu_kb())
     await state.update_data(menu_message_id=call.message.message_id)
     await state.set_state(MenuState.menu_option)

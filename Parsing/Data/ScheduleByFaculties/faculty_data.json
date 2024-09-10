@@ -5,12 +5,16 @@
             "link": "https://www.smtu.ru/ru/viewschedule/1101/"
         },
         {
-            "group": "1110",
-            "link": "https://www.smtu.ru/ru/viewschedule/1110/"
+            "group": "1102",
+            "link": "https://www.smtu.ru/ru/viewschedule/1102/"
         },
         {
-            "group": "1111",
-            "link": "https://www.smtu.ru/ru/viewschedule/1111/"
+            "group": "1103",
+            "link": "https://www.smtu.ru/ru/viewschedule/1103/"
+        },
+        {
+            "group": "1110",
+            "link": "https://www.smtu.ru/ru/viewschedule/1110/"
         },
         {
             "group": "1114",
@@ -53,6 +57,10 @@
             "link": "https://www.smtu.ru/ru/viewschedule/1164/"
         },
         {
+            "group": "1165",
+            "link": "https://www.smtu.ru/ru/viewschedule/1165/"
+        },
+        {
             "group": "1168",
             "link": "https://www.smtu.ru/ru/viewschedule/1168/"
         },
@@ -61,8 +69,12 @@
             "link": "https://www.smtu.ru/ru/viewschedule/1170/"
         },
         {
-            "group": "1173",
-            "link": "https://www.smtu.ru/ru/viewschedule/1173/"
+            "group": "1172",
+            "link": "https://www.smtu.ru/ru/viewschedule/1172/"
+        },
+        {
+            "group": "1174",
+            "link": "https://www.smtu.ru/ru/viewschedule/1174/"
         },
         {
             "group": "1176",
@@ -93,6 +105,10 @@
             "link": "https://www.smtu.ru/ru/viewschedule/1210/"
         },
         {
+            "group": "1211",
+            "link": "https://www.smtu.ru/ru/viewschedule/1211/"
+        },
+        {
             "group": "1214",
             "link": "https://www.smtu.ru/ru/viewschedule/1214/"
         },
@@ -121,12 +137,32 @@
             "link": "https://www.smtu.ru/ru/viewschedule/1250/"
         },
         {
+            "group": "1260",
+            "link": "https://www.smtu.ru/ru/viewschedule/1260/"
+        },
+        {
+            "group": "1262",
+            "link": "https://www.smtu.ru/ru/viewschedule/1262/"
+        },
+        {
+            "group": "1264",
+            "link": "https://www.smtu.ru/ru/viewschedule/1264/"
+        },
+        {
+            "group": "1268",
+            "link": "https://www.smtu.ru/ru/viewschedule/1268/"
+        },
+        {
             "group": "1270",
             "link": "https://www.smtu.ru/ru/viewschedule/1270/"
         },
         {
-            "group": "1274",
-            "link": "https://www.smtu.ru/ru/viewschedule/1274/"
+            "group": "1273",
+            "link": "https://www.smtu.ru/ru/viewschedule/1273/"
+        },
+        {
+            "group": "1276",
+            "link": "https://www.smtu.ru/ru/viewschedule/1276/"
         },
         {
             "group": "1277",
@@ -141,16 +177,16 @@
             "link": "https://www.smtu.ru/ru/viewschedule/1284/"
         },
         {
+            "group": "1286",
+            "link": "https://www.smtu.ru/ru/viewschedule/1286/"
+        },
+        {
+            "group": "1301",
+            "link": "https://www.smtu.ru/ru/viewschedule/1301/"
+        },
+        {
             "group": "1310",
             "link": "https://www.smtu.ru/ru/viewschedule/1310/"
-        },
-        {
-            "group": "1311",
-            "link": "https://www.smtu.ru/ru/viewschedule/1311/"
-        },
-        {
-            "group": "1312",
-            "link": "https://www.smtu.ru/ru/viewschedule/1312/"
         },
         {
             "group": "1313",
@@ -209,6 +245,26 @@
             "link": "https://www.smtu.ru/ru/viewschedule/1384/"
         },
         {
+            "group": "1399",
+            "link": "https://www.smtu.ru/ru/viewschedule/1399/"
+        },
+        {
+            "group": "1410",
+            "link": "https://www.smtu.ru/ru/viewschedule/1410/"
+        },
+        {
+            "group": "1411",
+            "link": "https://www.smtu.ru/ru/viewschedule/1411/"
+        },
+        {
+            "group": "1412",
+            "link": "https://www.smtu.ru/ru/viewschedule/1412/"
+        },
+        {
+            "group": "1413",
+            "link": "https://www.smtu.ru/ru/viewschedule/1413/"
+        },
+        {
             "group": "1414",
             "link": "https://www.smtu.ru/ru/viewschedule/1414/"
         },
@@ -221,12 +277,32 @@
             "link": "https://www.smtu.ru/ru/viewschedule/1417/"
         },
         {
+            "group": "1418",
+            "link": "https://www.smtu.ru/ru/viewschedule/1418/"
+        },
+        {
             "group": "1419",
             "link": "https://www.smtu.ru/ru/viewschedule/1419/"
         },
         {
+            "group": "1420",
+            "link": "https://www.smtu.ru/ru/viewschedule/1420/"
+        },
+        {
             "group": "1431",
             "link": "https://www.smtu.ru/ru/viewschedule/1431/"
+        },
+        {
+            "group": "1433",
+            "link": "https://www.smtu.ru/ru/viewschedule/1433/"
+        },
+        {
+            "group": "1450",
+            "link": "https://www.smtu.ru/ru/viewschedule/1450/"
+        },
+        {
+            "group": "1470",
+            "link": "https://www.smtu.ru/ru/viewschedule/1470/"
         },
         {
             "group": "1474",
@@ -237,12 +313,40 @@
             "link": "https://www.smtu.ru/ru/viewschedule/1477/"
         },
         {
+            "group": "1480",
+            "link": "https://www.smtu.ru/ru/viewschedule/1480/"
+        },
+        {
+            "group": "1484",
+            "link": "https://www.smtu.ru/ru/viewschedule/1484/"
+        },
+        {
+            "group": "1514",
+            "link": "https://www.smtu.ru/ru/viewschedule/1514/"
+        },
+        {
+            "group": "1516",
+            "link": "https://www.smtu.ru/ru/viewschedule/1516/"
+        },
+        {
+            "group": "1517",
+            "link": "https://www.smtu.ru/ru/viewschedule/1517/"
+        },
+        {
+            "group": "1519",
+            "link": "https://www.smtu.ru/ru/viewschedule/1519/"
+        },
+        {
             "group": "5110",
             "link": "https://www.smtu.ru/ru/viewschedule/5110/"
         },
         {
             "group": "5116",
             "link": "https://www.smtu.ru/ru/viewschedule/5116/"
+        },
+        {
+            "group": "5118",
+            "link": "https://www.smtu.ru/ru/viewschedule/5118/"
         },
         {
             "group": "5130",
@@ -265,6 +369,10 @@
             "link": "https://www.smtu.ru/ru/viewschedule/5310/"
         },
         {
+            "group": "5316",
+            "link": "https://www.smtu.ru/ru/viewschedule/5316/"
+        },
+        {
             "group": "5330",
             "link": "https://www.smtu.ru/ru/viewschedule/5330/"
         },
@@ -277,26 +385,22 @@
             "link": "https://www.smtu.ru/ru/viewschedule/5430/"
         },
         {
-            "group": "6150",
-            "link": "https://www.smtu.ru/ru/viewschedule/6150/"
+            "group": "5510",
+            "link": "https://www.smtu.ru/ru/viewschedule/5510/"
         },
         {
-            "group": "6151",
-            "link": "https://www.smtu.ru/ru/viewschedule/6151/"
-        },
-        {
-            "group": "6152",
-            "link": "https://www.smtu.ru/ru/viewschedule/6152/"
-        },
-        {
-            "group": "6153",
-            "link": "https://www.smtu.ru/ru/viewschedule/6153/"
+            "group": "5530",
+            "link": "https://www.smtu.ru/ru/viewschedule/5530/"
         }
     ],
     "Факультет корабельной энергетики и автоматики": [
         {
             "group": "2101",
             "link": "https://www.smtu.ru/ru/viewschedule/2101/"
+        },
+        {
+            "group": "2104",
+            "link": "https://www.smtu.ru/ru/viewschedule/2104/"
         },
         {
             "group": "2105",
@@ -307,20 +411,16 @@
             "link": "https://www.smtu.ru/ru/viewschedule/2110/"
         },
         {
-            "group": "2120",
-            "link": "https://www.smtu.ru/ru/viewschedule/2120/"
-        },
-        {
-            "group": "2126",
-            "link": "https://www.smtu.ru/ru/viewschedule/2126/"
-        },
-        {
             "group": "2130",
             "link": "https://www.smtu.ru/ru/viewschedule/2130/"
         },
         {
-            "group": "2141",
-            "link": "https://www.smtu.ru/ru/viewschedule/2141/"
+            "group": "2135",
+            "link": "https://www.smtu.ru/ru/viewschedule/2135/"
+        },
+        {
+            "group": "2140",
+            "link": "https://www.smtu.ru/ru/viewschedule/2140/"
         },
         {
             "group": "2150",
@@ -331,12 +431,12 @@
             "link": "https://www.smtu.ru/ru/viewschedule/2161/"
         },
         {
-            "group": "2162",
-            "link": "https://www.smtu.ru/ru/viewschedule/2162/"
-        },
-        {
             "group": "2163",
             "link": "https://www.smtu.ru/ru/viewschedule/2163/"
+        },
+        {
+            "group": "2164",
+            "link": "https://www.smtu.ru/ru/viewschedule/2164/"
         },
         {
             "group": "2165",
@@ -367,10 +467,6 @@
             "link": "https://www.smtu.ru/ru/viewschedule/2175/"
         },
         {
-            "group": "2190",
-            "link": "https://www.smtu.ru/ru/viewschedule/2190/"
-        },
-        {
             "group": "2191",
             "link": "https://www.smtu.ru/ru/viewschedule/2191/"
         },
@@ -379,16 +475,8 @@
             "link": "https://www.smtu.ru/ru/viewschedule/2192/"
         },
         {
-            "group": "2194",
-            "link": "https://www.smtu.ru/ru/viewschedule/2194/"
-        },
-        {
             "group": "2195",
             "link": "https://www.smtu.ru/ru/viewschedule/2195/"
-        },
-        {
-            "group": "2200",
-            "link": "https://www.smtu.ru/ru/viewschedule/2200/"
         },
         {
             "group": "2201",
@@ -407,24 +495,12 @@
             "link": "https://www.smtu.ru/ru/viewschedule/2220/"
         },
         {
-            "group": "2225",
-            "link": "https://www.smtu.ru/ru/viewschedule/2225/"
-        },
-        {
             "group": "2226",
             "link": "https://www.smtu.ru/ru/viewschedule/2226/"
         },
         {
             "group": "2230",
             "link": "https://www.smtu.ru/ru/viewschedule/2230/"
-        },
-        {
-            "group": "2231",
-            "link": "https://www.smtu.ru/ru/viewschedule/2231/"
-        },
-        {
-            "group": "2240",
-            "link": "https://www.smtu.ru/ru/viewschedule/2240/"
         },
         {
             "group": "2241",
@@ -435,12 +511,44 @@
             "link": "https://www.smtu.ru/ru/viewschedule/2250/"
         },
         {
-            "group": "2251",
-            "link": "https://www.smtu.ru/ru/viewschedule/2251/"
+            "group": "2261",
+            "link": "https://www.smtu.ru/ru/viewschedule/2261/"
+        },
+        {
+            "group": "2262",
+            "link": "https://www.smtu.ru/ru/viewschedule/2262/"
+        },
+        {
+            "group": "2263",
+            "link": "https://www.smtu.ru/ru/viewschedule/2263/"
+        },
+        {
+            "group": "2265",
+            "link": "https://www.smtu.ru/ru/viewschedule/2265/"
+        },
+        {
+            "group": "2266",
+            "link": "https://www.smtu.ru/ru/viewschedule/2266/"
+        },
+        {
+            "group": "2267",
+            "link": "https://www.smtu.ru/ru/viewschedule/2267/"
+        },
+        {
+            "group": "2268",
+            "link": "https://www.smtu.ru/ru/viewschedule/2268/"
+        },
+        {
+            "group": "2269",
+            "link": "https://www.smtu.ru/ru/viewschedule/2269/"
         },
         {
             "group": "2270",
             "link": "https://www.smtu.ru/ru/viewschedule/2270/"
+        },
+        {
+            "group": "2275",
+            "link": "https://www.smtu.ru/ru/viewschedule/2275/"
         },
         {
             "group": "2290",
@@ -449,6 +557,10 @@
         {
             "group": "2291",
             "link": "https://www.smtu.ru/ru/viewschedule/2291/"
+        },
+        {
+            "group": "2292",
+            "link": "https://www.smtu.ru/ru/viewschedule/2292/"
         },
         {
             "group": "2294",
@@ -465,6 +577,10 @@
         {
             "group": "2301",
             "link": "https://www.smtu.ru/ru/viewschedule/2301/"
+        },
+        {
+            "group": "2305",
+            "link": "https://www.smtu.ru/ru/viewschedule/2305/"
         },
         {
             "group": "2310",
@@ -493,6 +609,10 @@
         {
             "group": "2340",
             "link": "https://www.smtu.ru/ru/viewschedule/2340/"
+        },
+        {
+            "group": "2341",
+            "link": "https://www.smtu.ru/ru/viewschedule/2341/"
         },
         {
             "group": "2350",
@@ -559,8 +679,16 @@
             "link": "https://www.smtu.ru/ru/viewschedule/2440/"
         },
         {
+            "group": "2449",
+            "link": "https://www.smtu.ru/ru/viewschedule/2449/"
+        },
+        {
             "group": "2450",
             "link": "https://www.smtu.ru/ru/viewschedule/2450/"
+        },
+        {
+            "group": "2451",
+            "link": "https://www.smtu.ru/ru/viewschedule/2451/"
         },
         {
             "group": "2470",
@@ -607,10 +735,6 @@
             "link": "https://www.smtu.ru/ru/viewschedule/5270/"
         },
         {
-            "group": "5340",
-            "link": "https://www.smtu.ru/ru/viewschedule/5340/"
-        },
-        {
             "group": "5370",
             "link": "https://www.smtu.ru/ru/viewschedule/5370/"
         },
@@ -621,6 +745,14 @@
         {
             "group": "5470",
             "link": "https://www.smtu.ru/ru/viewschedule/5470/"
+        },
+        {
+            "group": "5540",
+            "link": "https://www.smtu.ru/ru/viewschedule/5540/"
+        },
+        {
+            "group": "5570",
+            "link": "https://www.smtu.ru/ru/viewschedule/5570/"
         }
     ],
     "Факультет морского приборостроения": [
@@ -631,10 +763,6 @@
         {
             "group": "3110",
             "link": "https://www.smtu.ru/ru/viewschedule/3110/"
-        },
-        {
-            "group": "3120",
-            "link": "https://www.smtu.ru/ru/viewschedule/3120/"
         },
         {
             "group": "3124",
@@ -697,6 +825,10 @@
             "link": "https://www.smtu.ru/ru/viewschedule/3200/"
         },
         {
+            "group": "3210",
+            "link": "https://www.smtu.ru/ru/viewschedule/3210/"
+        },
+        {
             "group": "3220",
             "link": "https://www.smtu.ru/ru/viewschedule/3220/"
         },
@@ -723,6 +855,26 @@
         {
             "group": "3250",
             "link": "https://www.smtu.ru/ru/viewschedule/3250/"
+        },
+        {
+            "group": "3260",
+            "link": "https://www.smtu.ru/ru/viewschedule/3260/"
+        },
+        {
+            "group": "3261",
+            "link": "https://www.smtu.ru/ru/viewschedule/3261/"
+        },
+        {
+            "group": "3262",
+            "link": "https://www.smtu.ru/ru/viewschedule/3262/"
+        },
+        {
+            "group": "3263",
+            "link": "https://www.smtu.ru/ru/viewschedule/3263/"
+        },
+        {
+            "group": "3264",
+            "link": "https://www.smtu.ru/ru/viewschedule/3264/"
         },
         {
             "group": "3270",
@@ -817,10 +969,6 @@
             "link": "https://www.smtu.ru/ru/viewschedule/3470/"
         },
         {
-            "group": "3471",
-            "link": "https://www.smtu.ru/ru/viewschedule/3471/"
-        },
-        {
             "group": "3480",
             "link": "https://www.smtu.ru/ru/viewschedule/3480/"
         },
@@ -837,8 +985,8 @@
             "link": "https://www.smtu.ru/ru/viewschedule/3525/"
         },
         {
-            "group": "5180",
-            "link": "https://www.smtu.ru/ru/viewschedule/5180/"
+            "group": "3526",
+            "link": "https://www.smtu.ru/ru/viewschedule/3526/"
         },
         {
             "group": "5280",
@@ -851,12 +999,24 @@
         {
             "group": "5480",
             "link": "https://www.smtu.ru/ru/viewschedule/5480/"
+        },
+        {
+            "group": "5580",
+            "link": "https://www.smtu.ru/ru/viewschedule/5580/"
         }
     ],
     "Факультет цифровых промышленных технологий": [
         {
+            "group": "20100",
+            "link": "https://www.smtu.ru/ru/viewschedule/20100/"
+        },
+        {
             "group": "20102",
             "link": "https://www.smtu.ru/ru/viewschedule/20102/"
+        },
+        {
+            "group": "20106",
+            "link": "https://www.smtu.ru/ru/viewschedule/20106/"
         },
         {
             "group": "20113",
@@ -875,8 +1035,16 @@
             "link": "https://www.smtu.ru/ru/viewschedule/20126/"
         },
         {
+            "group": "20127",
+            "link": "https://www.smtu.ru/ru/viewschedule/20127/"
+        },
+        {
             "group": "20130",
             "link": "https://www.smtu.ru/ru/viewschedule/20130/"
+        },
+        {
+            "group": "20131",
+            "link": "https://www.smtu.ru/ru/viewschedule/20131/"
         },
         {
             "group": "20150",
@@ -903,8 +1071,12 @@
             "link": "https://www.smtu.ru/ru/viewschedule/20190/"
         },
         {
-            "group": "20200",
-            "link": "https://www.smtu.ru/ru/viewschedule/20200/"
+            "group": "20191",
+            "link": "https://www.smtu.ru/ru/viewschedule/20191/"
+        },
+        {
+            "group": "20202",
+            "link": "https://www.smtu.ru/ru/viewschedule/20202/"
         },
         {
             "group": "20213",
@@ -919,6 +1091,14 @@
             "link": "https://www.smtu.ru/ru/viewschedule/20221/"
         },
         {
+            "group": "20226",
+            "link": "https://www.smtu.ru/ru/viewschedule/20226/"
+        },
+        {
+            "group": "20230",
+            "link": "https://www.smtu.ru/ru/viewschedule/20230/"
+        },
+        {
             "group": "20250",
             "link": "https://www.smtu.ru/ru/viewschedule/20250/"
         },
@@ -927,16 +1107,24 @@
             "link": "https://www.smtu.ru/ru/viewschedule/20271/"
         },
         {
+            "group": "20276",
+            "link": "https://www.smtu.ru/ru/viewschedule/20276/"
+        },
+        {
+            "group": "20277",
+            "link": "https://www.smtu.ru/ru/viewschedule/20277/"
+        },
+        {
+            "group": "20278",
+            "link": "https://www.smtu.ru/ru/viewschedule/20278/"
+        },
+        {
             "group": "20280",
             "link": "https://www.smtu.ru/ru/viewschedule/20280/"
         },
         {
             "group": "20290",
             "link": "https://www.smtu.ru/ru/viewschedule/20290/"
-        },
-        {
-            "group": "20291",
-            "link": "https://www.smtu.ru/ru/viewschedule/20291/"
         },
         {
             "group": "20300",
@@ -963,8 +1151,16 @@
             "link": "https://www.smtu.ru/ru/viewschedule/20371/"
         },
         {
+            "group": "20380",
+            "link": "https://www.smtu.ru/ru/viewschedule/20380/"
+        },
+        {
             "group": "20390",
             "link": "https://www.smtu.ru/ru/viewschedule/20390/"
+        },
+        {
+            "group": "20391",
+            "link": "https://www.smtu.ru/ru/viewschedule/20391/"
         },
         {
             "group": "20400",
@@ -973,6 +1169,30 @@
         {
             "group": "20413",
             "link": "https://www.smtu.ru/ru/viewschedule/20413/"
+        },
+        {
+            "group": "20420",
+            "link": "https://www.smtu.ru/ru/viewschedule/20420/"
+        },
+        {
+            "group": "20421",
+            "link": "https://www.smtu.ru/ru/viewschedule/20421/"
+        },
+        {
+            "group": "20450",
+            "link": "https://www.smtu.ru/ru/viewschedule/20450/"
+        },
+        {
+            "group": "20471",
+            "link": "https://www.smtu.ru/ru/viewschedule/20471/"
+        },
+        {
+            "group": "20490",
+            "link": "https://www.smtu.ru/ru/viewschedule/20490/"
+        },
+        {
+            "group": "20513",
+            "link": "https://www.smtu.ru/ru/viewschedule/20513/"
         }
     ],
     "Инженерно-экономический факультет": [
@@ -1037,12 +1257,20 @@
             "link": "https://www.smtu.ru/ru/viewschedule/4200/"
         },
         {
+            "group": "4202",
+            "link": "https://www.smtu.ru/ru/viewschedule/4202/"
+        },
+        {
             "group": "4203",
             "link": "https://www.smtu.ru/ru/viewschedule/4203/"
         },
         {
             "group": "4204",
             "link": "https://www.smtu.ru/ru/viewschedule/4204/"
+        },
+        {
+            "group": "4205",
+            "link": "https://www.smtu.ru/ru/viewschedule/4205/"
         },
         {
             "group": "4211",
@@ -1061,20 +1289,36 @@
             "link": "https://www.smtu.ru/ru/viewschedule/4222/"
         },
         {
-            "group": "4300",
-            "link": "https://www.smtu.ru/ru/viewschedule/4300/"
+            "group": "4241",
+            "link": "https://www.smtu.ru/ru/viewschedule/4241/"
         },
         {
-            "group": "4302",
-            "link": "https://www.smtu.ru/ru/viewschedule/4302/"
+            "group": "4250",
+            "link": "https://www.smtu.ru/ru/viewschedule/4250/"
+        },
+        {
+            "group": "4260",
+            "link": "https://www.smtu.ru/ru/viewschedule/4260/"
+        },
+        {
+            "group": "4261",
+            "link": "https://www.smtu.ru/ru/viewschedule/4261/"
+        },
+        {
+            "group": "4262",
+            "link": "https://www.smtu.ru/ru/viewschedule/4262/"
+        },
+        {
+            "group": "4300",
+            "link": "https://www.smtu.ru/ru/viewschedule/4300/"
         },
         {
             "group": "4303",
             "link": "https://www.smtu.ru/ru/viewschedule/4303/"
         },
         {
-            "group": "4311",
-            "link": "https://www.smtu.ru/ru/viewschedule/4311/"
+            "group": "4304",
+            "link": "https://www.smtu.ru/ru/viewschedule/4304/"
         },
         {
             "group": "4315",
@@ -1093,12 +1337,16 @@
             "link": "https://www.smtu.ru/ru/viewschedule/4400/"
         },
         {
+            "group": "4402",
+            "link": "https://www.smtu.ru/ru/viewschedule/4402/"
+        },
+        {
             "group": "4403",
             "link": "https://www.smtu.ru/ru/viewschedule/4403/"
         },
         {
-            "group": "4410",
-            "link": "https://www.smtu.ru/ru/viewschedule/4410/"
+            "group": "4415",
+            "link": "https://www.smtu.ru/ru/viewschedule/4415/"
         },
         {
             "group": "4420",
@@ -1107,6 +1355,10 @@
         {
             "group": "4422",
             "link": "https://www.smtu.ru/ru/viewschedule/4422/"
+        },
+        {
+            "group": "4510",
+            "link": "https://www.smtu.ru/ru/viewschedule/4510/"
         }
     ],
     "Факультет естественнонаучного и гуманитарного образования": [
@@ -1121,6 +1373,10 @@
         {
             "group": "5160",
             "link": "https://www.smtu.ru/ru/viewschedule/5160/"
+        },
+        {
+            "group": "5166",
+            "link": "https://www.smtu.ru/ru/viewschedule/5166/"
         },
         {
             "group": "5200",
@@ -1139,6 +1395,10 @@
             "link": "https://www.smtu.ru/ru/viewschedule/5300/"
         },
         {
+            "group": "5306",
+            "link": "https://www.smtu.ru/ru/viewschedule/5306/"
+        },
+        {
             "group": "5360",
             "link": "https://www.smtu.ru/ru/viewschedule/5360/"
         },
@@ -1147,8 +1407,12 @@
             "link": "https://www.smtu.ru/ru/viewschedule/5400/"
         },
         {
-            "group": "6100",
-            "link": "https://www.smtu.ru/ru/viewschedule/6100/"
+            "group": "5460",
+            "link": "https://www.smtu.ru/ru/viewschedule/5460/"
+        },
+        {
+            "group": "5500",
+            "link": "https://www.smtu.ru/ru/viewschedule/5500/"
         },
         {
             "group": "7100",
@@ -1179,6 +1443,14 @@
             "link": "https://www.smtu.ru/ru/viewschedule/7181/"
         },
         {
+            "group": "7182",
+            "link": "https://www.smtu.ru/ru/viewschedule/7182/"
+        },
+        {
+            "group": "7200",
+            "link": "https://www.smtu.ru/ru/viewschedule/7200/"
+        },
+        {
             "group": "7201",
             "link": "https://www.smtu.ru/ru/viewschedule/7201/"
         },
@@ -1195,12 +1467,16 @@
             "link": "https://www.smtu.ru/ru/viewschedule/7263/"
         },
         {
-            "group": "7301",
-            "link": "https://www.smtu.ru/ru/viewschedule/7301/"
+            "group": "7280",
+            "link": "https://www.smtu.ru/ru/viewschedule/7280/"
         },
         {
-            "group": "7302",
-            "link": "https://www.smtu.ru/ru/viewschedule/7302/"
+            "group": "7281",
+            "link": "https://www.smtu.ru/ru/viewschedule/7281/"
+        },
+        {
+            "group": "7301",
+            "link": "https://www.smtu.ru/ru/viewschedule/7301/"
         },
         {
             "group": "7361",
@@ -1209,6 +1485,18 @@
         {
             "group": "7362",
             "link": "https://www.smtu.ru/ru/viewschedule/7362/"
+        },
+        {
+            "group": "7363",
+            "link": "https://www.smtu.ru/ru/viewschedule/7363/"
+        },
+        {
+            "group": "7401",
+            "link": "https://www.smtu.ru/ru/viewschedule/7401/"
+        },
+        {
+            "group": "7402",
+            "link": "https://www.smtu.ru/ru/viewschedule/7402/"
         },
         {
             "group": "7461",
@@ -1231,10 +1519,6 @@
         {
             "group": "8130",
             "link": "https://www.smtu.ru/ru/viewschedule/8130/"
-        },
-        {
-            "group": "8140",
-            "link": "https://www.smtu.ru/ru/viewschedule/8140/"
         },
         {
             "group": "8150",
@@ -1273,6 +1557,10 @@
             "link": "https://www.smtu.ru/ru/viewschedule/8260/"
         },
         {
+            "group": "8270",
+            "link": "https://www.smtu.ru/ru/viewschedule/8270/"
+        },
+        {
             "group": "8310",
             "link": "https://www.smtu.ru/ru/viewschedule/8310/"
         },
@@ -1293,12 +1581,28 @@
             "link": "https://www.smtu.ru/ru/viewschedule/8350/"
         },
         {
+            "group": "8360",
+            "link": "https://www.smtu.ru/ru/viewschedule/8360/"
+        },
+        {
+            "group": "8410",
+            "link": "https://www.smtu.ru/ru/viewschedule/8410/"
+        },
+        {
+            "group": "8420",
+            "link": "https://www.smtu.ru/ru/viewschedule/8420/"
+        },
+        {
             "group": "8430",
             "link": "https://www.smtu.ru/ru/viewschedule/8430/"
         },
         {
             "group": "8440",
             "link": "https://www.smtu.ru/ru/viewschedule/8440/"
+        },
+        {
+            "group": "8450",
+            "link": "https://www.smtu.ru/ru/viewschedule/8450/"
         }
     ]
 }

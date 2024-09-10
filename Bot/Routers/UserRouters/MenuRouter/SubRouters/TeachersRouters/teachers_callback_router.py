@@ -28,10 +28,9 @@ async def send_choose_week_schedule(call: CallbackQuery, state: FSMContext, call
     teacher = Teacher.get_teacher(callback_data.teacher)
 
     await call.message.edit_text(
-        text=f"Текущий тип недели: {hbold(WeekType.get_current_week())}.\n\n"
-             f"Выбранный преподаватель: "
-             f"{hbold(teacher['last_name'])} {hbold(teacher['first_name'])} {hbold(teacher['middle_name'])}\n\n"
-             "Выберите тип недели:",
+        text=f"📅 Текущий тип недели: {hbold(WeekType.get_current_week())}\n\n"
+             f"👨‍🏫 Выбранный преподаватель: {hbold(teacher['last_name'])} {hbold(teacher['first_name'])} {hbold(teacher['middle_name'])}\n\n"
+             "🔄 Выберите тип недели:",
         reply_markup=week_type_kb(back_to_menu=True)
     )
 
@@ -43,7 +42,7 @@ async def back_to_teachers(call: CallbackQuery, state: FSMContext):
     await call.answer()
     teachers = GroupSchedule.get_teachers_for_group(User.get_group_number(call.from_user.id))
 
-    await call.message.edit_text(text="Выберите преподавателя или напишите его фамилию",
+    await call.message.edit_text(text="👩‍🏫👨‍🏫 Выбери преподавателя из списка или просто напиши его фамилию в чат!",
                                  reply_markup=create_teachers_kb(teachers))
 
     await state.set_state(MenuState.teacher)
@@ -54,7 +53,7 @@ async def back_to_teachers(call: CallbackQuery, state: FSMContext):
 async def get_teachers_calendar(call: CallbackQuery, state: FSMContext):
     await call.answer()
     await call.message.edit_text(
-        "Пожалуйста, выберите дату: ",
+        "📅 Пожалуйста, выберите дату из календаря ниже:",
         reply_markup=await DialogCalendar(locale=await get_user_locale(call.from_user)).start_calendar(
             year=datetime.now().year, month=datetime.now().month)
     )
@@ -62,7 +61,8 @@ async def get_teachers_calendar(call: CallbackQuery, state: FSMContext):
 
 
 @TeacherRouterCallback.callback_query(DialogCalendarCallback.filter(F.act == "SET-YEAR"))
-async def init_dialog_calendar_teacher_month(callback_query: CallbackQuery, callback_data: DialogCalendarCallback, state:FSMContext):
+async def init_dialog_calendar_teacher_month(callback_query: CallbackQuery, callback_data: DialogCalendarCallback,
+                                             state: FSMContext):
     await DialogCalendar(
         locale=await get_user_locale(callback_query.from_user)
     ).process_selection(callback_query, callback_data)
@@ -73,7 +73,7 @@ async def init_dialog_calendar_teacher_month(callback_query: CallbackQuery, call
 async def process_dialog_calendar_month(callback_query: CallbackQuery, callback_data: DialogCalendarCallback,
                                         state: FSMContext):
     await callback_query.message.edit_text(
-        "Пожалуйста, выберите дату: ",
+        "📅 Пожалуйста, выберите дату из календаря ниже:",
         reply_markup=await DialogCalendar(locale=await get_user_locale(callback_query.from_user)).start_calendar(
             year=datetime.now().year, month=callback_data.month)
     )
@@ -104,18 +104,17 @@ async def process_dialog_teacher_calendar(callback_query: CallbackQuery, callbac
             schedule = format_teacher_schedule(sorted_schedule, teacher_week_type)
             await bot.send_message(
                 chat_id=callback_query.message.chat.id,
-                text=f"Расписание для преподавателя: "
-                     f"{hbold(teacher['last_name'])} {hbold(teacher['first_name'])} {hbold(teacher['middle_name'])}:\n\n{schedule}"
+                text=f"📚 Расписание для преподавателя: {hbold(teacher['last_name'])} {hbold(teacher['first_name'])} {hbold(teacher['middle_name'])}:\n\n{schedule}"
             )
         else:
             await bot.send_message(
                 chat_id=callback_query.message.chat.id,
-                text=f"Извините, у преподавателя {hbold(teacher['last_name'])} {hbold(teacher['first_name'])} {hbold(teacher['middle_name'])} нет пар в этот день."
+                text = f"😅 Извините, у преподавателя {hbold(teacher['last_name'])} {hbold(teacher['first_name'])} {hbold(teacher['middle_name'])} нет пар в этот день."
             )
     await state.clear()
 
     await callback_query.message.edit_text(
-        text="Вы находитесь в меню расписания!",
+        text="📚 Ты в меню расписания! Выбирай, что хочешь посмотреть! 😉",
         reply_markup=create_menu_kb()
     )
     await state.update_data(menu_message_id=callback_query.message.message_id)
@@ -126,7 +125,7 @@ async def process_dialog_teacher_calendar(callback_query: CallbackQuery, callbac
 async def send_choose_day_schedule(call: CallbackQuery, state: FSMContext, callback_data: WeekTypeCallback):
     await call.answer()
     await call.message.edit_text(
-        text=f"Выбранный тип недели: {hbold(callback_data.week_type)}.\n\nВыберите день недели:",
+        text=f"🔄 Выбранный тип недели: {hbold(callback_data.week_type)}.\n\n👉 Теперь выбери день недели:",
         reply_markup=week_day_kb())
     await state.update_data(teacher_week_type=callback_data.week_type)
     await state.set_state(MenuState.teacher_week_day)
@@ -141,10 +140,9 @@ async def back_to_week_type(call: CallbackQuery, state: FSMContext):
     teacher = Teacher.get_teacher(teacher)
 
     await call.message.edit_text(
-        text=f"Текущий тип недели: {hbold(WeekType.get_current_week())}.\n\n"
-             f"Выбранный преподаватель: "
-             f"{hbold(teacher['last_name'])} {hbold(teacher['first_name'])} {hbold(teacher['middle_name'])}\n\n"
-             "Выберите тип недели:",
+        text=f"📅 Текущий тип недели: {hbold(WeekType.get_current_week())}\n\n"
+             f"👨‍🏫 Выбранный преподаватель: {hbold(teacher['last_name'])} {hbold(teacher['first_name'])} {hbold(teacher['middle_name'])}\n\n"
+             "🔄 Выберите тип недели:",
         reply_markup=week_type_kb(back_to_menu=True)
     )
     await state.set_state(MenuState.teacher_week_type)
@@ -169,20 +167,19 @@ async def send_teacher_info(call: CallbackQuery, state: FSMContext, callback_dat
 
         await bot.send_message(
             chat_id=call.message.chat.id,
-            text=f"Расписание для преподавателя: "
-                 f"{hbold(teacher['last_name'])} {hbold(teacher['first_name'])} {hbold(teacher['middle_name'])}:\n\n{schedule}"
+            text=f"📚 Расписание для преподавателя: {hbold(teacher['last_name'])} {hbold(teacher['first_name'])} {hbold(teacher['middle_name'])}:\n\n{schedule}"
         )
     else:
         # Если у преподавателя нет пар
         await bot.send_message(
             chat_id=call.message.chat.id,
-            text=f"Извините, у преподавателя {hbold(teacher['last_name'])} {hbold(teacher['first_name'])} {hbold(teacher['middle_name'])} нет пар в этот день."
+            text = f"😅 Извините, у преподавателя {hbold(teacher['last_name'])} {hbold(teacher['first_name'])} {hbold(teacher['middle_name'])} нет пар в этот день."
         )
 
     await state.clear()
 
     await call.message.edit_text(
-        text="Вы находитесь в меню расписания!",
+        text="📚 Ты в меню расписания! Выбирай, что хочешь посмотреть! 😉",
         reply_markup=create_menu_kb()
     )
     await state.update_data(menu_message_id=call.message.message_id)

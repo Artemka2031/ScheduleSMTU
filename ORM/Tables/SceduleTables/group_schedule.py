@@ -42,21 +42,30 @@ class GroupSchedule(BaseModel):
     @staticmethod
     def get_last_update_time(group_id):
         """
-            Asynchronously retrieves the last update time of the schedule for a specified group.
+        Asynchronously retrieves the last update time of the schedule for a specified group.
 
-            Params:
-                group_id (int): The ID of the group to retrieve the last update time for.
+        Params:
+            group_id (int): The ID of the group to retrieve the last update time for.
 
-            Returns:
-                Optional[datetime]: The last update time of the schedule or None if not found.
+        Returns:
+            Optional[datetime]: The last update time of the schedule or None if not found.
         """
         try:
             # Получаем последнее время обновления для группы
-            last_update_time_str = GroupSchedule.select().where(
+            last_update_time_obj = GroupSchedule.select().where(
                 GroupSchedule.group_id == group_id
             ).order_by(
                 GroupSchedule.creation_time.desc()
             ).get().creation_time
+
+            # Преобразуем объект datetime в строку, если необходимо
+            if isinstance(last_update_time_obj, datetime):
+                last_update_time_str = last_update_time_obj.isoformat()
+            elif isinstance(last_update_time_obj, str):
+                last_update_time_str = last_update_time_obj
+            else:
+                print("Неподдерживаемый тип времени обновления.")
+                return None
 
             # Преобразуем строку в объект datetime с учетом временной зоны
             last_update_time_moscow = datetime.fromisoformat(last_update_time_str)
@@ -64,6 +73,9 @@ class GroupSchedule(BaseModel):
 
             return last_update_time_moscow
         except DoesNotExist:
+            return None
+        except Exception as e:
+            print(f"Произошла ошибка при получении времени последнего обновления: {e}")
             return None
 
     @staticmethod
@@ -235,33 +247,48 @@ class GroupSchedule(BaseModel):
     @staticmethod
     def get_schedule_teacher(teacher_id: int, current_day: Optional[str] = None) -> Dict[str, List[Dict]]:
         """
-        Retrieves the schedule for a specified teacher_text, optionally filtered by the current day.
+        Retrieves the schedule for a specified teacher, optionally filtered by the current day.
 
         Params:
-            teacher_id (int): The ID of the teacher_text to retrieve the schedule for.
+            teacher_id (int): The ID of the teacher to retrieve the schedule for.
             current_day (Optional[str]): If specified, filters the schedule to only include this day.
 
         Returns:
-            Dict[str, List[Dict]]: The schedule for the teacher_text, structured by day.
+            Dict[str, List[Dict]]: The schedule for the teacher, structured by day.
         """
         try:
             # Perform a query to get the schedule with JOIN for related tables
             schedule_data = (GroupSchedule
-                             .select(GroupSchedule, Group, Weekday, ClassTime, WeekType, Classroom, Subject, LessonType)
-                             .join(Weekday)
-                             .switch(GroupSchedule)
-                             .join(ClassTime)
-                             .switch(GroupSchedule)
-                             .join(WeekType)
-                             .switch(GroupSchedule)
-                             .join(Classroom)
-                             .switch(GroupSchedule)
-                             .join(Subject)
-                             .switch(GroupSchedule)
-                             .join(LessonType)
-                             .switch(GroupSchedule)
-                             .join(Group)
-                             .where(GroupSchedule.teacher_id == teacher_id))
+            .select(GroupSchedule, Group, Weekday, ClassTime, WeekType, Classroom, Subject, LessonType)
+            .join(Weekday)
+            .switch(GroupSchedule)
+            .join(ClassTime)
+            .switch(GroupSchedule)
+            .join(WeekType)
+            .switch(GroupSchedule)
+            .join(Classroom)
+            .switch(GroupSchedule)
+            .join(Subject)
+            .switch(GroupSchedule)
+            .join(LessonType)
+            .switch(GroupSchedule)
+            .join(Group)
+            .switch(GroupSchedule)
+            .join(Teacher)
+            .where(
+                (GroupSchedule.teacher_id == teacher_id) &
+                (Teacher.first_name != "") &
+                (Teacher.last_name != "")
+            ))
+
+            # Отладочный вывод: вывести все данные, извлеченные из базы
+            print("Записи для преподавателя с ID:", teacher_id)
+            for record in schedule_data:
+                print(f"День: {record.day_id.name}, Неделя: {record.week_type_id.name}, "
+                      f"Время: {record.class_time_id.start_time} - {record.class_time_id.end_time}, "
+                      f"Аудитория: {record.classroom_id.building} {record.classroom_id.room_number}, "
+                      f"Предмет: {record.subject_id.name}, Тип занятия: {record.lesson_type_id.name}, "
+                      f"Группа: {record.group_id.group_number}")
 
             # Transform the query result into a structured format
             schedule = {}
@@ -287,7 +314,8 @@ class GroupSchedule(BaseModel):
                 # Aggregate groups for the same class period
                 existing_period = next((item for item in schedule[day_name] if
                                         item['Данные пары']['Время начала'] == pair_data['Время начала'] and
-                                        item['Данные пары']['Номер аудитории'] == pair_data['Номер аудитории']), None)
+                                        item['Данные пары']['Номер аудитории'] == pair_data['Номер аудитории'] and
+                                        item["Неделя"] == week_type), None)
                 if existing_period:
                     existing_period['Данные пары']['Группы'].extend(pair_data['Группы'])
                 else:
@@ -342,7 +370,7 @@ class GroupSchedule(BaseModel):
             # Сопоставление расписания группы с расписанием преподавателя
             for record in group_schedule_data:
                 teacher_schedule = GroupSchedule.get_schedule_teacher(
-                    record.teacher_id)  # Получение расписания преподавателя
+                    record.teacher_id)  # НУЖНО ОБЯЗАТЕЛЬНО СДЕЛАТЬ ВРЕМЕННОЕ ХРАНЕНИЕ РАСПИСАНИЯ ПРЕПОДАВАТЕЛЯ ЕСЛИ ОНО УЖЕ БЫЛО ПРОСОТРЕНО
 
                 day_name = record.day_id.name
                 week_type = record.week_type_id.name
