@@ -8,14 +8,11 @@ from aiogram.utils.markdown import hbold
 from Bot.Keyboards.menu_kb import create_teachers_kb, create_menu_kb
 from Bot.Keyboards.teacher_text_kb import create_choose_teachers_kb, TeacherTextCallback
 from Bot.Keyboards.week_schedule_inl_kb import week_type_kb, WeekTypeCallback, week_day_kb, WeekDayCallback
+from Bot.RabbitMQProducer.producer_api import send_request_mq
 from Bot.Routers.UserRouters.MenuRouter.menu_state import MenuState
 from Bot.Routers.UserRouters.ScheduleRouter.ScheduleRouters.format_functions import format_teacher_dual_week_schedule, \
     format_teacher_schedule
 from Bot.bot_initialization import bot
-from ORM.Tables.SceduleTables.group_schedule import GroupSchedule
-from ORM.Tables.SceduleTables.group_tables import Teacher
-from ORM.Tables.SceduleTables.time_tables import WeekType
-from ORM.Tables.UserTables.user_table import User
 
 TeacherRouterText = Router()
 
@@ -36,14 +33,18 @@ async def get_teachers(message: Message, state: FSMContext):
     await state.set_state(TeacherState.teacher_text)
 
     try:
-        teachers = Teacher.get_teacher_by_last_name(teacher_last_name)
+        teachers = await send_request_mq('bot.tasks.get_teacher_by_last_name', [teacher_last_name])
+        #teachers = Teacher.get_teacher_by_last_name(teacher_last_name)
+
+        current_week = await send_request_mq('bot.tasks.get_current_week', [])
+
         if len(teachers) == 1:
             teacher = teachers[0]
             await state.update_data(teacher_text=teacher["id"])
 
             await bot(EditMessageText(
                 chat_id=chat_id, message_id=menu_message_id,
-                text=f"📅 Текущий тип недели: {hbold(WeekType.get_current_week())}.\n\n"
+                text=f"📅 Текущий тип недели: {hbold(current_week)}.\n\n"
                      f"👨‍🏫 Выбранный преподаватель: {hbold(teacher['last_name'])} {hbold(teacher['first_name'])} {hbold(teacher['middle_name'])}\n\n"
                      "🔄 Выберите тип недели:"
                 ,
@@ -67,7 +68,17 @@ async def get_teachers(message: Message, state: FSMContext):
 @TeacherRouterText.callback_query(TeacherState.teacher_text, TeacherTextCallback.filter(F.teacher_text == "Назад"))
 async def back_to_teacher_choose(call: CallbackQuery, state: FSMContext):
     await call.answer()
-    teachers = GroupSchedule.get_teachers_for_group(User.get_group_number(call.from_user.id))
+
+    group_number = await send_request_mq('bot.tasks.get_group_number', [call.from_user.id])
+
+    teachers_request_data = {
+        'task':'bot.tasks.get_teachers_for_group',
+        'data': [group_number]
+    }
+
+    teachers = await send_request_mq('bot.tasks.get_teachers_for_group', [group_number])
+
+    #teachers = GroupSchedule.get_teachers_for_group(BaseUser.get_group_number(call.from_user.id))
     await call.message.edit_text(text="👩‍🏫 Выбери преподавателя из списка или напиши его фамилию в чат:",
                                  reply_markup=create_teachers_kb(teachers))
     await state.set_state(MenuState.teacher)
@@ -80,13 +91,16 @@ async def set_teacher(call: CallbackQuery, callback_data: TeacherTextCallback, s
     teacher_id = callback_data.teacher
     await state.update_data(teacher_text=teacher_id)
 
-    teacher = Teacher.get_teacher(teacher_id)
+    #teacher = Teacher.get_teacher(teacher_id)
+    teacher = await send_request_mq('bot.tasks.get_teacher', [teacher_id])
+
+    current_week = await send_request_mq('bot.tasks.get_current_week', [])
 
     menu_message_id = (await state.get_data())["menu_message_id"]
 
     await bot(EditMessageText(
         chat_id=chat_id, message_id=menu_message_id,
-        text=f"📅 Текущий тип недели: {hbold(WeekType.get_current_week())}.\n\n"
+        text=f"📅 Текущий тип недели: {hbold(current_week)}.\n\n"
              f"👨‍🏫 Выбранный преподаватель: {hbold(teacher['last_name'])} {hbold(teacher['first_name'])} {hbold(teacher['middle_name'])}\n\n"
              "🔄 Выберите тип недели:"
         ,
@@ -99,7 +113,12 @@ async def set_teacher(call: CallbackQuery, callback_data: TeacherTextCallback, s
 @TeacherRouterText.callback_query(TeacherState.teacher_text_week_type, WeekTypeCallback.filter(F.week_type == "Назад"))
 async def back_to_teacher_choose(call: CallbackQuery, state: FSMContext):
     await call.answer()
-    teachers = GroupSchedule.get_teachers_for_group(User.get_group_number(call.from_user.id))
+
+    group_number = await send_request_mq('bot.tasks.get_group_number', [call.from_user.id])
+
+    teachers = await send_request_mq('bot.tasks.get_teachers_for_group', [group_number])
+
+    #teachers = GroupSchedule.get_teachers_for_group(BaseUser.get_group_number(call.from_user.id))
     await call.message.edit_text(text="👩‍🏫 Выбери преподавателя из списка или напиши его фамилию в чат:",
                                  reply_markup=create_teachers_kb(teachers))
     await state.set_state(MenuState.teacher)
@@ -122,8 +141,10 @@ async def back_to_week_type(call: CallbackQuery, state: FSMContext):
     await state.update_data(teacher_text_week_type=None)
     teacher = (await state.get_data())['teacher_text']
 
+    current_week = await send_request_mq('bot.tasks.get_current_week', [])
+
     await call.message.edit_text(
-        text=f"📅 Текущий тип недели: {hbold(WeekType.get_current_week())}.\n\n"
+        text=f"📅 Текущий тип недели: {hbold(current_week)}.\n\n"
              f"👨‍🏫 Выбранный преподаватель: {hbold(teacher['last_name'])} {hbold(teacher['first_name'])} {hbold(teacher['middle_name'])}\n\n"
              "🔄 Выберите тип недели:"
         ,
@@ -138,9 +159,11 @@ async def send_teacher_info(call: CallbackQuery, state: FSMContext, callback_dat
     teacher_id = data['teacher_text']
     week_type = data["teacher_text_week_type"]
 
-    teacher = Teacher.get_teacher(teacher_id)
+    teacher = await send_request_mq('bot.tasks.get_teacher', [teacher_id])
+    #teacher = Teacher.get_teacher(teacher_id)
 
-    sorted_schedule = GroupSchedule.get_schedule_teacher(teacher_id, callback_data.week_day)
+    sorted_schedule = await send_request_mq('bot.tasks.get_schedule_teacher', [teacher_id, callback_data.week_day])
+    #sorted_schedule = GroupSchedule.get_schedule_teacher(teacher_id, callback_data.week_day)
 
     # Проверяем, что расписание существует и содержит занятия
     if sorted_schedule and any(sorted_schedule.values()):

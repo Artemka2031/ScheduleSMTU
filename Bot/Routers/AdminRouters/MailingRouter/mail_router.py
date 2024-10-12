@@ -9,7 +9,8 @@ from Bot.Filters.not_comand_filter import isNotComandFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 
-from ORM.Tables.UserTables.user_table import User
+from Bot.RabbitMQProducer.producer_api import send_request_mq
+
 from Bot.bot_initialization import setup_bot_commands
 from Bot.Keyboards.send_keyboard_inl_kb import send_kb, SendKbTypeCallback
 from Bot.Keyboards.today_tomorrow_rep_kb import today_tomorrow_rep_keyboard
@@ -95,7 +96,9 @@ async def edit_message(message: Message, state: FSMContext) -> None:
 async def send_kb_and_text_mailing(call: CallbackQuery, state: FSMContext, callback_data: SendKbTypeCallback) -> None:
     mailing_text = (await state.get_data())['mail_data']
     try:
-        for user_id in User.get_all_users_ids():
+        all_users_ids = await send_request_mq('bot.tasks.get_all_users_ids', [])
+
+        for user_id in all_users_ids:
             if callback_data.send_kb_event == "Отправить":
                 await call.message.bot.send_message(chat_id=user_id,
                                                     text=mailing_text,

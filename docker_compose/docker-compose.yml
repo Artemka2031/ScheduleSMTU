@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"      # Основной порт AMQP
+      - "15672:15672"    # Веб-интерфейс управления
+    environment:
+      RABBITMQ_DEFAULT_USER: rabbitmq
+      RABBITMQ_DEFAULT_PASS: ScheduleSMTU
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "rabbitmqctl status"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+
+  telegram_bot:
+    build:
+      context: ../  # Указываем корневую директорию проекта
+      dockerfile: Bot/Dockerfile  # Путь к Dockerfile бота
+    container_name: telegram_bot
+    depends_on:
+      rabbitmq:
+        condition: service_healthy  # Убедиться, что RabbitMQ готов
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: rabbitmq
+      RABBITMQ_PASSWORD: ScheduleSMTU
+    command: ["/app/Bot/wait-for-it.sh", "rabbitmq:5672", "--", "python", "Bot/start_bot.py"]
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

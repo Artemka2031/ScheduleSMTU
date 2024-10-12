@@ -8,7 +8,8 @@ from aiogram.utils.markdown import hbold
 from Bot.Filters.check_group_number_filter import CheckGroupFilter
 from Bot.Filters.authentication_filter import isRegFilter
 from Bot.Keyboards.today_tomorrow_rep_kb import today_tomorrow_rep_keyboard
-from ORM.Tables.UserTables.user_table import User
+from Bot.RabbitMQProducer.producer_api import send_request_mq
+#from djcore.apps.database.utils.UserTables.user_table import BaseUser
 
 RegistrationRouter = Router()
 
@@ -34,8 +35,9 @@ async def start_messaging(message: Message, state: FSMContext) -> None:
 @RegistrationRouter.message(Command("registration"), isRegFilter())
 async def already_registered(message: Message, state: FSMContext):
     await state.clear()
+    group_number = await send_request_mq('bot.tasks.get_group_number', [message.from_user.id])
     await message.answer(
-        text=f"Вы уже зарегистрированы. Ваша текущая группа: {hbold(User.get_group_number(message.from_user.id))}.\n\n"
+        text=f"Вы уже зарегистрированы. Ваша текущая группа: {hbold(group_number)}.\n\n"
              f"Чтобы изменить группу, напишите /change_group или нажмите на соответствующую кнопку в меню.",
         reply_markup=today_tomorrow_rep_keyboard())
 
@@ -46,10 +48,12 @@ async def set_group_number(message: Message, state: FSMContext):
     group_number = int(message.text)
 
     try:
-        User.registrate_user(user_id, group_number)
+        response = await send_request_mq('bot.tasks.registrate_user', [user_id, group_number])
+        #BaseUser.registrate_user(user_id, group_number)
     except Exception as e:
         print(e)
-
+    if response == True:
+        print('hui')
     data = (await state.get_data())["messages_to_delete"]
     data.append(message.message_id)
 

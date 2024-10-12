@@ -8,9 +8,9 @@ from datetime import datetime
 from Bot.Filters.not_comand_filter import isNotComandFilter
 from Bot.Keyboards.reply_suggestion_inl_kb import reply_suggestion_kb, ReplyTypeCallback
 from Bot.Middlewares.admin_middleware import IsAdmMiddleware
+from Bot.RabbitMQProducer.producer_api import send_request_mq
+from Bot.bot_initialization import moscow_tz
 
-from ORM.Tables.UserTables.suggestion_table import Suggestion
-from ORM.database_declaration_and_exceptions import moscow_tz
 
 RepSuggestionRouter = Router()
 
@@ -31,7 +31,8 @@ async def reply_suggestion(message: Message, state: FSMContext):
 
     await state.clear()
 
-    user_suggestion = Suggestion.get_user_suggestion()
+    user_suggestion = await send_request_mq('bot.tasks.get_user_suggestion', [])
+
     await state.set_state(SuggestionState.suggestion_id)
 
     if user_suggestion:
@@ -60,9 +61,11 @@ async def callback_to_kb(call: CallbackQuery, state: FSMContext, callback_data: 
 
         data = await state.get_data()
 
-        Suggestion.process_admin_response(
-            data["user_id"], data["suggestion_id"],datetime.now(moscow_tz).date(),
-            "Проигнорировано")
+        save_admin_response = await send_request_mq('bot.tasks.process_admin_response', [data["user_id"], data["suggestion_id"], str(datetime.now(moscow_tz).date()),
+            "Проигнорировано"])
+
+        if save_admin_response != 'success':
+            print('Возникла ошибка с записью в базу данных')
         await state.clear()
 
 
@@ -77,8 +80,12 @@ async def reply_suggestion(message: Message, state: FSMContext):
         await message.delete()
 
         data = await state.get_data()
-        Suggestion.process_admin_response(data["user_id"], data["suggestion_id"],
-                                          datetime.now(moscow_tz).date(), data["reply_suggestion"])
+
+        reply = await send_request_mq("bot.tasks.process_admin_response", [data["user_id"], data["suggestion_id"], str(datetime.now(moscow_tz).date()), data["reply_suggestion"]])
+
+        if reply != 'success':
+            print('Возникла ошибка с записью ответа в бд')
+
     except Exception as e:
         print(e)
 

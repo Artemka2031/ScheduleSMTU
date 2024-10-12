@@ -4,8 +4,9 @@ from aiogram import BaseMiddleware
 from aiogram.methods import SendMessage
 from aiogram.types import Message
 
+from Bot.RabbitMQProducer.producer_api import send_request_mq
 from Bot.bot_initialization import bot
-from ORM.Tables.UserTables.user_table import User
+# from djcore.apps.database.utils.UserTables.user_table import BaseUser
 
 
 class IsRegMiddleware(BaseMiddleware):
@@ -15,7 +16,11 @@ class IsRegMiddleware(BaseMiddleware):
             event: Message,
             data: Dict[str, Any]
     ) -> Any:
-        if not User.get_user(event.from_user.id):
+
+        user_is_registered = await send_request_mq('bot.tasks.get_user', [event.from_user.id])
+
+
+        if not user_is_registered:
             await bot(
                 SendMessage(chat_id=event.from_user.id,
                             text='Чтобы использовать бота нужно зарегистрироваться. \nНапишите /registration.'))

@@ -4,8 +4,9 @@ from aiogram import BaseMiddleware
 from aiogram.methods import SendMessage
 from aiogram.types import Message
 
+from Bot.RabbitMQProducer.producer_api import send_request_mq
 from Bot.bot_initialization import bot
-from ORM.Tables.UserTables.suggestion_table import Suggestion
+# from djcore.apps.database.utils.UserTables.suggestion_table import BaseSuggestion
 
 
 class SuggestionLimitMiddleware(BaseMiddleware):
@@ -15,7 +16,10 @@ class SuggestionLimitMiddleware(BaseMiddleware):
             event: Message,
             data: Dict[str, Any]
     ) -> Any:
-        if Suggestion.get_user_suggestions_count(event.from_user.id) >= 4:
+
+        user_suggestion_count = await send_request_mq('bot.tasks.get_user_suggestions_count', [event.from_user.id])
+
+        if user_suggestion_count >= 4:
             await bot(
                 SendMessage(
                     chat_id=event.from_user.id,

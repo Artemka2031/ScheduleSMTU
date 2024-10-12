@@ -1,12 +1,14 @@
+import pytz
 from aiogram import Bot
 from aiogram.enums import ParseMode
-from aiogram.types import BotCommand, BotCommandScopeDefault, BotCommandScopeChat
+from aiogram.types import BotCommand, BotCommandScopeChat
 
-from ORM.Tables.UserTables.user_table import User
-from config import token
+from Bot.RabbitMQProducer.producer_api import send_request_mq
+#from djcore.apps.database.utils.UserTables.user_table import User
+#from config import token
 
-bot = Bot(token=str(token.get("token")), parse_mode=ParseMode.HTML)
-
+bot = Bot(token="6523290565:AAGn4cBjfaZjmvFXhEJs9ZYNN6Y2p812gkE", parse_mode=ParseMode.HTML)
+moscow_tz = pytz.timezone('Europe/Moscow')
 
 async def setup_bot_commands(status: str, user_id: int | str):
     await bot.delete_my_commands(scope=BotCommandScopeChat(chat_id=user_id))
@@ -34,5 +36,6 @@ async def setup_bot_commands(status: str, user_id: int | str):
 
 # Без этой функции админам исходно выдается админ-панель
 async def default_commands():
-    for user_id in User.get_all_users_ids():
+    all_users_ids = await send_request_mq('bot.tasks.get_all_users_ids', [])
+    for user_id in all_users_ids:
         await setup_bot_commands("user", user_id)

@@ -162,9 +162,9 @@ cython_debug/
 .idea/
 
 # Custom additions
-Parsing/Data/
-Parsing/Data/ScheduleByFaculties/Schedule/
+djcore/apps/parser/utils/Data/
+djcore/apps/parser/utils/Data/ScheduleByFaculties/Schedule/
 ORM/database.db
-Parsing/WebScrapingData/
+djcore/apps/parser/utils/WebScrapingData/
 ORM/BackUps/
 root/
