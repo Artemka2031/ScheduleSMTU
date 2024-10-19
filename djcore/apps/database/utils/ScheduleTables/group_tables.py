@@ -3,6 +3,7 @@ import json
 import logging
 
 from aiogram.utils.markdown import hbold
+from asgiref.sync import async_to_sync
 from celery import shared_task
 from django.db import models, IntegrityError
 from django.core.exceptions import ObjectDoesNotExist
@@ -12,7 +13,6 @@ from djcore.apps.database.utils.Path.path_base import path_base
 from djcore.apps.database.utils.Path.schedule_path_functions import get_faculties_and_groups
 from djcore.apps.database.utils.send_response import send_response
 from djcore.celery_app import app
-
 
 class Faculty(models.Model):
     name = models.CharField(unique=True, max_length=255)
@@ -283,11 +283,11 @@ class Group(models.Model):
 
     @staticmethod
     @app.task(name='bot.tasks.get_group_id')
-    def get_group_id(group_number, reply_to, correlation_id):
+    def get_group_id(group_number, reply_to=None, correlation_id=None):
         logger.info(
             f"Задача get_group_id запущена с параметрами: group_number={group_number}, reply_to={reply_to}, correlation_id={correlation_id}")
 
-
+        group_id = None
         try:
             logger.info(f"Пытаемся найти группу с номером: {group_number}")
             group = Group.objects.get(group_number=group_number)
@@ -298,6 +298,10 @@ class Group(models.Model):
             logger.error(f"Группа с номером {group_number} не найдена")
             raise ValueError(f"Group number {group_number} not found")
         finally:
-            result = {'result': group_id}
-            logger.info(f"Отправляем результат: {result}")
-            asyncio.run(send_response(result, reply_to, correlation_id))
+            if reply_to and correlation_id:
+                result = {'result': group_id}
+                logger.info(f"Отправляем результат: {result}")
+                asyncio.run(send_response(result, reply_to, correlation_id))
+            else:
+                return group_id
+

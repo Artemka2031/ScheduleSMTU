@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 from celery.schedules import crontab
+from kombu import Queue, Exchange
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -37,8 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'djcore.apps.database',
-    'djcore.apps.parser'
+    'djcore.apps.database.apps.DatabaseConfig',
+    'djcore.apps.parser.apps.ParserConfig',
 ]
 
 MIDDLEWARE = [
@@ -113,24 +115,32 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'Europe/Moscow'
 
+CELERY_TASK_QUEUES = (
+    Queue('celery', Exchange('celery'), routing_key='celery'),
+    Queue('bot_queue', Exchange('direct_exchange'), routing_key='bot_queue'),
+)
+
+CELERY_TASK_DEFAULT_QUEUE = 'celery'
+CELERY_TASK_DEFAULT_EXCHANGE = 'celery'
+CELERY_TASK_DEFAULT_ROUTING_KEY = 'celery'
 
 RABBITMQ_HOST = 'localhost'        # Или IP-адрес RabbitMQ, если он в Docker или на удалённом сервере
 RABBITMQ_PORT = 5672               # Порт для подключения к RabbitMQ (по умолчанию 5672)
 RABBITMQ_USER = 'rabbitmq'        # Имя пользователя RabbitMQ
 RABBITMQ_PASSWORD = 'ScheduleSMTU' # Пароль пользователя RabbitMQ
 
-CELERY_BEAT_SCHEDULE = {
-    'parse_groups_daily_at_4am': {
-        'task': 'parser.tasks.schedule_parse',
-        'schedule': crontab(hour='4', minute='0'),
-        'options': {'queue': 'celery_queue'},  # Отправляем в очередь 'celery_queue'
-    },
-    'parse_teachers_daily_at_4am': {
-        'task': 'parser.tasks.employees_parse',
-        'schedule': crontab(hour='4', minute='0'),
-        'options': {'queue': 'celery_queue'},  # Отправляем в ту же очередь
-    },
-}
+# CELERY_BEAT_SCHEDULE = {
+#     'parse_groups_daily_at_4am': {
+#         'task': 'parser.tasks.schedule_parse',
+#         'schedule': crontab(hour='4', minute='0'),
+#         'options': {'queue': 'celery_queue'},  # Отправляем в очередь 'celery_queue'
+#     },
+#     'parse_teachers_daily_at_4am': {
+#         'task': 'parser.tasks.employees_parse',
+#         'schedule': crontab(hour='4', minute='0'),
+#         'options': {'queue': 'celery_queue'},  # Отправляем в ту же очередь
+#     },
+# }
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 

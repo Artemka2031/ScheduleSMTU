@@ -175,7 +175,7 @@ class GroupSchedule(models.Model):
                         pair_record.lesson_type_id = lesson_type_id
                         pair_record.teacher_id = teacher_id
                         pair_record.creation_time = datetime.now(moscow_tz)
-                        pair_record.asave()
+                        pair_record.save()
 
                         option = "update"
                     except ObjectDoesNotExist:
@@ -219,7 +219,7 @@ class GroupSchedule(models.Model):
         """
         try:
             # Получаем идентификатор группы
-            group_id = Group.get_group_id(group_number)
+            group_id = Group.objects.get(group_number=group_number)
             # Получаем время последнего обновления таблицы
             last_update_time = GroupSchedule.get_last_update_time(group_id)
 
@@ -317,17 +317,19 @@ class GroupSchedule(models.Model):
         except Exception as e:
             print(f"Произошла ошибка при получении расписания для преподавателя с ID {teacher_id}: {str(e)}")
         finally:
-            result = {'result': schedule}
-            asyncio.run(send_response(result, reply_to, correlation_id))
-
+            if correlation_id and reply_to:
+                result = {'result': schedule}
+                asyncio.run(send_response(result, reply_to, correlation_id))
+            else:
+                return schedule
     @staticmethod
     @app.task(name='bot.tasks.get_schedule')
-    def get_schedule(group_number: int, current_day: Optional[str] = None, group_id=None, reply_to = None, correlation_id = None):
+    def get_schedule(group_number: int, current_day: Optional[str] = None, reply_to = None, correlation_id = None):
         schedule = {}
         try:
             group_number = int(group_number)
             GroupSchedule.set_schedule(group_number)
-            group_id = Group.get_group_id(group_number)
+            group_id = Group.objects.get(group_number=group_number)
 
             # Получение расписания для группы
             group_schedule_data = list(GroupSchedule.objects.select_related(
@@ -398,8 +400,13 @@ class GroupSchedule(models.Model):
             print(f"Произошла ошибка при получении расписания для группы {group_number}: {str(e)}")
 
         finally:
-            result = {'result': schedule}
-            asyncio.run(send_response(result, reply_to, correlation_id))
+            print(reply_to, correlation_id)
+            if reply_to is not None and correlation_id is not None:
+                result = {'result': schedule}
+                asyncio.run(send_response(result, reply_to, correlation_id))
+            else:
+                print('Отправляю хуй')
+                return schedule
 
     @staticmethod
     @app.task(name='bot.tasks.get_teachers_for_group')

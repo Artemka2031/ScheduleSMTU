@@ -20,9 +20,9 @@ class PathBase:
     employees_data: Path
 
     def __init__(self):
-        self.cwd = Path(__file__).resolve().parent.parent.parent.parent.parent.parent
-        self.parsing = self.cwd / Path("Parsing")
-        self.data = self.parsing / Path("Data")
+        self.cwd = Path(__file__).resolve().parent.parent.parent.parent
+        self.parsing = self.cwd / Path("parser")
+        self.data = self.parsing / Path('utils')/ Path("Data")
 
         self.save_directory = self.data / Path("ScheduleByFaculties")
         self.schedule_smtu_dir = self.save_directory / Path("ScheduleSMTU")

@@ -20,4 +20,5 @@ async def send_request_mq(task_name: str, data: list):
     logging.info('Начинается отправка сообщения)')
     response = await rabbitmq_producer.send_message(request_data)
 
+    #await rabbitmq_producer.close()
     return response

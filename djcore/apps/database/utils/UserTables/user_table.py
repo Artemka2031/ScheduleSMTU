@@ -1,5 +1,7 @@
 import asyncio
+import logging
 
+from asgiref.sync import sync_to_async
 from django.db import models, IntegrityError
 from django.core.exceptions import ObjectDoesNotExist
 
@@ -22,19 +24,32 @@ class User(models.Model):
     def get_user(user_id: int, reply_to, correlation_id):
         user = None
         try:
-            user = User.objects.get(user_id == user_id)
+            user = User.objects.get(user_id = user_id)
+            user_to_send = {
+                "id" : user.id,
+                "user_id" : user.user_id,
+                "group_number": user.group_number,
+                "group_id": user.group_id,
+            }
         except ObjectDoesNotExist:
             pass
         finally:
-            result = {'result': user}
+            result = {'result': user_to_send}
             asyncio.run(send_response(result, reply_to, correlation_id))
     @staticmethod
     @app.task(name='bot.tasks.get_all_users_ids')
     def get_all_users_ids(reply_to, correlation_id):
-        user_ids = list(User.objects.values_list('user_id', flat=True))
-        result = {'result' : user_ids}
+        try:
+            # Используем sync_to_async для выполнения синхронного запроса к базе данных асинхронно
+            user_ids = list(User.objects.values_list('user_id', flat=True))
+            result = {'result': user_ids}
 
-        asyncio.run(send_response(result, reply_to, correlation_id))
+            # Отправляем ответ через асинхронную функцию
+            asyncio.run(send_response(result, reply_to, correlation_id))
+
+        except Exception as e:
+            logging.exception(f"Ошибка в get_all_users_ids: {e}")
+
 
     @staticmethod
     @app.task(name='bot.tasks.get_group_number')

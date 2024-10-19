@@ -43,3 +43,34 @@ class DatabaseConfig(AppConfig):
         # Запускаем consumer в отдельном потоке
         thread = threading.Thread(target=delayed_start, daemon=True)
         thread.start()
+
+
+# import asyncio
+# import threading
+#
+# from django.apps import AppConfig
+#
+# from djcore.apps.database.rabbitmq_consumer import RabbitMQConsumer
+# from djcore.celery_app import app
+#
+#
+# def start_consumer():
+#     app.autodiscover_tasks()
+#     consumer = RabbitMQConsumer()
+#
+#     # Создаем задачу для старта consumer в существующем цикле событий
+#     asyncio.create_task(consumer.start_consuming())
+#
+# class DatabaseConfig(AppConfig):
+#     default_auto_field = 'django.db.models.BigAutoField'
+#     name = 'djcore.apps.database'
+#
+#     def ready(self):
+#         # Задержка перед запуском RabbitMQConsumer, чтобы Django успел корректно запуститься
+#         async def delayed_start():
+#             await asyncio.sleep(7)  # Асинхронная задержка
+#             start_consumer()
+#
+#         # Запускаем consumer в отдельном потоке
+#         asyncio.create_task(delayed_start())
+
