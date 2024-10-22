@@ -1,4 +1,5 @@
 import asyncio
+import logging
 from datetime import datetime
 
 from django.db import models
@@ -72,7 +73,7 @@ class Suggestion(models.Model):
             #suggestions = Suggestion.select().where(Suggestion.closed_text == '')
 
             for suggestion in suggestions:
-                user_id = suggestion.user_id
+                user_id = suggestion.user.user_id
                 suggestion_id = suggestion.id
                 if user_id not in user_suggestions:
                     user_suggestions[user_id] = {}  # Создаем вложенный словарь для каждого user_id
@@ -98,7 +99,7 @@ class Suggestion(models.Model):
             suggestion_instance.closed_date = admin_response_date
             suggestion_instance.closed_text = admin_response_text
             suggestion_instance.save()
-            print("Дата и ответ администратора успешно заполнены.")
+            logging.info("Дата и ответ администратора успешно заполнены.")
             flag = 'success'
         except ObjectDoesNotExist:
             print(f"Предложение от пользователя с user_id {user_id} и текстом {suggestion_id} не найдено.")

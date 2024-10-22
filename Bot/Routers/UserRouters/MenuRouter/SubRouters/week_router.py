@@ -1,4 +1,6 @@
+import logging
 from datetime import datetime
+from tokenize import group
 
 from aiogram import Router, F
 from aiogram.fsm.context import FSMContext
@@ -40,6 +42,7 @@ async def call_menu(call: CallbackQuery, state: FSMContext) -> None:
 @WeekScheduleRouter.callback_query(MenuState.week_type, WeekTypeCallback.filter(F.week_type == "Открыть календарь"))
 async def open_calendar(call: CallbackQuery, state: FSMContext):
     await call.answer()
+    logging.info(call.from_user.language_code)
     await call.message.edit_text(
         "📅 Выбери дату, которая тебя интересует:",
         reply_markup=await DialogCalendar(locale=await get_user_locale(call.from_user)).start_calendar(
@@ -98,7 +101,6 @@ async def process_dialog_calendar(callback_query: CallbackQuery, callback_data: 
                                   text="В этот день выходной 🎉"))
             await state.clear()
             return
-
         sorted_schedule = await send_request_mq('bot.tasks.get_schedule', [group_id, name_weekday])
         #sorted_schedule = GroupSchedule.get_schedule(group_id, Weekday.get_weekday_name(date))
 

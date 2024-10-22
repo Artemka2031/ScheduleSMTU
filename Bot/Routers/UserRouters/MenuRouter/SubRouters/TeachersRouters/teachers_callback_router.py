@@ -106,7 +106,7 @@ async def process_dialog_teacher_calendar(callback_query: CallbackQuery, callbac
         teacher = await send_request_mq('bot.tasks.get_teacher', [teacher_id])
         #teacher = Teacher.get_teacher(teacher_id)
 
-        name_weekday = await send_request_mq('bot.tasks.get_weekday', [str(date)])
+        name_weekday = await send_request_mq('bot.tasks.get_weekday_name', [str(date)])
         #name_weekday = Weekday.get_weekday_name(date)
 
         sorted_schedule = await send_request_mq('bot.tasks.get_schedule_teacher', [teacher_id, name_weekday])

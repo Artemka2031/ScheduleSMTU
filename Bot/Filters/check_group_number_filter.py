@@ -29,7 +29,7 @@ class CheckCurrentGroupFilter(Filter):
 
     async def __call__(self, message: Message) -> bool:
 
-        current_group = await send_request_mq('bot.tasks.get_current_group', [message.from_user.id])
+        current_group = await send_request_mq('bot.tasks.get_group_number', [message.from_user.id])
 
         if current_group == int(message.text):
             return False

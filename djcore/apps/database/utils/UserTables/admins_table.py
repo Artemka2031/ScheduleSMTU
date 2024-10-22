@@ -21,7 +21,7 @@ class Admins(models.Model):
         admins = []
         try:
             # Извлечение всех user_id администраторов
-            admins = list(Admins.objects.values_list('user_id', flat=True))
+            admins = list(Admins.objects.values_list('admin_id', flat=True))
 
         except ObjectDoesNotExist:
             pass

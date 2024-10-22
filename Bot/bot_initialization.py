@@ -24,8 +24,7 @@ async def setup_bot_commands(status: str, user_id: int | str):
     elif status == "admin":
         admin_commands = [
             BotCommand(command="mailing", description="Отправить рассылку"),
-            BotCommand(command="suggestion_reply", description="Ответить на предложение"),
-            BotCommand(command="vuc", description="Добавить расписание на военную кафедру")
+            BotCommand(command="suggestion_reply", description="Ответить на предложение")
         ]
         await bot.set_my_commands(admin_commands, scope=BotCommandScopeChat(chat_id=user_id))
 

@@ -104,11 +104,11 @@ class Notification(models.Model):
         try:
             # user_notifications = {user.user_id: user.notification_time for user in
             #                       Notification.select(Notification.user) if user.notification_time}
-            notifications = Notification.objects.values_list('user_id', 'notification_time')
+            notifications = Notification.objects.values_list('user', 'notification_time')
 
             # notifications = Notification.select(Notification.user, Notification.notification_time)
-            for user_id, notification_time in notifications:
-                user_notifications[user_id] = notification_time
+            for user, notification_time in notifications:
+                user_notifications[user.user_id] = notification_time
 
         except Exception as e:
             user_notifications = False

@@ -1,6 +1,7 @@
 import asyncio
 import locale
 from datetime import datetime, timedelta
+import platform
 
 from django.db import models, IntegrityError
 from django.core.exceptions import ObjectDoesNotExist
@@ -76,7 +77,7 @@ class WeekType(models.Model):
         Returns:
             str: The type of the week for the given date.
         """
-        date_to_check = datetime.strptime(date_to_check, '%Y-%m-%d %H:%M:%S.%f')
+        date_to_check = datetime.strptime(date_to_check, '%Y-%m-%d %H:%M:%S')
         week_number = date_to_check.isocalendar()[1]
         if week_number % 2 ==0:
             week_type = 'Верхняя неделя'
@@ -137,9 +138,27 @@ class Weekday(models.Model):
         Returns:
             str: The name of the weekday for the given date.
         """
-        date = datetime.strptime(date, '%Y-%m-%d %H:%M:%S.%f')
-        locale.setlocale(locale.LC_TIME, 'ru_RU.utf8')
+        date = datetime.strptime(date, '%Y-%m-%d %H:%M:%S')
+        system = platform.system()
+
+        # Настраиваем локаль в зависимости от ОС
+        if system == 'Windows':
+            try:
+                locale.setlocale(locale.LC_TIME, 'Russian_Russia.1251')
+            except locale.Error as e:
+                print(f"Locale error on Windows: {e}")
+                locale.setlocale(locale.LC_TIME, '')
+        else:
+            try:
+                locale.setlocale(locale.LC_TIME, 'ru_RU.UTF-8')
+            except locale.Error as e:
+                print(f"Locale error on Linux: {e}")
+                locale.setlocale(locale.LC_TIME, '')
+
+        # Получаем название дня недели
         day_name = date.strftime("%A")
+
+        # Возвращаем результат с корректной кодировкой
         result = {'result': day_name.capitalize()}
         asyncio.run(send_response(result, reply_to, correlation_id))
 

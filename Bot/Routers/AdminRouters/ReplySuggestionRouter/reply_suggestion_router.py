@@ -1,9 +1,14 @@
+import logging
+
 from aiogram import Router
+from aiogram.enums import ParseMode
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import Message, CallbackQuery
 from datetime import datetime
+
+from aiogram.utils.markdown import italic
 
 from Bot.Filters.not_comand_filter import isNotComandFilter
 from Bot.Keyboards.reply_suggestion_inl_kb import reply_suggestion_kb, ReplyTypeCallback
@@ -78,15 +83,16 @@ async def reply_suggestion(message: Message, state: FSMContext):
     try:
         await message.bot.send_message(chat_id=(await state.get_data())["user_id"], text=reply_text)
         await message.delete()
+        await message.answer(f'Ваш ответ:\n{italic(reply_text)}\nуспешно отправлен пользователю ✅', parse_mode=ParseMode.MARKDOWN)
 
         data = await state.get_data()
 
         reply = await send_request_mq("bot.tasks.process_admin_response", [data["user_id"], data["suggestion_id"], str(datetime.now(moscow_tz).date()), data["reply_suggestion"]])
-
         if reply != 'success':
+            logging.info(f'Возникла ошибка с записью в бд')
             print('Возникла ошибка с записью ответа в бд')
 
     except Exception as e:
-        print(e)
+        logging.error(f'Возникла ошибка при отправке сообщения в брокер {e}')
 
     await state.clear()
