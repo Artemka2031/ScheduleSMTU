@@ -5,13 +5,17 @@
 3. Ввожу команду docker-compose up --build
 
 Далее, когда в терминале начинают появляться записи от rabbit_mq, я запускаю django, делаю я это через интерактивное меню Pycharm
+
 ![изображение](https://github.com/user-attachments/assets/bce770d1-0bc0-489c-82e8-13d9203bc5e6)
+
 Можно это делать по-другому, перейдя в диреткорию djcore, необходимо прописать 
 ```bash
 python manage.py runserver
 ```
 Во втором терминале при появляении в первом следующей записи записи:
+
 ![изображение](https://github.com/user-attachments/assets/abbaaebc-8948-4be1-abab-befec4436570)
+
 Я отсчитываю 3 секунды и ввожу следющую команду 
 ```
 celery -A djcore worker --loglevel=info --pool=solo -Q celery
