@@ -29,3 +29,5 @@ tzlocal==5.2
 urllib3==2.2.0
 yarl==1.9.4
 aio-pika~=9.4.3
+aioredis~=2.0.1
+
