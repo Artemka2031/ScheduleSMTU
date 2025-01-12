@@ -305,3 +305,29 @@ class Group(models.Model):
             else:
                 return group_id
 
+    @staticmethod
+    @app.task(name='bot.tasks.get_group_number')
+    def get_group_number(group_id):
+        try:
+            group = Group.objects.get(id=group_id)
+            return group.group_number
+        except Group.DoesNotExist:
+            raise ValueError(f"Group number {group_id} not found")
+
+    @staticmethod
+    @app.task(name='bot.tasks.get_all_group_for_faculty')
+    def get_all_group_for_faculty(faculty_id) -> dict:
+        try:
+            groups = Group.objects.filter(faculty=faculty_id)
+
+            group_list = {}
+
+            for group in groups:
+                group_list[group.group_number] = group.id
+
+            return group_list
+        except Group.DoesNotExist:
+            raise ValueError(f"Faculty number {faculty_id} not found")
+    
+
+

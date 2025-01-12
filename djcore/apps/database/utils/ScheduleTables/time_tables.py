@@ -283,3 +283,17 @@ class ClassTime(models.Model):
             return class_time.id
         except ObjectDoesNotExist:
             raise ValueError(f"Class time from {start_time} to {end_time} not found or invalid.")
+    
+    @staticmethod
+    @app.task(name='bot.tasks.get_all_pare_start_time')
+    def get_all_pare_start_time():
+        try:
+            class_times = ClassTime.objects.all()
+
+            return_class_time = {}
+            for pare in class_times:
+                return_class_time[pare.start_time] = pare.id
+
+            return return_class_time
+        except ClassTime.DoesNotExist:
+            raise ValueError("Class times not found or invalid.")
