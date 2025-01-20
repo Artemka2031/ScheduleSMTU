@@ -29,7 +29,7 @@ class GroupSchedule(models.Model):
     creation_time = models.DateTimeField()
     objects = models.Manager()
     class Meta:
-        managed = False
+        managed = True
         db_table = 'groupschedule'
 
     @staticmethod

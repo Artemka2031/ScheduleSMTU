@@ -19,7 +19,7 @@ class Faculty(models.Model):
     objects = models.Manager()
     class Meta:
         db_table = 'faculty'
-        managed = False
+        managed = True
 
     @staticmethod
     def add_faculty(name):
@@ -72,7 +72,7 @@ class Department(models.Model):
     objects = models.Manager()
     class Meta:
         db_table = 'department'
-        managed = False
+        managed = True
 
     @staticmethod
     def add_department(department_name, faculty_name):
@@ -117,7 +117,7 @@ class Teacher(models.Model):
     objects = models.Manager()
     class Meta:
         db_table = 'teacher'
-        managed = False
+        managed = True
 
     @staticmethod
     def add_teacher(last_name, first_name, middle_name):
@@ -202,7 +202,7 @@ class TeacherDepartment(models.Model):
     class Meta:
         db_table = 'teacherdepartment'
         unique_together = (('teacher', 'department'), ('teacher', 'department'),)
-        managed = False
+        managed = True
     @staticmethod
     def get_teacher_department_id(teacher_id, department_id):
         """
@@ -264,7 +264,7 @@ class Group(models.Model):
     objects = models.Manager()
     class Meta:
         db_table = 'group'
-        managed = False
+        managed = True
     @staticmethod
     def add_group(group_number: int, faculty_name):
         """

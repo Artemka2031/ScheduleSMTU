@@ -51,6 +51,9 @@ def run_django(venv_python):
     command = [venv_python, "manage.py", "runserver", "0.0.0.0:8000", "--noreload"]
     process = subprocess.Popen(command, cwd=project_dir)
     print("Django-проект запущен.")
+    run_rabbit_consumer = [venv_python, f'{project_dir}\\apps\\database\\rabbitmq_consumer_runner.py']
+    subprocess.Popen(run_rabbit_consumer, cwd=project_dir, preexec_fn=os.setpgrp if platform.system() != "Windows" else None)
+
     return process
 
 def run_celery():
@@ -64,9 +67,9 @@ if __name__ == "__main__":
     print(f"Текущая директория: {os.getcwd()}")
     print(f"Абсолютный путь к проекту: {os.path.abspath('.')}")
     try:
-        create_virtualenv()
+        # create_virtualenv()
         venv_python = activate_virtualenv()
-        subprocess.check_call([venv_python, "-m", "pip", "install", "-r", "requirements.txt"])
+        # subprocess.check_call([venv_python, "-m", "pip", "install", "-r", "requirements.txt"])
         check_docker()
         check_docker_compose()
         run_docker_compose()

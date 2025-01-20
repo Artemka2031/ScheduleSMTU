@@ -16,7 +16,7 @@ class WeekType(models.Model):
     objects = models.Manager()
     class Meta:
         db_table = 'weektype'
-        managed = False
+        managed = True
     @staticmethod
     def initialize_week_types():
         """
@@ -111,7 +111,7 @@ class Weekday(models.Model):
     objects = models.Manager()
     class Meta:
         db_table = 'weekday'
-        managed = False
+        managed = True
     @staticmethod
     def initialize_weekdays():
         """
@@ -248,7 +248,7 @@ class ClassTime(models.Model):
     objects = models.Manager()
     class Meta:
         db_table = 'classtime'
-        managed = False
+        managed = True
 
     @staticmethod
     def initialize_class_times():

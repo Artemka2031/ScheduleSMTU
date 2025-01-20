@@ -63,7 +63,7 @@ if __name__ == "__main__":
     signal.signal(signal.SIGTERM, lambda *args: signal_handler(consumer_runner, *args))
 
     # Задержка перед запуском, чтобы все службы Django успели стартовать
-    time.sleep(7)
+    time.sleep(3.5)
 
     # Запускаем consumer
     consumer_runner.start()
