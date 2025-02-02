@@ -2,6 +2,11 @@ import asyncio
 import threading
 import time
 import signal
+
+# Инициализация Django (чтобы получить доступ к settings.py)
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'djcore.settings')
+django.setup()
+
 from djcore.apps.database.rabbitmq_consumer import RabbitMQConsumer
 from djcore.celery_app import app
 

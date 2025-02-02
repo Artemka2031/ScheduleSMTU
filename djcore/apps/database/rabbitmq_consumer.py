@@ -16,6 +16,8 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'djcore.settings')
 from djcore.settings import RABBITMQ_USER, RABBITMQ_PASSWORD, RABBITMQ_HOST, RABBITMQ_PORT
 from djcore.celery_app import app
 
+from django.conf import settings
+
 logger = logging.getLogger(__name__)
 
 class RabbitMQConsumer:

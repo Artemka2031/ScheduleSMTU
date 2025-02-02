@@ -1,22 +1,28 @@
 version: '3.8'
 
 services:
-  rabbitmq:
-    image: rabbitmq:3-management
-    container_name: rabbitmq
+  mariadb:
+    image: mariadb:10.6
+    container_name: mariadb
     ports:
-      - "5672:5672"      # Основной порт AMQP
-      - "15672:15672"    # Веб-интерфейс управления
+      - "3306:3306"  # Порт для подключения к MariaDB
     environment:
-      RABBITMQ_DEFAULT_USER: rabbitmq
-      RABBITMQ_DEFAULT_PASS: ScheduleSMTU
+      MYSQL_DATABASE: schedule
+      MYSQL_USER: schedule_SMTU
+      MYSQL_PASSWORD: wD7jQ#2zRt!vY6Tp
+      MYSQL_ROOT_PASSWORD: rootpassword  # Пароль для root-пользователя
+    volumes:
+      - mariadb_data:/var/lib/mysql
     networks:
       - app-network
     healthcheck:
-      test: ["CMD-SHELL", "rabbitmqctl status"]
-      interval: 20s
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpassword"]
+      interval: 10s
       timeout: 5s
       retries: 5
+
+volumes:
+  mariadb_data:
 
   redis:
     image: redis:latest
