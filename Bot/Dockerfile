@@ -12,10 +12,12 @@ RUN apt-get update && \
     sed -i '/ru_RU.UTF-8/s/^# //g' /etc/locale.gen && \
     locale-gen && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
+RUN apt-get install -y bash
 
 ENV LANG=en_US.UTF-8
 ENV LANGUAGE=en_US:en
 ENV LC_ALL=en_US.UTF-8
+
 # Копируем файл с зависимостями в контейнер
 COPY Bot/requirements.txt /app/requirements.txt
 
@@ -23,7 +25,8 @@ COPY Bot/requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Копируем все файлы проекта в контейнер
-COPY ./Bot /app/Bot
+COPY Bot /app/Bot
+COPY Bot/wait-for-it.sh /app/Bot/wait-for-it.sh
 
 RUN chmod +x /app/Bot/wait-for-it.sh
 # Устанавливаем переменную окружения PYTHONPATH

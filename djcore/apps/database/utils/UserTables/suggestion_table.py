@@ -18,8 +18,8 @@ class Suggestion(models.Model):
     closed_date = models.DateField(default=None, null=True, blank=True)
     closed_text = models.TextField(default="", null=True)
     objects = models.Manager()
+
     class Meta:
-        managed = True
         db_table = 'suggestion'
 
     @staticmethod

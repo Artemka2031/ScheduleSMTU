@@ -5,7 +5,7 @@ services:
     image: mariadb:10.6
     container_name: mariadb
     ports:
-      - "3306:3306"  # Порт для подключения к MariaDB
+      - "3307:3306"  # Порт для подключения к MariaDB
     environment:
       MYSQL_DATABASE: schedule
       MYSQL_USER: schedule_SMTU
@@ -16,13 +16,10 @@ services:
     networks:
       - app-network
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpassword"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "root", "-prootpassword"]
       interval: 10s
       timeout: 5s
       retries: 5
-
-volumes:
-  mariadb_data:
 
   redis:
     image: redis:latest
@@ -30,7 +27,8 @@ volumes:
     ports:
       - "6379:6379"
     depends_on:
-      - rabbitmq
+      rabbitmq:
+        condition: service_healthy
     networks:
       - app-network
     command: ["redis-server", "--requirepass", "ScheduleSMTU"]
@@ -42,6 +40,23 @@ volumes:
       timeout: 5s
       retries: 5
 
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: rabbitmq
+      RABBITMQ_DEFAULT_PASS: ScheduleSMTU
+    ports:
+      - "5672:5672"
+      - "15672:15672"  # Панель управления RabbitMQ
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   telegram_bot:
     build:
       context: ../  # Указываем корневую директорию проекта
@@ -49,7 +64,9 @@ volumes:
     container_name: telegram_bot
     depends_on:
       rabbitmq:
-        condition: service_healthy  # Убедиться, что RabbitMQ готов
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     environment:
       REDIS_HOST: redis
       REDIS_PORT: 6379
@@ -61,6 +78,9 @@ volumes:
     command: ["/app/Bot/wait-for-it.sh", "rabbitmq:5672", "--", "python", "Bot/start_bot.py"]
     networks:
       - app-network
+
+volumes:
+  mariadb_data:
 
 networks:
   app-network:

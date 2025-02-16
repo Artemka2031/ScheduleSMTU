@@ -1,9 +1,13 @@
+import os
 import asyncio
-import threading
-import time
+import sys
 import signal
+import time
+import django
+import threading
 
-# Инициализация Django (чтобы получить доступ к settings.py)
+# Инициализация Django
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'djcore.settings')
 django.setup()
 
@@ -14,69 +18,58 @@ from djcore.celery_app import app
 class RabbitMQConsumerRunner:
     def __init__(self):
         self.loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(self.loop)
         self.consumer = RabbitMQConsumer()
-        self.thread = None
+        self.shutdown_event = asyncio.Event()
 
-    def start(self):
+    async def start(self):
         print("Запуск RabbitMQ Consumer...")
         app.autodiscover_tasks()
 
-        def run():
-            try:
-                # Создаем задачу для запуска потребителя
-                self.loop.create_task(self.consumer.start_consuming())
-                # Бесконечно запускаем цикл событий
-                self.loop.run_forever()
-            except (KeyboardInterrupt, SystemExit):
-                pass
-            finally:
-                print("Завершение работы RabbitMQ Consumer...")
-                self._stop_loop()
+        consumer_task = asyncio.create_task(self.consumer.start_consuming())
 
-        # Запускаем поток
-        self.thread = threading.Thread(target=run, daemon=True)
-        self.thread.start()
+        await self.shutdown_event.wait()
+
+        print("Остановка RabbitMQ Consumer...")
+        consumer_task.cancel()
+        try:
+            await consumer_task
+        except asyncio.CancelledError:
+            pass
 
     def stop(self):
-        print("Остановка RabbitMQ Consumer...")
-        self._stop_loop()
-        if self.thread:
-            self.thread.join()
+        self.shutdown_event.set()
 
-    def _stop_loop(self):
-        pending = asyncio.all_tasks(self.loop)
-        for task in pending:
-            task.cancel()
-        self.loop.run_until_complete(asyncio.gather(*pending, return_exceptions=True))
-        self.loop.run_until_complete(self.loop.shutdown_asyncgens())
-        self.loop.stop()
-        self.loop.close()
+    def run(self):
+        asyncio.set_event_loop(self.loop)
+        self.loop.run_until_complete(self.start())
 
 
-def signal_handler(consumer_runner, *args):
-    consumer_runner.stop()
-    print("Приложение остановлено.")
-    exit(0)
+async def main():
+    consumer_runner = RabbitMQConsumerRunner()
+
+    consumer_thread = threading.Thread(target=consumer_runner.run, daemon=True)
+    consumer_thread.start()
+
+    # Windows-совместимый обработчик сигналов
+    def handle_signal(signum, frame):
+        print(f"Получен сигнал {signum}, останавливаем consumer...")
+        consumer_runner.stop()
+
+    signal.signal(signal.SIGINT, handle_signal)
+    signal.signal(signal.SIGTERM, handle_signal)
+
+    try:
+        while consumer_thread.is_alive():
+            time.sleep(1)
+    except KeyboardInterrupt:
+        print("Прерывание пользователем. Завершаем...")
+        consumer_runner.stop()
+        consumer_thread.join()
 
 
 if __name__ == "__main__":
-    consumer_runner = RabbitMQConsumerRunner()
+    # Даем Django время запуститься
+    time.sleep(1)
 
-    # Обрабатываем сигналы для корректного завершения
-    signal.signal(signal.SIGINT, lambda *args: signal_handler(consumer_runner, *args))
-    signal.signal(signal.SIGTERM, lambda *args: signal_handler(consumer_runner, *args))
-
-    # Задержка перед запуском, чтобы все службы Django успели стартовать
-    time.sleep(3.5)
-
-    # Запускаем consumer
-    consumer_runner.start()
-
-    # Блокируем выполнение, чтобы основной поток не завершался
-    try:
-        while True:
-            time.sleep(1)
-    except KeyboardInterrupt:
-        consumer_runner.stop()
-        print("RabbitMQ Consumer остановлен.")
+    # Запуск основного цикла
+    asyncio.run(main())

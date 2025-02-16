@@ -15,7 +15,6 @@ class Notification(models.Model):
 
     class Meta:
         db_table = 'notification'
-        managed = True
     @staticmethod
     @app.task(name='bot.tasks.add_notification')
     def add_notification(user_id, notification_time, reply_to, correlation_id):

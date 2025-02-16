@@ -28,8 +28,8 @@ class GroupSchedule(models.Model):
     classroom = models.ForeignKey(ClassRoom, models.DO_NOTHING)
     creation_time = models.DateTimeField()
     objects = models.Manager()
+
     class Meta:
-        managed = True
         db_table = 'groupschedule'
 
     @staticmethod

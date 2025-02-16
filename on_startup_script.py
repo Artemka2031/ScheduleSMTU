@@ -45,10 +45,21 @@ def run_docker_compose():
     subprocess.check_call(["docker-compose", "up", "--build", "-d"], cwd=docker_compose_dir)
     print("Docker-compose запущен.")
 
+def stop_docker_compose():
+    docker_compose_dir = os.path.abspath("docker_compose")
+    print(f"Запускаем docker-compose из директории: {docker_compose_dir}")
+    subprocess.check_call(["docker-compose", "down", "-v"], cwd=docker_compose_dir)
+    print("Docker-compose запущен.")
+
 def run_django(venv_python):
     project_dir = os.path.abspath("djcore")
     print(f"Запускаем Django-проект из директории: {project_dir}")
-    command = [venv_python, "manage.py", "runserver", "0.0.0.0:8000", "--noreload"]
+    #Выполним миграции (для перового развертывания это очень важно, если БД запускается в контейнере)
+
+    command_migrate = [venv_python, "manage.py", "migrate"]
+    subprocess.run(command_migrate, cwd=project_dir)
+    print(f'Миграция выполнена')
+    command = [venv_python, "manage.py", "runserver", "127.0.0.1:8000", "--noreload"]
     process = subprocess.Popen(command, cwd=project_dir)
     print("Django-проект запущен.")
     run_rabbit_consumer = [venv_python, f'{project_dir}\\apps\\database\\rabbitmq_consumer_runner.py']
@@ -59,7 +70,7 @@ def run_django(venv_python):
 def run_celery():
     project_dir = os.path.abspath(".")
     print(f"Запускаем Celery-воркеры из директории: {project_dir}")
-    command = ["celery", "-A", "djcore", "worker", "--loglevel=info", "--pool=solo", "-Q", "celery"]
+    command = ["celery", "-A", "djcore", "worker", "--loglevel=info", "--pool=solo", "-Q", "celery", "--hostname=worker1"]
     subprocess.Popen(command, cwd=project_dir, preexec_fn=os.setpgrp if platform.system() != "Windows" else None)
     print("Celery-воркеры запущены.")
 
@@ -73,12 +84,13 @@ if __name__ == "__main__":
         check_docker()
         check_docker_compose()
         run_docker_compose()
-        time.sleep(5)
         django_process = run_django(venv_python)
+        time.sleep(1)
         run_celery()
         django_process.wait()
     except KeyboardInterrupt:
         print("Прерывание. Завершаем процессы...")
+        stop_docker_compose()
         sys.exit(0)
     except Exception as e:
         print(f"Ошибка: {e}")

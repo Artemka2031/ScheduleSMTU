@@ -13,7 +13,6 @@ class Admins(models.Model):
 
     class Meta:
         db_table = 'admins'
-        managed = True
 
     @staticmethod
     @app.task(name='bot.tasks.get_all_admins')

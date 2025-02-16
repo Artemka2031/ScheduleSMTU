@@ -84,7 +84,7 @@ DATABASES = {
         'USER': 'schedule_SMTU',
         'PASSWORD': 'wD7jQ#2zRt!vY6Tp',
         'HOST': 'localhost',
-        'PORT': '3306',
+        'PORT': '3307',
     }
 }
 
@@ -114,6 +114,7 @@ CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'Europe/Moscow'
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 
 CELERY_TASK_QUEUES = (
     Queue('celery', Exchange('celery'), routing_key='celery'),
@@ -140,13 +141,14 @@ CELERY_BEAT_SCHEDULE = {
         'schedule': crontab(hour='4', minute='0'),
         'options': {'queue': 'celery'},  # Отправляем в ту же очередь
     },
+
 }
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'ru-RU'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Moscow'
 
 USE_I18N = True
 

@@ -9,7 +9,7 @@ class Subject(models.Model):
     objects = models.Manager()
     class Meta:
         db_table = 'subject'
-        managed = True
+
     @staticmethod
     def add_subject(name):
         """
@@ -47,7 +47,7 @@ class LessonType(models.Model):
     objects = models.Manager()
     class Meta:
         db_table = 'lessontype'
-        managed = True
+
     @staticmethod
     def initialize_lesson_type():
         """
@@ -85,7 +85,6 @@ class ClassRoom(models.Model):
     objects = models.Manager()
     class Meta:
         db_table = 'classroom'
-        managed = True
 
     @staticmethod
     def add_classroom(building, room_number):

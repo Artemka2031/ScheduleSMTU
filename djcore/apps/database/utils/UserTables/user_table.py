@@ -16,7 +16,6 @@ class User(models.Model):
     group = models.ForeignKey(Group, models.DO_NOTHING)
     objects = models.Manager()
     class Meta:
-        managed = True
         db_table = 'user'
 
     @staticmethod
