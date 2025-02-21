@@ -5,6 +5,7 @@ import logging
 from aiogram.utils.markdown import hbold
 from asgiref.sync import async_to_sync
 from celery import shared_task
+from celery.bin.result import result
 from django.db import models, IntegrityError
 from django.core.exceptions import ObjectDoesNotExist
 
@@ -36,7 +37,7 @@ class Faculty(models.Model):
             print(f"Faculty '{name}' already exists in the database.")
 
     @staticmethod
-    def get_faculty_id(faculty_name):
+    def get_faculty_id(faculty_name, reply_to = None, correlation_id = None):
         """
         Returns the ID of a faculty by its name.
 
@@ -46,11 +47,53 @@ class Faculty(models.Model):
         Returns:
             int: The ID of the faculty.
         """
+        faculty = None
         try:
             faculty = Faculty.objects.get(name = faculty_name)
-            return faculty.id
+            #return faculty.id
         except ObjectDoesNotExist:
             raise ValueError(f"Faculty '{faculty_name}' not found")
+        finally:
+            if reply_to is not None and correlation_id is not None:
+                result = {'result': faculty.id}
+                asyncio.run(send_response(result, reply_to, correlation_id))
+            else:
+                return faculty.id
+
+    @staticmethod
+    @app.task(name='bot.tasks.get_all_faculties')
+    def get_all_faculties(reply_to=None, correlation_id=None):
+        return_faculties = {}
+        try:
+            # Получаем все факультеты
+            faculties = Faculty.objects.all()  # Аналог `Faculty.select()` в Peewee
+
+            # Преобразуем в словарь {название: ID}
+            return_faculties = {faculty.name: faculty.id for faculty in faculties}
+
+            print(f"Получено {len(return_faculties)} факультетов.")
+
+        except Exception as e:
+            print(f"Ошибка при получении списка факультетов: {e}")
+
+        finally:
+            # Отправляем результат через RabbitMQ
+            asyncio.run(send_response({'result': return_faculties}, reply_to, correlation_id))
+
+    @staticmethod
+    @app.task(name='admin_bot.tasks.get_faculty_name_by_id')
+    def get_faculty_name_by_id(faculty_id, reply_to=None, correlation_id=None):
+        faculty_name = None
+        try:
+            faculty_name = Faculty.objects.get(id=faculty_id).name
+        except ObjectDoesNotExist:
+            print(f'Faculty {faculty_id} does not exist')
+        finally:
+            if reply_to is not None and correlation_id is not None:
+                result = {'result': faculty_name}
+                asyncio.run(send_response(result, reply_to, correlation_id))
+            else:
+                return faculty_name
 
     @staticmethod
     def add_faculties_and_groups():
@@ -199,6 +242,7 @@ class TeacherDepartment(models.Model):
     class Meta:
         db_table = 'teacherdepartment'
         unique_together = (('teacher', 'department'), ('teacher', 'department'),)
+
     @staticmethod
     def get_teacher_department_id(teacher_id, department_id):
         """
@@ -223,7 +267,7 @@ class TeacherDepartment(models.Model):
     @staticmethod
     def set_teachers_department():
         """
-        Sets the department for each teacher_text in the database based on the department data file.
+        Sets the department for each teacher in the database based on the department data file.
         If a department is not found, it will be added.
         """
         with open(path_base.department_data, 'r', encoding='utf-8') as file:
@@ -246,11 +290,15 @@ class TeacherDepartment(models.Model):
                 for employee in department_info['Employees']:
                     try:
                         teacher = Teacher.objects.get(
-                            last_name = employee['surname'],
-                            first_name = employee['name'],
-                            middle_name = employee['patronymic']
+                            last_name=employee['surname'],
+                            first_name=employee['name'],
+                            middle_name=employee['patronymic']
                         )
-                        TeacherDepartment.objects.get_or_create(teacher=teacher, department=department)
+                        try:
+                            TeacherDepartment.objects.get_or_create(teacher=teacher, department=department)
+                        except IntegrityError:
+                            # Если возникла ошибка дублирования, пытаемся получить уже существующую запись
+                            TeacherDepartment.objects.get(teacher=teacher, department=department)
                     except ObjectDoesNotExist:
                         print(f"Teacher {employee['surname']} {employee['name']} not found.")
 
@@ -301,29 +349,34 @@ class Group(models.Model):
                 return group_id
 
     @staticmethod
-    @app.task(name='bot.tasks.get_group_number')
-    def get_group_number(group_id):
+    @app.task(name='admin_bot.tasks.get_group_number')
+    def get_group_number(group_id, reply_to=None, correlation_id=None):
+        group_number = None
         try:
-            group = Group.objects.get(id=group_id)
-            return group.group_number
+            group_number = Group.objects.get(id=group_id).group_number
         except Group.DoesNotExist:
             raise ValueError(f"Group number {group_id} not found")
+        finally:
+            if reply_to and correlation_id:
+                result = {'result': group_number}
+                asyncio.run(send_response(result, reply_to, correlation_id))
+            else:
+                return group_number
 
 
-    @staticmethod
-    @app.task(name='bot.tasks.get_all_group_for_faculty')
-    def get_all_group_for_faculty(faculty_id) -> dict:
-        try:
-            groups = Group.objects.filter(faculty=faculty_id)
-
-            group_list = {}
-
-            for group in groups:
-                group_list[group.group_number] = group.id
-
-            return group_list
-        except Group.DoesNotExist:
-            raise ValueError(f"Faculty number {faculty_id} not found")
-    
-
-
+'''
+Убрать метод ниже, в group_schedule уже прописан метод, его заменяющий
+'''
+    # @staticmethod
+    # @app.task(name='bot.tasks.get_all_group_for_faculty')
+    # def get_all_group_for_faculty(faculty_id) -> dict:
+    #     group_list = {}
+    #     try:
+    #         groups = Group.objects.filter(faculty=faculty_id)
+    #
+    #         for group in groups:
+    #             group_list[group.group_number] = group.id
+    #
+    #         return group_list
+    #     except Group.DoesNotExist:
+    #         raise ValueError(f"Faculty number {faculty_id} not found")

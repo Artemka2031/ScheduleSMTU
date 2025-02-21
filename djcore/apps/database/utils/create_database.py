@@ -8,10 +8,10 @@ django.setup()
 
 import asyncio
 import subprocess
+from djcore.apps.database.utils.ScheduleTables.time_tables import Weekday, WeekType, ClassTime
 from djcore.apps.database.utils.ScheduleTables.group_schedule import GroupSchedule
 from djcore.apps.database.utils.ScheduleTables.group_tables import Faculty, Department, Group, Teacher, TeacherDepartment
-# from djcore.apps.database.utils.ScheduleTables.subject_tables import LessonType, Subject, ClassRoom
-# from djcore.apps.database.utils.ScheduleTables.time_tables import WeekType, Weekday, ClassTime
+from djcore.apps.database.utils.ScheduleTables.subject_tables import LessonType, Subject, ClassRoom
 # from djcore.apps.database.utils.UserTables.notification_table import Notification
 # from djcore.apps.database.utils.UserTables.suggestion_table import Suggestion
 # from djcore.apps.database.utils.UserTables.user_table import User
@@ -112,7 +112,10 @@ async def refresh_database():
 
     # Шаг 4: Синхронизация данных после парсинга
     await sync_to_async(Faculty.add_faculties_and_groups)()
-
+    await sync_to_async(Weekday.initialize_weekdays)()
+    await sync_to_async(WeekType.initialize_week_types)()
+    await sync_to_async(ClassTime.initialize_class_times)()
+    await sync_to_async(LessonType.initialize_lesson_type)()
     groups = get_all_group_numbers()
     for group in groups:
         await sync_to_async(GroupSchedule.set_schedule)(group, forced_update=False)
@@ -121,6 +124,6 @@ async def refresh_database():
 
     print("База данных успешно обновлена и синхронизирована.")
 
-
-if __name__ == "__main__":
-    asyncio.run(refresh_database())
+#
+# if __name__ == "__main__":
+#     asyncio.run(refresh_database())

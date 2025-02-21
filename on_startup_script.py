@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
+import asyncio
 import os
 import sys
 import subprocess
 import platform
 import time
 
+from apps.database.utils.create_database import refresh_database
+
+# I really don't understand what does this method do, but it seems to be working..
 def create_virtualenv():
     if not os.path.exists("venv"):
         print("Создаём виртуальное окружение...")
@@ -47,18 +51,20 @@ def run_docker_compose():
 
 def stop_docker_compose():
     docker_compose_dir = os.path.abspath("docker_compose")
-    print(f"Запускаем docker-compose из директории: {docker_compose_dir}")
-    subprocess.check_call(["docker-compose", "down", "-v"], cwd=docker_compose_dir)
-    print("Docker-compose запущен.")
+    print(f"Останавливаем docker-compose из директории: {docker_compose_dir}")
+    subprocess.check_call(["docker-compose", "stop"], cwd=docker_compose_dir)
+    print("Docker-compose остановлен (контейнеры выключены, но не удалены).")
 
 def run_django(venv_python):
     project_dir = os.path.abspath("djcore")
     print(f"Запускаем Django-проект из директории: {project_dir}")
-    #Выполним миграции (для перового развертывания это очень важно, если БД запускается в контейнере)
-
+    # Выполним миграции (для первого развертывания это очень важно, если БД запускается в контейнере)
     command_migrate = [venv_python, "manage.py", "migrate"]
     subprocess.run(command_migrate, cwd=project_dir)
-    print(f'Миграция выполнена')
+    print('Миграция выполнена')
+
+    # asyncio.run(refresh_database())
+
     command = [venv_python, "manage.py", "runserver", "127.0.0.1:8000", "--noreload"]
     process = subprocess.Popen(command, cwd=project_dir)
     print("Django-проект запущен.")

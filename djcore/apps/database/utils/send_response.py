@@ -45,32 +45,3 @@ async def send_response(result, reply_to, correlation_id):
             message,
             routing_key=reply_to
         )
-# def send_response(result, reply_to, correlation_id):
-#     try:
-#         connection = pika.BlockingConnection(
-#             pika.ConnectionParameters(
-#                 host=RABBITMQ_HOST,
-#                 port=RABBITMQ_PORT,
-#                 credentials=pika.PlainCredentials(RABBITMQ_USER, RABBITMQ_PASSWORD)
-#             )
-#         )
-#         channel = connection.channel()
-#         exchange = 'direct_exchange'
-#         channel.exchange_declare(exchange=exchange, exchange_type='direct', durable=True)
-#         channel.queue_declare(queue=reply_to, durable=True)
-#         channel.queue_bind(exchange=exchange, queue=reply_to, routing_key=reply_to)
-#         message = json.dumps(result).encode()
-#
-#         channel.basic_publish(
-#             exchange=exchange,
-#             routing_key=reply_to,
-#             body=message,
-#             properties=pika.BasicProperties(correlation_id=correlation_id)
-#         )
-#         logging.info(f'Очередь ответов {reply_to}\nСам ответ - {result}')
-#     except Exception as e:
-#         logging.error(f'Ошибка в send_response: {e}')
-#     finally:
-#         logging.info(f'Завершение send_response для correlation_id: {correlation_id}')
-#         if 'connection' in locals() and connection.is_open:
-#             connection.close()

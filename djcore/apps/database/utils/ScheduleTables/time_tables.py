@@ -6,6 +6,7 @@ import platform
 from django.db import models, IntegrityError
 from django.core.exceptions import ObjectDoesNotExist
 
+from apps.database.utils.Path.schedule_path_functions import find_group_dir_by_group_number
 from djcore.apps.database.utils.config_db import moscow_tz
 from djcore.apps.database.utils.send_response import send_response
 from djcore.celery_app import app
@@ -14,8 +15,10 @@ from djcore.celery_app import app
 class WeekType(models.Model):
     name = models.CharField(unique=True, max_length=255)
     objects = models.Manager()
+
     class Meta:
         db_table = 'weektype'
+
     @staticmethod
     def initialize_week_types():
         """
@@ -31,7 +34,9 @@ class WeekType(models.Model):
                 print(f"Week type '{week_type_name}' already exists in the database.")
 
     @staticmethod
-    def get_week_type_id(week_type_name):
+    @app.task(name='bot.tasks.get_week_type_id')
+    def get_week_type_id(week_type_name, reply_to=None, correlation_id=None):
+        week_type_id = None
         """
         Returns the ID of a week type by its name.
 
@@ -42,10 +47,15 @@ class WeekType(models.Model):
             int: The ID of the week type.
         """
         try:
-            week_type = WeekType.objects.get(name=week_type_name)
-            return week_type.id
+            week_type_id = WeekType.objects.get(name=week_type_name).id
         except ObjectDoesNotExist:
             raise ValueError(f"Week type '{week_type_name}' not found")
+        finally:
+            if reply_to is not None and correlation_id is not None:
+                result = {'result':week_type_id}
+                asyncio.run(send_response(result, reply_to, correlation_id))
+            else:
+                return week_type_id
 
     @staticmethod
     @app.task(name='bot.tasks.get_current_week')
@@ -64,6 +74,7 @@ class WeekType(models.Model):
         #return 'Верхняя неделя' if week_number % 2 == 0 else 'Нижняя неделя'
         result = {'result': cur_week}
         asyncio.run(send_response(result, reply_to, correlation_id))
+
     @staticmethod
     @app.task(name='bot.tasks.determine_week_type')
     def determine_week_type(date_to_check: str, reply_to, correlation_id):
@@ -161,7 +172,9 @@ class Weekday(models.Model):
         asyncio.run(send_response(result, reply_to, correlation_id))
 
     @staticmethod
-    def get_weekday_id(weekday_name):
+    @app.task(name='bot.tasks.get_weekday_id')
+    def get_weekday_id(weekday_name, reply_to=None, correlation_id=None):
+        weekday_id = None
         """
         Returns the ID of a weekday by its name.
 
@@ -172,10 +185,15 @@ class Weekday(models.Model):
             int: The ID of the weekday.
         """
         try:
-            weekday = Weekday.objects.get(name=weekday_name)
-            return weekday.id
+            weekday_id = Weekday.objects.get(name=weekday_name).id
         except ObjectDoesNotExist:
             raise ValueError(f"Weekday '{weekday_name}' not found")
+        finally:
+            if reply_to is not None and correlation_id is not None:
+                result = {'result': weekday_id}
+                asyncio.run(send_response(result, reply_to, correlation_id))
+            else:
+                return weekday_id
 
     @staticmethod
     def get_order(day_name: str) -> int:
@@ -283,7 +301,8 @@ class ClassTime(models.Model):
     
     @staticmethod
     @app.task(name='bot.tasks.get_all_pare_start_time')
-    def get_all_pare_start_time():
+    def get_all_pare_start_time(reply_to = None, correlation_id = None):
+        return_class_time = {}
         try:
             class_times = ClassTime.objects.all()
 
@@ -291,6 +310,27 @@ class ClassTime(models.Model):
             for pare in class_times:
                 return_class_time[pare.start_time] = pare.id
 
-            return return_class_time
         except ClassTime.DoesNotExist:
             raise ValueError("Class times not found or invalid.")
+
+        finally:
+            if reply_to is not None and correlation_id is not None:
+                result = {'result': return_class_time}
+                asyncio.run(send_response(result, reply_to, correlation_id))
+            else:
+                return return_class_time
+
+    @staticmethod
+    @app.task(name="bot.tasks.get_time_text_by_id")
+    def get_time_text_by_id(time_id:int, reply_to = None, correlation_id = None):
+        class_time = None
+        try:
+            class_time = ClassTime.objects.get(id=time_id).start_time
+        except ObjectDoesNotExist:
+            print("Class times not found or invalid.")
+        finally:
+            if reply_to is not None and correlation_id is not None:
+                result = {'result': class_time}
+                asyncio.run(send_response(result, reply_to, correlation_id))
+            else:
+                return class_time

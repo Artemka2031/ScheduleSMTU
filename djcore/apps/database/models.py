@@ -7,3 +7,4 @@ from djcore.apps.database.utils.UserTables.notification_table import Notificatio
 from djcore.apps.database.utils.UserTables.suggestion_table import Suggestion
 from djcore.apps.database.utils.UserTables.user_table import User
 from djcore.apps.database.utils.UserTables.admins_table import Admins
+from djcore.apps.database.utils.UserTables.user_table_admin_bot import AdminUser

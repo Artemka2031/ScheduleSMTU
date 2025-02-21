@@ -10,7 +10,7 @@ redis_client = None
 async def get_redis_client():
     global redis_client
     if not redis_client:
-        redis_url = f"redis://:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}"
+        redis_url = f"redis://:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}/0"
         redis_client = aioredis.from_url(
             redis_url,
             encoding="utf-8",

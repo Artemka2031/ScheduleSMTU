@@ -26,6 +26,7 @@ class RabbitMQConsumer:
         self.channel = None
         self.exchange = None
         self.queue = None
+        self.queue_admin = None
 
     async def connect(self):
         self.connection = await aio_pika.connect_robust(
@@ -40,8 +41,11 @@ class RabbitMQConsumer:
         self.exchange = await self.channel.declare_exchange('direct_exchange', aio_pika.ExchangeType.DIRECT, durable=True)
         # Объявляем очередь
         self.queue = await self.channel.declare_queue('bot_queue', durable=True)
-        # Связываем очередь с exchange и routing_key
         await self.queue.bind(self.exchange, routing_key='bot_queue')
+
+        self.queue_admin = await self.channel.declare_queue('admin_bot_queue', durable=True)
+        await self.queue_admin.bind(self.exchange, routing_key='admin_bot_queue')
+        # Связываем очередь с exchange и routing_key
 
     async def process_message(self, message: aio_pika.IncomingMessage):
         async with message.process():
@@ -63,7 +67,6 @@ class RabbitMQConsumer:
                     # task_data.append(reply_to)
                     # task_data.append(correlation_id)
 
-
                     task.apply_async(args=task_data, kwargs={'reply_to': reply_to, "correlation_id":correlation_id}, queue='celery')
 
 
@@ -73,29 +76,6 @@ class RabbitMQConsumer:
     async def start_consuming(self):
         await self.connect()
         await self.queue.consume(self.process_message)
+        await self.queue_admin.consume(self.process_message)
         logger.info("Запуск асинхронного RabbitMQ Consumer для очереди bot_queue")
 
-# def start_consumer():
-#     app.autodiscover_tasks()
-#     loop = asyncio.new_event_loop()
-#     asyncio.set_event_loop(loop)
-#     consumer = RabbitMQConsumer()
-#
-#     # Создаем задачу для старта consumer
-#     loop.create_task(consumer.start_consuming())
-#
-#     # Бесконечно запускаем цикл событий
-#     try:
-#         loop.run_forever()
-#     except (KeyboardInterrupt, SystemExit):
-#         pass
-#     finally:
-#         pending = asyncio.all_tasks(loop)
-#         for task in pending:
-#             task.cancel()
-#         loop.run_until_complete(asyncio.gather(*pending, return_exceptions=True))  # Ожидаем завершения всех задач
-#         loop.run_until_complete(loop.shutdown_asyncgens())  # Очищаем асинхронные генераторы
-#         loop.close()
-#
-# if __name__ == '__main__':
-#     start_consumer()

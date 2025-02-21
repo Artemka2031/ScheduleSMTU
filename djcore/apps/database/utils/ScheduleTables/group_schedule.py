@@ -405,7 +405,6 @@ class GroupSchedule(models.Model):
                 result = {'result': schedule}
                 asyncio.run(send_response(result, reply_to, correlation_id))
             else:
-                print('Отправляю хуй')
                 return schedule
 
     @staticmethod
@@ -444,7 +443,8 @@ class GroupSchedule(models.Model):
 
     @staticmethod
     @app.task(name='bot.tasks.get_pare_for_group')
-    def get_pare_for_group(group_id: int, classtime_id: int, weekday_name: str):
+    def get_pare_for_group(group_id: int, classtime_id: int, weekday_name: str, reply_to = None, correlation_id = None):
+
         day_id = Weekday.objects.get(name=weekday_name).id
         selected_pare = GroupSchedule.objects.filter(
             group_id=group_id,
@@ -452,46 +452,61 @@ class GroupSchedule(models.Model):
             day_id=day_id
         )
         group_number = Group.objects.get(id=group_id).group_number
+
+        final_schedule = {}
         schedule = {}
 
-        for record in selected_pare:
-            teacher_schedule = GroupSchedule.get_schedule_teacher(record.teacher_id)
+        try:
+            for record in selected_pare:
+                teacher_schedule = GroupSchedule.get_schedule_teacher(record.teacher_id)
+                day_name = record.day.name
+                week_type = record.week_type.name
 
-            day_name = record.day_id.name
-            week_type = record.week_type_id.name
+                pair_data = {
+                    'Время начала': record.class_time.start_time,
+                    'Время конца': record.class_time.end_time,
+                    'Корпус': record.classroom.building,
+                    'Номер аудитории': record.classroom.room_number,
+                    'Наименование предмета': record.subject.name,
+                    'Тип занятия': record.lesson_type.name,
+                    'Фамилия преподавателя': record.teacher.last_name,
+                    'Имя преподавателя': record.teacher.first_name,
+                    'Отчество преподавателя': record.teacher.middle_name,
+                    'Группы': []
+                }
 
-            pair_data = {
-                'Время начала': record.class_time_id.start_time,
-                'Время конца': record.class_time_id.end_time,
-                'Корпус': record.classroom_id.building,
-                'Номер аудитории': record.classroom_id.room_number,
-                'Наименование предмета': record.subject_id.name,
-                'Тип занятия': record.lesson_type_id.name,
-                'Фамилия преподавателя': record.teacher_id.last_name,
-                'Имя преподавателя': record.teacher_id.first_name,
-                'Отчество преподавателя': record.teacher_id.middle_name,
-                'Группы': []
-            }
+                for teacher_day, teacher_day_schedule in teacher_schedule.items():
+                    if teacher_day == day_name:
+                        for teacher_pair in teacher_day_schedule:
+                            if (teacher_pair['Данные пары']['Время начала'] == pair_data['Время начала'] and
+                                teacher_pair['Данные пары']['Номер аудитории'] == pair_data['Номер аудитории']):
+                                other_groups = [grp for grp in teacher_pair['Данные пары']['Группы'] if grp != group_number]
+                                pair_data['Группы'].extend(other_groups)
 
-            for teacher_day, teacher_day_schedule in teacher_schedule.items():
-                if teacher_day == day_name:
-                    for teacher_pair in teacher_day_schedule:
-                        if (teacher_pair['Данные пары']['Время начала'] == pair_data['Время начала'] and
-                            teacher_pair['Данные пары']['Номер аудитории'] == pair_data['Номер аудитории']):
-                            other_groups = [grp for grp in teacher_pair['Данные пары']['Группы'] if grp != group_number]
-                            pair_data['Группы'].extend(other_groups)
+                if day_name not in schedule:
+                    schedule[day_name] = []
 
-            if day_name not in schedule:
-                schedule[day_name] = []
+                schedule[day_name].append({'Неделя': week_type, 'Данные пары': pair_data})
 
-            schedule[day_name].append({'Неделя': week_type, 'Данные пары': pair_data})
+            final_schedule = {weekday_name: schedule.get(weekday_name, [])}
 
-        final_schedule = {weekday_name: schedule.get(weekday_name, [])}
-        return final_schedule
+        except ObjectDoesNotExist:
+            print(f"Группа с номером {group_number} не найдена.")
+        except Exception as e:
+            print(f"Произошла ошибка при получении расписания для группы {group_number}: {str(e)}")
+
+        finally:
+            if reply_to is not None and correlation_id is not None:
+                result = {'result': final_schedule}
+                asyncio.run(send_response(result, reply_to, correlation_id))
+            else:
+                return final_schedule
 
     @staticmethod
     @app.task(name='bot.tasks.filter_groups_by_pare_time')
-    def filter_groups_by_pare_time(faculty_id: int, pare_time_id: int) -> Dict[str, int]:
+    def filter_groups_by_pare_time(faculty_id: int, pare_time_id: int, reply_to = None, correlation_id = None) -> Dict[str, int]:
+        filtered_groups = {}
+
         try:
             query = (
                 Group.objects.filter(
@@ -502,39 +517,52 @@ class GroupSchedule(models.Model):
                 .values('group_number', 'id')
             )
             filtered_groups = {entry['group_number']: entry['id'] for entry in query}
-            return filtered_groups
         except Exception as e:
             print(f"Ошибка при фильтрации групп: {e}")
-            return {}
+        finally:
+            if reply_to is not None and correlation_id is not None:
+                result = {'result': filtered_groups}
+                asyncio.run(send_response(result, reply_to, correlation_id))
+            else:
+                return filtered_groups
+
     @staticmethod
     @app.task(name='bot.tasks.get_free_audience')
-    def get_free_audience(class_time_id: int, building: str, week_type_id: int, week_day_id: int):
-        # Занятые аудитории
-        list_busy_audience = Classroom.objects.filter(
-            groupschedule__class_time_id=class_time_id,
-            groupschedule__week_type_id=week_type_id,
-            building=building,
-            groupschedule__day_id=week_day_id
-        ).values('building', 'room_number')
-
-        # Все аудитории
-        list_all_audience = Classroom.objects.filter(
-            building=building,
-            groupschedule__week_type_id=week_type_id,
-            groupschedule__day_id=week_day_id
-        ).values('building', 'room_number')
-
-        # Преобразуем в множества
-        all_set = {(aud['building'], aud['room_number']) for aud in list_all_audience}
-        busy_set = {(aud['building'], aud['room_number']) for aud in list_busy_audience}
-
-        # Находим свободные аудитории
-        free_set = all_set - busy_set
-
+    def get_free_audience(class_time_id: int, building: str, week_type_id: int, week_day_id: int, reply_to = None, correlation_id = None):
         free_audience_dict = {}
-        for building, room_number in free_set:
-            if building not in free_audience_dict:
-                free_audience_dict[building] = []
-            free_audience_dict[building].append(room_number)
+        try:
+            list_busy_audience = ClassRoom.objects.filter(
+                groupschedule__class_time_id=class_time_id,
+                groupschedule__week_type_id=week_type_id,
+                building=building,
+                groupschedule__day_id=week_day_id
+            ).values('building', 'room_number')
 
-        return free_audience_dict            
+            # Все аудитории
+            list_all_audience = ClassRoom.objects.filter(
+                building=building,
+                groupschedule__week_type_id=week_type_id,
+                groupschedule__day_id=week_day_id
+            ).values('building', 'room_number')
+
+            # Преобразуем в множества
+            all_set = {(aud['building'], aud['room_number']) for aud in list_all_audience}
+            busy_set = {(aud['building'], aud['room_number']) for aud in list_busy_audience}
+
+            # Находим свободные аудитории
+            free_set = all_set - busy_set
+
+            for building, room_number in free_set:
+                if building not in free_audience_dict:
+                    free_audience_dict[building] = []
+                free_audience_dict[building].append(room_number)
+
+        except Exception as e:
+            raise ObjectDoesNotExist(f"Возникла ошибка при сборе данных для свободной аудитории {e}")
+
+        finally:
+            if reply_to is not None and correlation_id is not None:
+                result = {'result': free_audience_dict}
+                asyncio.run(send_response(result, reply_to, correlation_id))
+            else:
+                return free_audience_dict

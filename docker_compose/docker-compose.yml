@@ -79,6 +79,28 @@ services:
     networks:
       - app-network
 
+  telegram_bot_admin:
+    build:
+      context: ../  # Указываем корневую директорию проекта
+      dockerfile: admin_bot/Dockerfile  # Путь к Dockerfile бота
+    container_name: telegram_bot_admin
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ScheduleSMTU
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: rabbitmq
+      RABBITMQ_PASSWORD: ScheduleSMTU
+    command: [ "/app/admin_bot/wait-for-it.sh", "rabbitmq:5672", "--", "python", "admin_bot/start_bot.py" ]
+    networks:
+      - app-network
+
 volumes:
   mariadb_data:
 
