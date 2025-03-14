@@ -3,11 +3,8 @@ import asyncio
 from aiogram import Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
 
-from admin_bot.Routers import MailRouter, RepSuggestionRouter, RoleRouter, MenuRouter, ScheduleRouter, SettingsRouter, \
+from admin_bot.Routers import MailRouter, RepSuggestionRouter, RoleRouter, ScheduleRouter, SettingsRouter, \
     StartRouter, RegistrationRouter
-
-from admin_bot.Routers.UserRouters.ScheduleRouter.ScheduleRouters.by_time import ScheduleByTimeRouter
-from admin_bot.Routers.UserRouters.ScheduleRouter.ScheduleRouters.free_audience import AudienceRouter
 
 from admin_bot.bot_initialization import bot, default_commands
 
@@ -23,13 +20,7 @@ async def start_bot():
 
     dp.include_router(StartRouter)
 
-    dp.include_router(ScheduleByTimeRouter)
-
     dp.include_router(ScheduleRouter)
-
-    dp.include_router(MenuRouter)
-
-    dp.include_router(AudienceRouter)
 
     dp.include_router(MailRouter)
 

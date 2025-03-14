@@ -7,9 +7,7 @@ from Bot.RabbitMQProducer.producer_api import send_request_mq
 from Bot.Routers.UserRouters.MenuRouter.SubRouters.TeachersRouters import TeacherRouterCallback, TeacherRouterText
 from Bot.Routers.UserRouters.MenuRouter.menu_state import MenuState
 
-
 TeacherRouter = Router()
-
 
 @TeacherRouter.callback_query(MenuState.menu_option, MenuCallback.filter(F.operation == "teachers"))
 async def send_teachers(call: CallbackQuery, state: FSMContext):

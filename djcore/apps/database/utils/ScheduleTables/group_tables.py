@@ -265,6 +265,33 @@ class TeacherDepartment(models.Model):
             raise ValueError(f"Teacher department association between {teacher_id} and {department_id} not found")
 
     @staticmethod
+    @app.task(name='admin_bot.tasks.get_teachers_for_faculty')
+    def get_teachers_for_faculty(department_id, reply_to, correlation_id):
+        teacher_list = []
+        try:
+            teachers = list(
+                Teacher.objects.filter(teacherdepartment__department__faculty__id=department_id).distinct().values(
+                    'id', 'last_name', 'first_name', 'middle_name'
+                )
+            )
+            for teacher in teachers:
+                teacher_list.append({
+                    'id': teacher['id'],  # Доступ через ключ словаря, а не как атрибут объекта
+                    'last_name': teacher['last_name'],
+                    'first_name': teacher['first_name'],
+                    'middle_name': teacher['middle_name']
+                })
+
+        except ObjectDoesNotExist:
+            print(f"Факультет с id {department_id} не найден.")
+
+        except Exception as e:
+            print(f"Произошла ошибка: {str(e)}")
+        finally:
+            result = {'result': teacher_list}
+            asyncio.run(send_response(result, reply_to, correlation_id))
+
+    @staticmethod
     def set_teachers_department():
         """
         Sets the department for each teacher in the database based on the department data file.

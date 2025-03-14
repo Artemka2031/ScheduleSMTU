@@ -69,7 +69,6 @@ class User(models.Model):
     @app.task(name='bot.tasks.get_all_users_ids')
     def get_all_users_ids(reply_to, correlation_id):
         try:
-            # Используем sync_to_async для выполнения синхронного запроса к базе данных асинхронно
             user_ids = list(User.objects.values_list('user_id', flat=True))
             result = {'result': user_ids}
 

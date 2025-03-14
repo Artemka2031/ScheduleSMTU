@@ -157,16 +157,16 @@ async def return_audience_list(call: CallbackQuery, state: FSMContext, callback_
     ).process_selection(call, callback_data)
 
     if selected:
-        week_type = await send_request_mq('bot.tasks.determine_week_type', [date])
+        week_type = await send_request_mq('bot.tasks.determine_week_type', [str(date)])
         week_type_id = await send_request_mq('bot.tasks.get_week_type_id', [week_type])
-        name_weekday = await send_request_mq('bot.tasks.get_weekday_name', [date])
+        name_weekday = await send_request_mq('bot.tasks.get_weekday_name', [str(date)])
         week_day_id = await send_request_mq('bot.tasks.get_weekday_id', [name_weekday])
 
         data = await state.get_data()
 
         building = data['building']
         class_time = data['class_time']
-        buildings_list = await send_request_mq('bot.tasks.get_free_audience', [class_time, building, week_type_id, week_day_id])
+        buildings_list = await send_request_mq('admin_bot.tasks.get_free_audience', [class_time, building, week_type_id, week_day_id])
         sorted_message = '📎 Список свободных аудиторий:\n\n'
 
         for building, room_number in buildings_list.items():
@@ -217,7 +217,7 @@ async def output_info(call: CallbackQuery, state: FSMContext, callback_data:Week
     class_time = data['class_time']
     building = data['building']
 
-    buildings_list = await send_request_mq('bot.tasks.get_free_audience', [class_time, building, week_type_id, week_day_id])
+    buildings_list = await send_request_mq('admin_bot.tasks.get_free_audience', [class_time, building, week_type_id, week_day_id])
     sorted_message = '📎 Список свободных аудиторий:\n\n'
 
     for building, room_number in buildings_list.items():

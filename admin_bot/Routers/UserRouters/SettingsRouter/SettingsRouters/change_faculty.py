@@ -17,7 +17,6 @@ from admin_bot.RabbitMQProducer.producer_api import send_request_mq, update_cach
 
 ChangeFacultyRouter = Router()
 
-
 #ChangeFacultyRouter.message.middleware(IsRegMiddleware())
 
 class ChangeFacultyState(StatesGroup):

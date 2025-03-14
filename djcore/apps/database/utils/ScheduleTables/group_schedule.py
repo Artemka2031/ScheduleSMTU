@@ -527,7 +527,7 @@ class GroupSchedule(models.Model):
                 return filtered_groups
 
     @staticmethod
-    @app.task(name='bot.tasks.get_free_audience')
+    @app.task(name='admin_bot.tasks.get_free_audience')
     def get_free_audience(class_time_id: int, building: str, week_type_id: int, week_day_id: int, reply_to = None, correlation_id = None):
         free_audience_dict = {}
         try:

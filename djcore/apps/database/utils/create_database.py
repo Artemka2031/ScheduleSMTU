@@ -124,6 +124,6 @@ async def refresh_database():
 
     print("База данных успешно обновлена и синхронизирована.")
 
-#
-# if __name__ == "__main__":
-#     asyncio.run(refresh_database())
+
+if __name__ == "__main__":
+    asyncio.run(refresh_database())

@@ -66,11 +66,11 @@ class WeekType(models.Model):
         Returns:
             str: The type of the current week.
         """
-        week_number = datetime.now(moscow_tz).isocalendar()[1]
-        if week_number % 2 ==0:
-            cur_week = 'Верхняя неделя'
-        else:
+        week_number = datetime.now().isocalendar()[1]
+        if week_number % 2 == 0:
             cur_week = 'Нижняя неделя'
+        else:
+            cur_week = 'Верхняя неделя'
         #return 'Верхняя неделя' if week_number % 2 == 0 else 'Нижняя неделя'
         result = {'result': cur_week}
         asyncio.run(send_response(result, reply_to, correlation_id))
@@ -90,9 +90,9 @@ class WeekType(models.Model):
         date_to_check = datetime.strptime(date_to_check, '%Y-%m-%d %H:%M:%S')
         week_number = date_to_check.isocalendar()[1]
         if week_number % 2 ==0:
-            week_type = 'Верхняя неделя'
-        else:
             week_type = 'Нижняя неделя'
+        else:
+            week_type = 'Верхняя неделя'
         #return 'Верхняя неделя' if week_number % 2 == 0 else 'Нижняя неделя'
         result = {'result': week_type}
         asyncio.run(send_response(result, reply_to, correlation_id))

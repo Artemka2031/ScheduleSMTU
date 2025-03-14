@@ -25,7 +25,6 @@ async def send_choose_week_schedule(call: CallbackQuery, state: FSMContext, call
     await state.update_data(teacher=callback_data.teacher)
 
     teacher = await send_request_mq('bot.tasks.get_teacher', [callback_data.teacher])
-    # teacher = Teacher.get_teacher(callback_data.teacher)
     current_weektype = await send_request_mq('bot.tasks.get_current_week', [])
 
 

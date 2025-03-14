@@ -16,12 +16,10 @@ from Bot.bot_initialization import bot
 
 TeacherRouterText = Router()
 
-
 class TeacherState(StatesGroup):
     teacher_text = State()
     teacher_text_week_type = State()
     teacher_text_week_day = State()
-
 
 @TeacherRouterText.message(MenuState.teacher)
 async def get_teachers(message: Message, state: FSMContext):
