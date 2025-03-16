@@ -72,10 +72,10 @@ def run_django(venv_python):
     subprocess.run(command_migrate, cwd=project_dir)
     print('Миграция выполнена')
 
-    command = [venv_python, "manage.py", "runserver", "127.0.0.1:8000", "--noreload"]
+    command = [venv_python, "manage.py", "runserver", "127.0.0.1:8080", "--noreload"]
     process = subprocess.Popen(command, cwd=project_dir)
     print("Django-проект запущен.")
-    run_rabbit_consumer = [venv_python, f'{project_dir}\\apps\\database\\rabbitmq_consumer_runner.py']
+    run_rabbit_consumer = [venv_python, os.path.join(project_dir, "apps", "database", "rabbitmq_consumer_runner.py")]
     subprocess.Popen(run_rabbit_consumer, cwd=project_dir, preexec_fn=os.setpgrp if platform.system() != "Windows" else None)
 
     return process
@@ -108,12 +108,24 @@ def run_celery(venv_python):
     print("Celery-воркеры запущены.")
 
 
+def install_system_dependencies():
+    """Устанавливает системные зависимости перед установкой Python-библиотек."""
+    try:
+        print("Обновляем пакетный менеджер и устанавливаем зависимости...")
+        subprocess.check_call(["apt", "update"])
+        subprocess.check_call(["apt", "install", "-y", "pkg-config", "libmariadb-dev"])
+        print("Системные зависимости установлены.")
+    except subprocess.CalledProcessError as e:
+        print(f"Ошибка при установке системных пакетов: {e}")
+        sys.exit(1)
+
 if __name__ == "__main__":
     print(f"Текущая директория: {os.getcwd()}")
     print(f"Абсолютный путь к проекту: {os.path.abspath('.')}")
     try:
         create_virtualenv()
         venv_python = activate_virtualenv()
+        #install_system_dependencies()
         subprocess.check_call([venv_python, "-m", "pip", "install", "-r", "requirements.txt"])
         check_docker()
         check_docker_compose()
