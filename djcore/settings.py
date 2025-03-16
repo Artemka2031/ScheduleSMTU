@@ -132,16 +132,10 @@ RABBITMQ_PASSWORD = 'ScheduleSMTU' # Пароль пользователя Rabbi
 
 CELERY_BEAT_SCHEDULE = {
     'parse_groups_daily_at_4am': {
-        'task': 'parser.tasks.schedule_parse',
+        'task': 'parser.tasks.schedule_employees_parse',
         'schedule': crontab(hour='4', minute='0'),
         'options': {'queue': 'celery'},  # Отправляем в очередь 'celery_queue'
-    },
-    'parse_teachers_daily_at_4am': {
-        'task': 'parser.tasks.employees_parse',
-        'schedule': crontab(hour='4', minute='0'),
-        'options': {'queue': 'celery'},  # Отправляем в ту же очередь
-    },
-
+    }
 }
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/

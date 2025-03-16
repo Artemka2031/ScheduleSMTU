@@ -1,24 +1,19 @@
 import asyncio
 import logging
+from djcore.apps.create_database import refresh_database
 
 from djcore.apps.parser.utils.Parsers import fetch_employees_data, set_schedule_data
 from djcore.celery_app import app
 
-@app.task(bind=True, max_retries=3, default_retry_delay=5)
-def schedule_parse(self):
+
+@app.task(name='parser.tasks.schedule_employees_parse')
+def schedule_parse():
     try:
-        asyncio.run(set_schedule_data())
-        logging.info("Парсинг расписания завершён успешно и сообщение отправлено.")
+        loop = asyncio.new_event_loop()
+        loop.run_until_complete(set_schedule_data())
+        loop.run_until_complete(fetch_employees_data())
+        loop.close()
+        refresh_database()
+        logging.info("Парсинг расписания и сотрудников завершён успешно и сообщение отправлено.")
     except Exception as e:
         logging.error(f"Ошибка при парсинге: {e}")
-        self.retry(exc=e)
-
-@app.task(bind=True, max_retries=3, default_retry_delay=5)
-def employees_parse(self):
-    try:
-        asyncio.run(fetch_employees_data())
-
-        logging.info("Парсинг сотрудников завершён успешно и сообщение отправлено.")
-    except Exception as e:
-        logging.error(f"Ошибка при парсинге: {e}")
-        self.retry(exc=e)

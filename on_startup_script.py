@@ -6,7 +6,6 @@ import subprocess
 import platform
 import time
 
-from apps.database.utils.create_database import refresh_database
 
 # I really don't understand what does this method do, but it seems to be working..
 def create_virtualenv():
@@ -63,8 +62,6 @@ def run_django(venv_python):
     subprocess.run(command_migrate, cwd=project_dir)
     print('Миграция выполнена')
 
-    # asyncio.run(refresh_database())
-
     command = [venv_python, "manage.py", "runserver", "127.0.0.1:8000", "--noreload"]
     process = subprocess.Popen(command, cwd=project_dir)
     print("Django-проект запущен.")
@@ -78,6 +75,8 @@ def run_celery():
     print(f"Запускаем Celery-воркеры из директории: {project_dir}")
     command = ["celery", "-A", "djcore", "worker", "--loglevel=info", "--pool=solo", "-Q", "celery", "--hostname=worker1"]
     subprocess.Popen(command, cwd=project_dir, preexec_fn=os.setpgrp if platform.system() != "Windows" else None)
+    command_beat = ['celery', '-A', 'djcore.celery_app', 'beat', '-l', 'INFO']
+    subprocess.Popen(command_beat, cwd=project_dir, preexec_fn=os.setpgrp if platform.system() != "Windows" else None)
     print("Celery-воркеры запущены.")
 
 if __name__ == "__main__":
@@ -91,7 +90,7 @@ if __name__ == "__main__":
         check_docker_compose()
         run_docker_compose()
         django_process = run_django(venv_python)
-        time.sleep(1)
+        time.sleep(2)
         run_celery()
         django_process.wait()
     except KeyboardInterrupt:

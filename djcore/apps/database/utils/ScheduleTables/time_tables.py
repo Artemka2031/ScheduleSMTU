@@ -6,7 +6,6 @@ import platform
 from django.db import models, IntegrityError
 from django.core.exceptions import ObjectDoesNotExist
 
-from apps.database.utils.Path.schedule_path_functions import find_group_dir_by_group_number
 from djcore.apps.database.utils.config_db import moscow_tz
 from djcore.apps.database.utils.send_response import send_response
 from djcore.celery_app import app

@@ -1,4 +1,5 @@
 import asyncio
+
 from djcore.apps.parser.utils.Parsers.ScheduleParsing.SubParsers import load_group, get_main_page, create_schedule_file
 from djcore.apps.database.utils.Path.path_base import path_base
 from djcore.apps.database.utils.Path.schedule_path_functions import get_all_group_numbers
@@ -45,5 +46,6 @@ async def set_schedule_data():
     await create_schedule_file()
 
 
-if __name__ == "__main__":
-    asyncio.run(set_schedule_data())
+# if __name__ == "__main__":
+#     asyncio.run(set_schedule_data())
+#     refresh_database()
