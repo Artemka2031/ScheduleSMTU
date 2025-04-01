@@ -21,6 +21,20 @@ services:
       timeout: 5s
       retries: 5
 
+  backend:
+    build:
+      context: ../
+      dockerfile: djcore/Dockerfile
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    ports:
+      - "8000:8080"
+    networks:
+      - app-network
+    container_name: backend
+    #сначала должен подниматься брокер, потом джанго! Дописать Dockerfile
+
   redis:
     image: redis:latest
     container_name: redis

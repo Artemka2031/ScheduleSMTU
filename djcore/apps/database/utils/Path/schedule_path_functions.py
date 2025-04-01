@@ -2,7 +2,7 @@ import json
 
 import aiofiles
 
-from djcore.apps.database.utils.Path.path_base import path_base
+from apps.database.utils.Path.path_base import path_base
 
 
 async def get_group_json_path(group_number):

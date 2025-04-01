@@ -71,7 +71,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'djcore.wsgi.application'
+WSGI_APPLICATION = 'wsgi.application'
 
 
 # Database
@@ -83,8 +83,8 @@ DATABASES = {
         'NAME': 'schedule',
         'USER': 'schedule_SMTU',
         'PASSWORD': 'wD7jQ#2zRt!vY6Tp',
-        'HOST': 'localhost',
-        'PORT': '3307',
+        'HOST': 'mariadb',
+        'PORT': '3306',
     }
 }
 
@@ -107,8 +107,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-#Вот здесь заменить
-CELERY_BROKER_URL = 'amqp://rabbitmq:ScheduleSMTU@localhost:5672/'
+CELERY_BROKER_URL = 'amqp://rabbitmq:ScheduleSMTU@rabbitmq:5672/'
 CELERY_RESULT_BACKEND = 'rpc://'
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
@@ -116,16 +115,24 @@ CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'Europe/Moscow'
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 
-CELERY_TASK_QUEUES = (
-    Queue('celery', Exchange('celery'), routing_key='celery'),
-    Queue('bot_queue', Exchange('direct_exchange'), routing_key='bot_queue'),
-)
+CELERY_TASK_QUEUES = [
+    Queue(
+        name='celery',
+        exchange=Exchange('celery', type='direct'),
+        routing_key='celery'
+    )
+]
+
+#     Queue('celery', Exchange('celery'), routing_key='celery'),
+#     Queue('bot_queue', Exchange('direct_exchange'), routing_key='bot_queue'),
+#     Queue('admin_bot_queue', Exchange('direct_exchange', routing_key='admin_bot_queue')),
+# )
 
 CELERY_TASK_DEFAULT_QUEUE = 'celery'
 CELERY_TASK_DEFAULT_EXCHANGE = 'celery'
 CELERY_TASK_DEFAULT_ROUTING_KEY = 'celery'
 
-RABBITMQ_HOST = 'localhost'        # Или IP-адрес RabbitMQ, если он в Docker или на удалённом сервере
+RABBITMQ_HOST = 'rabbitmq'        # Или IP-адрес RabbitMQ, если он в Docker или на удалённом сервере
 RABBITMQ_PORT = 5672               # Порт для подключения к RabbitMQ (по умолчанию 5672)
 RABBITMQ_USER = 'rabbitmq'        # Имя пользователя RabbitMQ
 RABBITMQ_PASSWORD = 'ScheduleSMTU' # Пароль пользователя RabbitMQ
