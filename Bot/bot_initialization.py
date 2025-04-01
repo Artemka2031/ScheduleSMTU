@@ -6,7 +6,7 @@ from aiogram.types import BotCommand, BotCommandScopeChat
 from Bot.RabbitMQProducer.producer_api import send_request_mq
 #from config import token
 
-bot = Bot(token="6523290565:AAGn4cBjfaZjmvFXhEJs9ZYNN6Y2p812gkE", parse_mode=ParseMode.HTML)
+bot = Bot(token="6725829900:AAHRhm8T0BBEXFZRoghTm0PVRoBdv785wcE", parse_mode=ParseMode.HTML)
 moscow_tz = pytz.timezone('Europe/Moscow')
 
 async def setup_bot_commands(status: str, user_id: int | str):
