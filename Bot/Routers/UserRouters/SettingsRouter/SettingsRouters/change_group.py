@@ -8,8 +8,7 @@ from aiogram.utils.markdown import hbold
 from Bot.Filters.check_group_number_filter import CheckGroupFilter, CheckCurrentGroupFilter
 from Bot.Keyboards.change_current_group_kb import create_change_current_group_kb, ChangeCurrentGroupCallback
 from Bot.Keyboards.today_tomorrow_rep_kb import today_tomorrow_rep_keyboard
-from Bot.RabbitMQProducer.producer_api import send_request_mq
-
+from Bot.RabbitMQProducer.producer_api import send_request_mq, update_cache
 
 ChangeGroupRouter = Router()
 
@@ -60,7 +59,7 @@ async def set_group_number(message: Message, state: FSMContext):
     group_number = int(message.text)
 
     await send_request_mq('bot.tasks.change_group_number', [user_id, group_number])
-
+    await update_cache(group_number)
     #BaseUser.change_group_number(user_id, group_number)
 
     data = (await state.get_data())["messages_to_delete"]

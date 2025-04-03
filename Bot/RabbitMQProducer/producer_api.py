@@ -58,3 +58,9 @@ def generate_cache_key(task_name: str, data: list):
     data_string = json.dumps(data, sort_keys=True)
     key = f"{task_name}:{hashlib.md5(data_string.encode()).hexdigest()}"
     return key
+
+
+async def update_cache(group_number: int):
+    redis = await get_redis_client()
+    cache_key = generate_cache_key('admin_bot.tasks.get_group_id', [group_number])
+    await redis.delete(cache_key)
