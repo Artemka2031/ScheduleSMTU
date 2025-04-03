@@ -148,8 +148,8 @@ async def return_pare_for_group(call: CallbackQuery, state: FSMContext, callback
     user_id = call.from_user.id
 
     if selected:
-        week_type = await send_request_mq('bot.tasks.determine_week_type', [date])
-        name_weekday = await send_request_mq('bot.tasks.get_weekday_name', [date])
+        week_type = await send_request_mq('bot.tasks.determine_week_type', [str(date)])
+        name_weekday = await send_request_mq('bot.tasks.get_weekday_name', [str(date)])
         data = await state.get_data()
         # Проверяем наличие необходимых ключей
         class_time = data.get('class_time')
@@ -164,7 +164,7 @@ async def return_pare_for_group(call: CallbackQuery, state: FSMContext, callback
         if sorted_schedule_pare:
             formatted_schedule = format_schedule(sorted_schedule_pare, week_type)
             if formatted_schedule:
-                await call.message.answer(f"{hbold(f'Расписание {group_number}')}:\n\n{formatted_schedule}")
+                await call.message.answer(f"{hbold(f'Расписание {group_number}')}:\n\n{formatted_schedule}", parse_mode=ParseMode.HTML)
             else:
                 await call.message.answer(f"Расписание для группы {group_number} на этот день не найдено")
 

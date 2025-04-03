@@ -138,9 +138,9 @@ if __name__ == "__main__":
         django_process = run_django()
         time.sleep(7)
         run_celery(venv_dir)
-        parsing_process = run_parse()
+        # parsing_process = run_parse()
         django_process.wait()
-        parsing_process.wait()
+        # parsing_process.wait()
     except KeyboardInterrupt:
         print("Прерывание. Завершаем процессы...")
         # stop_docker_compose()
