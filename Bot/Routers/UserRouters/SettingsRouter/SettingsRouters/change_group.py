@@ -59,7 +59,7 @@ async def set_group_number(message: Message, state: FSMContext):
     group_number = int(message.text)
 
     await send_request_mq('bot.tasks.change_group_number', [user_id, group_number])
-    await update_cache(group_number)
+    await update_cache(user_id)
     #BaseUser.change_group_number(user_id, group_number)
 
     data = (await state.get_data())["messages_to_delete"]
