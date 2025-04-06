@@ -62,5 +62,5 @@ def generate_cache_key(task_name: str, data: list):
 
 async def update_cache(user_id: int):
     redis = await get_redis_client()
-    cache_key = generate_cache_key('admin_bot.tasks.get_group_number', [user_id])
+    cache_key = generate_cache_key('bot.tasks.get_group_number', [user_id])
     await redis.delete(cache_key)

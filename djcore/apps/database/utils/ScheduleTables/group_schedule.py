@@ -1,6 +1,7 @@
 import asyncio
 import json
 from datetime import datetime, timedelta
+from tempfile import template
 from typing import Optional, Dict, List
 
 import pytz
@@ -322,6 +323,7 @@ class GroupSchedule(models.Model):
                 asyncio.run(send_response(result, reply_to, correlation_id))
             else:
                 return schedule
+
     @staticmethod
     @app.task(name='bot.tasks.get_schedule')
     def get_schedule(group_number: int, current_day: Optional[str] = None, reply_to = None, correlation_id = None):
@@ -504,19 +506,42 @@ class GroupSchedule(models.Model):
 
     @staticmethod
     @app.task(name='bot.tasks.filter_groups_by_pare_time')
-    def filter_groups_by_pare_time(faculty_id: int, pare_time_id: int, reply_to = None, correlation_id = None) -> Dict[str, int]:
+    def filter_groups_by_pare_time(faculty_id: int, pare_time_id: int, weekday_name: str, reply_to = None, correlation_id = None) -> dict:
         filtered_groups = {}
 
         try:
-            query = (
-                Group.objects.filter(
-                    faculty_id=faculty_id,
-                    groupschedule__class_time_id=pare_time_id
-                )
-                .distinct()
-                .values('group_number', 'id')
-            )
-            filtered_groups = {entry['group_number']: entry['id'] for entry in query}
+            day_id = Weekday.objects.get(name=weekday_name).id
+            print(f"Фильтрация: faculty_id={faculty_id}, class_time_id={pare_time_id}, day_id={day_id}")
+
+            query = GroupSchedule.objects.filter(
+                group__faculty_id=faculty_id,
+                class_time_id=pare_time_id,
+                day_id=day_id
+            ).select_related('group', 'teacher').values(
+                'group__group_number',
+                'teacher__last_name',
+                'teacher__first_name',
+                'teacher__middle_name'
+            ).distinct()
+
+            print(f"Найдено записей: {query.count()}")  # Отладка: сколько записей найдено
+
+            for entry in query:
+                group_number = entry['group__group_number']
+                last_name = entry['teacher__last_name'] or 'Нет фамилии'
+                first_name = entry['teacher__first_name'] or ''
+                middle_name = entry['teacher__middle_name'] or ''
+                first_initial = first_name[:1] if first_name else ''
+                middle_initial = middle_name[:1] if middle_name else ''
+                teacher = f'{last_name} {first_initial + "." if first_initial else ""} {middle_initial + "." if middle_initial else ""}'.strip()
+
+                if teacher not in filtered_groups:
+                    filtered_groups[teacher] = []
+                filtered_groups[teacher].append(group_number)
+                print(f"Добавлена группа: {group_number}, преподаватель: {teacher}")
+
+            for teacher in filtered_groups:
+                filtered_groups[teacher].sort()
         except Exception as e:
             print(f"Ошибка при фильтрации групп: {e}")
         finally:

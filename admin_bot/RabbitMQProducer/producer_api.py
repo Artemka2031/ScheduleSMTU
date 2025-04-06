@@ -7,6 +7,11 @@ from admin_bot.RedisClient.redis_client import get_redis_client
 
 rabbitmq_producer = None
 
+logging.basicConfig(
+    level=logging.INFO,  # Или DEBUG, если нужно больше деталей
+    format='%(asctime)s %(levelname)s:%(name)s:%(message)s'
+)
+
 async def send_request_mq(task_name: str, data: list):
     global rabbitmq_producer
 

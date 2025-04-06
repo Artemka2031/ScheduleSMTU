@@ -283,10 +283,10 @@ class TeacherDepartment(models.Model):
                 })
 
         except ObjectDoesNotExist:
-            print(f"Факультет с id {department_id} не найден.")
+            logger(f"Факультет с id {department_id} не найден.")
 
         except Exception as e:
-            print(f"Произошла ошибка: {str(e)}")
+            logger(f"Произошла ошибка: {str(e)}")
         finally:
             result = {'result': teacher_list}
             asyncio.run(send_response(result, reply_to, correlation_id))

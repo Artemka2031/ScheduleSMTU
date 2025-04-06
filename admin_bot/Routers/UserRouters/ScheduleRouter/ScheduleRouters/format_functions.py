@@ -28,6 +28,19 @@ def format_schedule(sorted_schedule: dict, week_type: str):
 
     return formatted_schedule
 
+def format_groups_list(filtered_groups, week_type, name_weekday):
+    formatted_schedule = f"📅 {hbold('Неделя:')} {week_type}\n\n"
+    formatted_schedule += f"День недели: {hbold(name_weekday)}:\n\n"
+
+    if not filtered_groups:
+        formatted_schedule += 'Занятий не найдено. \n'
+    else:
+        for teacher in sorted(filtered_groups.keys()):
+            groups = filtered_groups[teacher]
+            groups_str = ", ".join(str(group) for group in groups)
+            formatted_schedule += f"👨‍🏫 {hbold(teacher)}:\n{groups_str}\n\n"
+
+    return formatted_schedule
 
 def format_dual_week_schedule(sorted_schedule: dict) -> str:
     def dual_week_data(data, format_schedule):

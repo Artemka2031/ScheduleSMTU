@@ -49,7 +49,7 @@ def create_teachers_kb(teachers: List[Dict]) -> InlineKeyboardMarkup:
 
     builder.adjust(2)
 
-    builder.row(InlineKeyboardButton(text="<< Назад", callback_data=TeacherCallback(teacher="Назад").pack()))
+    builder.button(text="<< Назад", callback_data=TeacherCallback(teacher="Назад").pack())
 
     return builder.as_markup()
 

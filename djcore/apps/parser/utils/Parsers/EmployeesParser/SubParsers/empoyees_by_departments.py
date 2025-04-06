@@ -27,16 +27,50 @@ async def fetch_page(url: str, session: aiohttp.ClientSession, params=None):
             return await response.text()
 
 
+# async def parse_department_page(url: str, session: aiohttp.ClientSession):
+#     """
+#         Asynchronously parses the department page to extract employee data.
+#
+#         Args:
+#             url (str): The URL of the department page to parse.
+#             session (aiohttp.ClientSession): The session used to fetch the page.
+#
+#         Returns:
+#             list: A list of dictionaries, each containing data about an employee.
+#     """
+#     html = await fetch_page(url, session)
+#     soup = BeautifulSoup(html, 'html.parser')
+#
+#     employees = []
+#     employee_id = 1
+#
+#     employee_cards = soup.find_all(class_='card g-col-12 g-col-md-6 g-col-lg-5 g-col-xxl-4 text-bg-light')
+#     print(employee_cards)
+#     for card in employee_cards:
+#         full_name = card.find(class_='h5 text-info-dark').text.strip()
+#         names = full_name.split(' ')
+#
+#         employee = {
+#             'id': employee_id,
+#             'surname': names[0],
+#             'name': names[1],
+#             'patronymic': names[2] if len(names) > 2 else '',
+#         }
+#         employees.append(employee)
+#         employee_id += 1
+#
+#     return employees
+
 async def parse_department_page(url: str, session: aiohttp.ClientSession):
     """
-        Asynchronously parses the department page to extract employee data.
+    Асинхронно парсит страницу кафедры для извлечения данных о сотрудниках.
 
-        Args:
-            url (str): The URL of the department page to parse.
-            session (aiohttp.ClientSession): The session used to fetch the page.
+    Args:
+        url (str): URL страницы кафедры для парсинга.
+        session (aiohttp.ClientSession): Сессия для выполнения HTTP-запроса.
 
-        Returns:
-            list: A list of dictionaries, each containing data about an employee.
+    Returns:
+        list: Список словарей, каждый из которых содержит данные о сотруднике.
     """
     html = await fetch_page(url, session)
     soup = BeautifulSoup(html, 'html.parser')
@@ -44,23 +78,74 @@ async def parse_department_page(url: str, session: aiohttp.ClientSession):
     employees = []
     employee_id = 1
 
-    employee_cards = soup.find_all(class_='card g-col-12 g-col-md-6 g-col-lg-5 g-col-xxl-4 text-bg-light')
+    # Ищем все карточки сотрудников в разделе faculty-per-content
+    employee_cards = soup.select('div#faculty-per-content div.card.g-col-12.g-col-md-6.bg-body-tertiary')
+    print(f"Найдено карточек сотрудников: {len(employee_cards)}")
 
     for card in employee_cards:
-        full_name = card.find(class_='h5 text-info-dark').text.strip()
+        # Извлекаем полное имя из элемента h4 с классом text-info-dark
+        full_name_tag = card.find('h4', class_='h6 text-info-dark')
+        if not full_name_tag:
+            continue  # Пропускаем, если имя не найдено
+        full_name = full_name_tag.text.strip()
         names = full_name.split(' ')
 
+        # Извлекаем дополнительную информацию из списка ul.fa-ul
+        info_list = card.find('ul', class_='fa-ul')
+        position = ''
+        degree = ''
+        phone = ''
+        email = ''
+
+        if info_list:
+            for li in info_list.find_all('li'):
+                text = li.text.strip()
+                if 'fa-briefcase' in str(li):  # Должность
+                    position = text
+                elif 'fa-user-graduate' in str(li):  # Учёная степень
+                    degree = text
+                elif 'fa-phone' in str(li):  # Телефон
+                    phone = li.find('a').text.strip() if li.find('a') else ''
+                elif 'fa-envelope' in str(li):  # Email
+                    email = li.find('a').text.strip() if li.find('a') else ''
+
+        # Формируем словарь с данными сотрудника
         employee = {
             'id': employee_id,
             'surname': names[0],
             'name': names[1],
             'patronymic': names[2] if len(names) > 2 else '',
+            'position': position,
+            'degree': degree,
+            'phone': phone,
+            'email': email
         }
         employees.append(employee)
         employee_id += 1
 
     return employees
 
+async def process_faculties(faculties_data, session: aiohttp.ClientSession):
+    department_count = 0
+
+    for faculty in faculties_data:
+        for department in faculty['departments']:
+            last_accessed = department.get('last_accessed')
+            should_update = True
+            if last_accessed:
+                last_accessed_date = datetime.strptime(last_accessed, '%Y-%m-%d %H:%M:%S')
+                should_update = (datetime.now() - last_accessed_date) > timedelta(days=1)
+
+            if should_update:
+                department_url = department['url']
+                # Вызываем нашу новую функцию
+                employees = await parse_department_page(department_url, session)
+
+                department['Employees'] = employees
+                department['last_accessed'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                department_count += 1
+                print(f"Processed: faculty={faculty['faculty']}, department={department['name']} => {len(employees)} employees.")
+    return faculties_data
 
 async def process_faculties(faculties_data, session: aiohttp.ClientSession):
     """

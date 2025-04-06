@@ -13,7 +13,8 @@ from admin_bot.Keyboards.group_list_inl_kb import group_list_kb, GroupListCallba
 from admin_bot.Keyboards.week_schedule_inl_kb import week_type_kb, WeekTypeCallback, week_day_kb, WeekDayCallback
 from admin_bot.Middlewares.authentication_middleware import IsRegMiddleware
 from admin_bot.Keyboards.classtime_inl_kb import classtime_kb, ClassTimeCallback
-from admin_bot.Routers.UserRouters.ScheduleRouter.ScheduleRouters.format_functions import format_schedule
+from admin_bot.Routers.UserRouters.ScheduleRouter.ScheduleRouters.format_functions import format_schedule, \
+    format_groups_list
 from admin_bot.RabbitMQProducer.producer_api import send_request_mq
 
 
@@ -43,40 +44,40 @@ async def schedule_groups_by_time(message: Message, state: FSMContext):
     await state.set_state(ByTimeState.class_time)
 
 
+# @ScheduleByTimeRouter.callback_query(ByTimeState.class_time, ClassTimeCallback.filter(F.classtime_id == 'cancel'))
+# async def cancel_set_group_list(call: CallbackQuery, state: FSMContext, callback_data: ClassTimeCallback):
+#     await call.answer()
+#     try:
+#         await call.bot.delete_messages(
+#             chat_id=call.from_user.id,
+#             message_ids=[call.message.message_id, call.message.message_id - 1]
+#         )
+#     except Exception as e:
+#         print(e)
+#     await state.clear()
+#
+#
+# @ScheduleByTimeRouter.callback_query(ByTimeState.class_time, ClassTimeCallback.filter())
+# async def set_group_list(call: CallbackQuery, state: FSMContext, callback_data: ClassTimeCallback):
+#     await call.answer()
+#     if isinstance(callback_data, str):
+#         class_time_id = callback_data
+#     else:
+#         class_time_id = callback_data.classtime_id
+#
+#     class_time_text = await send_request_mq('bot.tasks.get_time_text_by_id', [class_time_id])
+#     # Обновляем состояние: сохраняем выбранное время; остальные данные (group, week_type) остаются, если уже есть
+#     await state.update_data(class_time=class_time_id)
+#     await call.message.edit_text(
+#         text=f'Выбранное время: {hbold(str(class_time_text))}\nВыберите из списка номер группы, пару которой хотите посмотреть',
+#         parse_mode=ParseMode.HTML,
+#         reply_markup=await group_list_kb(call.from_user.id, class_time_id)
+#     )
+#     await state.set_state(ByTimeState.group)
+
+
 @ScheduleByTimeRouter.callback_query(ByTimeState.class_time, ClassTimeCallback.filter(F.classtime_id == 'cancel'))
-async def cancel_set_group_list(call: CallbackQuery, state: FSMContext, callback_data: ClassTimeCallback):
-    await call.answer()
-    try:
-        await call.bot.delete_messages(
-            chat_id=call.from_user.id,
-            message_ids=[call.message.message_id, call.message.message_id - 1]
-        )
-    except Exception as e:
-        print(e)
-    await state.clear()
-
-
-@ScheduleByTimeRouter.callback_query(ByTimeState.class_time, ClassTimeCallback.filter())
-async def set_group_list(call: CallbackQuery, state: FSMContext, callback_data: ClassTimeCallback):
-    await call.answer()
-    if isinstance(callback_data, str):
-        class_time_id = callback_data
-    else:
-        class_time_id = callback_data.classtime_id
-
-    class_time_text = await send_request_mq('bot.tasks.get_time_text_by_id', [class_time_id])
-    # Обновляем состояние: сохраняем выбранное время; остальные данные (group, week_type) остаются, если уже есть
-    await state.update_data(class_time=class_time_id)
-    await call.message.edit_text(
-        text=f'Выбранное время: {hbold(str(class_time_text))}\nВыберите из списка номер группы, пару которой хотите посмотреть',
-        parse_mode=ParseMode.HTML,
-        reply_markup=await group_list_kb(call.from_user.id, class_time_id)
-    )
-    await state.set_state(ByTimeState.group)
-
-
-@ScheduleByTimeRouter.callback_query(ByTimeState.group, GroupListCallback.filter(F.group_id == 'cancel'))
-async def cancel_get_calendar(call: CallbackQuery, state: FSMContext, callback_data: GroupListCallback):
+async def cancel_get_calendar(call: CallbackQuery, state: FSMContext, callback_data: ClassTimeCallback):
     await call.answer()
     try:
         await call.bot.delete_messages(chat_id=call.from_user.id, message_ids=[call.message.message_id])
@@ -86,21 +87,25 @@ async def cancel_get_calendar(call: CallbackQuery, state: FSMContext, callback_d
     await schedule_groups_by_time(call.message, state)
 
 
-@ScheduleByTimeRouter.callback_query(ByTimeState.group, GroupListCallback.filter())
-async def choose_way_to_navigate(call: CallbackQuery, state: FSMContext, callback_data: GroupListCallback):
+@ScheduleByTimeRouter.callback_query(ByTimeState.class_time, ClassTimeCallback.filter())
+async def choose_way_to_navigate(call: CallbackQuery, state: FSMContext, callback_data: ClassTimeCallback):
     await call.answer()
     # Сохраняем выбранную группу
     if isinstance(callback_data, str):
-        group_id = callback_data
+        class_time_id = callback_data
     else:
-        group_id = callback_data.group_id
+        class_time_id = callback_data.classtime_id
 
-    await state.update_data(group=group_id)
-    group_number = await send_request_mq('admin_bot.tasks.get_group_number', [group_id])
+    class_time_text = await send_request_mq('bot.tasks.get_time_text_by_id', [class_time_id])
+    # Обновляем состояние: сохраняем выбранное время; остальные данные (group, week_type) остаются, если уже есть
+    await state.update_data(class_time=class_time_id)
+
+
+    # group_number = await send_request_mq('admin_bot.tasks.get_group_number', [group_id])
     current_week = await send_request_mq('bot.tasks.get_current_week', [])
     await call.message.edit_text(
         text=f"📅 Текущий тип недели: {hbold(current_week)}\n\n"
-             f"🎓 Выбранная группа: {hbold(group_number)}\n\n"
+             f"🕘 Выбранное время: {hbold(class_time_text)}\n\n"
              f"👇 Выбери тип недели или воспользуйся виджетом календаря для выбора конкретной даты!",
         reply_markup=week_type_kb(back_to_menu=True),
         parse_mode=ParseMode.HTML
@@ -153,20 +158,25 @@ async def return_pare_for_group(call: CallbackQuery, state: FSMContext, callback
         data = await state.get_data()
         # Проверяем наличие необходимых ключей
         class_time = data.get('class_time')
-        group_id = data.get('group')
-        if not class_time or not group_id:
+        #group_id = data.get('group')
+        if not class_time:
             await call.message.answer("Некоторые данные отсутствуют. Пожалуйста, начните заново.")
             await state.clear()
             return
 
-        group_number = await send_request_mq('admin_bot.tasks.get_group_number', [group_id])
-        sorted_schedule_pare = await send_request_mq('bot.tasks.get_pare_for_group', [group_id, class_time, name_weekday])
-        if sorted_schedule_pare:
-            formatted_schedule = format_schedule(sorted_schedule_pare, week_type)
-            if formatted_schedule:
-                await call.message.answer(f"{hbold(f'Расписание {group_number}')}:\n\n{formatted_schedule}", parse_mode=ParseMode.HTML)
+        #group_number = await send_request_mq('admin_bot.tasks.get_group_number', [group_id])
+        faculty_id = await send_request_mq('admin_bot.tasks.get_faculty_id', [user_id])
+
+
+        pares_for_groups_in_selected_time = await send_request_mq('bot.tasks.filter_groups_by_pare_time', [faculty_id, class_time, name_weekday])
+
+        #sorted_schedule_pare = await send_request_mq('bot.tasks.get_pare_for_group', [group_id, class_time, name_weekday])
+        if pares_for_groups_in_selected_time:
+            formatted_list = format_groups_list(pares_for_groups_in_selected_time, week_type, name_weekday)
+            if formatted_list:
+                await call.message.answer(formatted_list, parse_mode=ParseMode.HTML)
             else:
-                await call.message.answer(f"Расписание для группы {group_number} на этот день не найдено")
+                await call.message.answer(f"Расписание для групп на этот день и в это время не найдено")
 
     messages_data = (await state.get_data()).get("messages_to_delete", [])
     try:
@@ -186,7 +196,7 @@ async def back_to_menu_from_calendar(callback_query: CallbackQuery, state: FSMCo
         await callback_query.message.answer("Данные отсутствуют. Пожалуйста, начните заново.")
         await state.clear()
         return
-    await set_group_list(callback_query, state, class_time)
+    await schedule_groups_by_time(callback_query, state, class_time)
 
 
 @ScheduleByTimeRouter.callback_query(ByTimeState.menu, WeekTypeCallback.filter(F.week_type == "Назад"))
@@ -197,7 +207,7 @@ async def back_to_menu(call: CallbackQuery, state: FSMContext):
         await call.message.answer("Данные отсутствуют. Пожалуйста, начните заново.")
         await state.clear()
         return
-    await set_group_list(call, state, class_time)
+    await schedule_groups_by_time(call, state, class_time)
 
 
 @ScheduleByTimeRouter.callback_query(ByTimeState.menu, WeekTypeCallback.filter())
@@ -232,27 +242,30 @@ async def send_day_schedule(call: CallbackQuery, state: FSMContext, callback_dat
     # Используем get() с проверкой
     class_time = data.get('class_time')
     week_type = data.get('week_type')
-    group_id = data.get('group')
+    faculty_id = await send_request_mq('admin_bot.tasks.get_faculty_id', [user_id])
+
+    #group_id = data.get('group')
     name_weekday = callback_data.week_day
 
-    if not (class_time and week_type and group_id):
+    if not (class_time and week_type and faculty_id):
         await call.message.answer("Недостаточно данных для формирования расписания. Пожалуйста, начните заново.")
         await state.clear()
         return
 
-    group_number = await send_request_mq('admin_bot.tasks.get_group_number', [group_id])
-    sorted_schedule_pare = await send_request_mq('bot.tasks.get_pare_for_group', [group_id, class_time, name_weekday])
-    if sorted_schedule_pare:
-        formatted_schedule = format_schedule(sorted_schedule_pare, week_type)
-        if formatted_schedule:
-            await call.message.answer(f"{hbold(f'Расписание {group_number}')}:\n\n{formatted_schedule}",
-                                      parse_mode=ParseMode.HTML)
-        else:
-            await call.message.answer(f"Расписание для группы {group_number} на этот день не найдено")
-    else:
-        await call.message.answer(f"Данные не получены для группы {group_number}.")
+    #group_number = await send_request_mq('admin_bot.tasks.get_group_number', [group_id])
+    pares_for_groups_in_selected_time = await send_request_mq('bot.tasks.filter_groups_by_pare_time',
+                                                              [faculty_id, class_time, name_weekday])
 
-    messages_data = data.get("messages_to_delete", [])
+    # sorted_schedule_pare = await send_request_mq('bot.tasks.get_pare_for_group', [group_id, class_time, name_weekday])
+    if pares_for_groups_in_selected_time:
+        formatted_list = format_groups_list(pares_for_groups_in_selected_time, week_type, name_weekday)
+        if formatted_list:
+            await call.message.answer(formatted_list, parse_mode=ParseMode.HTML)
+        else:
+            await call.message.answer(f"Расписание для групп на этот день и в это время не найдено")
+
+
+    messages_data = (await state.get_data()).get("messages_to_delete", [])
     try:
         for message_id in messages_data:
             await call.bot.delete_message(user_id, message_id)
