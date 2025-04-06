@@ -172,7 +172,7 @@ async def return_pare_for_group(call: CallbackQuery, state: FSMContext, callback
 
         #sorted_schedule_pare = await send_request_mq('bot.tasks.get_pare_for_group', [group_id, class_time, name_weekday])
         if pares_for_groups_in_selected_time:
-            formatted_list = format_groups_list(pares_for_groups_in_selected_time, week_type, name_weekday)
+            formatted_list = await format_groups_list(pares_for_groups_in_selected_time, week_type, name_weekday, class_time)
             if formatted_list:
                 await call.message.answer(formatted_list, parse_mode=ParseMode.HTML)
             else:
@@ -258,7 +258,7 @@ async def send_day_schedule(call: CallbackQuery, state: FSMContext, callback_dat
 
     # sorted_schedule_pare = await send_request_mq('bot.tasks.get_pare_for_group', [group_id, class_time, name_weekday])
     if pares_for_groups_in_selected_time:
-        formatted_list = format_groups_list(pares_for_groups_in_selected_time, week_type, name_weekday)
+        formatted_list = await format_groups_list(pares_for_groups_in_selected_time, week_type, name_weekday, class_time)
         if formatted_list:
             await call.message.answer(formatted_list, parse_mode=ParseMode.HTML)
         else:

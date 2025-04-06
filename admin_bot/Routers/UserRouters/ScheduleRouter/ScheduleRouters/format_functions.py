@@ -1,5 +1,7 @@
 from aiogram.utils.markdown import hbold
 
+from admin_bot.RabbitMQProducer.producer_api import send_request_mq
+
 
 def format_schedule(sorted_schedule: dict, week_type: str):
     def weekday_data(data, day_schedule):
@@ -28,9 +30,11 @@ def format_schedule(sorted_schedule: dict, week_type: str):
 
     return formatted_schedule
 
-def format_groups_list(filtered_groups, week_type, name_weekday):
-    formatted_schedule = f"📅 {hbold('Неделя:')} {week_type}\n\n"
-    formatted_schedule += f"День недели: {hbold(name_weekday)}:\n\n"
+async def format_groups_list(filtered_groups, week_type, name_weekday, class_time_id):
+    formatted_schedule = f"📅 {hbold('Неделя:')} {week_type}\n"
+    formatted_schedule += f"🔹 День недели: {hbold(name_weekday)}\n"
+    class_time_text = await send_request_mq('bot.tasks.get_time_text_by_id', [class_time_id])
+    formatted_schedule += f"🕘 {hbold('Выбранное время:')} {class_time_text}\n\n"
 
     if not filtered_groups:
         formatted_schedule += 'Занятий не найдено. \n'
