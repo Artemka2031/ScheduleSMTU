@@ -28,7 +28,9 @@ async def start_messaging(message: Message, state: FSMContext) -> None:
     await state.clear()
     await state.set_state(RegistrationState.user_id)
 
-    sent_message = await message.answer(f"{hbold('Выберите интересующий вас факультет:')}", reply_markup=await add_faculty_kb())
+    sent_message = await message.answer(f"{hbold('Выберите интересующий вас факультет:')}",
+                                        reply_markup=await add_faculty_kb(),
+                                        parse_mode=ParseMode.HTML)
 
     await state.update_data(user_id=message.from_user.id,
                             messages_to_delete=[sent_message.message_id, message.message_id])
@@ -42,7 +44,9 @@ async def already_registered(message: Message, state: FSMContext):
     await message.answer(
         text=f"Вы уже зарегистрированы. Ваша текущий факультет: {hbold(users_faculty)}.\n\n"
              f"Чтобы изменить факультет, напишите /change_group или нажмите на соответствующую кнопку в меню.",
-        reply_markup=main_menu_kb())
+        reply_markup=main_menu_kb(),
+        parse_mode=ParseMode.HTML
+    )
 
 
 @RegistrationRouter.callback_query(RegistrationState.faculty, FacultyCallback.filter())
