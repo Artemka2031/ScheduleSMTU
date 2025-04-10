@@ -4,6 +4,7 @@ services:
   mariadb:
     image: mariadb:10.6
     container_name: mariadb
+    restart: unless-stopped
     ports:
       - "3307:3306"  # Порт для подключения к MariaDB
     environment:
@@ -25,6 +26,7 @@ services:
     build:
       context: ../
       dockerfile: djcore/Dockerfile
+    restart: unless-stopped
     depends_on:
       rabbitmq:
         condition: service_healthy
@@ -38,6 +40,7 @@ services:
   redis:
     image: redis:latest
     container_name: redis
+    restart: unless-stopped
     ports:
       - "6379:6379"
     depends_on:
@@ -57,6 +60,7 @@ services:
   rabbitmq:
     image: rabbitmq:3-management
     container_name: rabbitmq
+    restart: unless-stopped
     environment:
       RABBITMQ_DEFAULT_USER: rabbitmq
       RABBITMQ_DEFAULT_PASS: ScheduleSMTU
@@ -76,6 +80,7 @@ services:
       context: ../  # Указываем корневую директорию проекта
       dockerfile: Bot/Dockerfile  # Путь к Dockerfile бота
     container_name: telegram_bot
+    restart: unless-stopped
     depends_on:
       rabbitmq:
         condition: service_healthy
@@ -98,6 +103,7 @@ services:
       context: ../  # Указываем корневую директорию проекта
       dockerfile: admin_bot/Dockerfile  # Путь к Dockerfile бота
     container_name: telegram_bot_admin
+    restart: unless-stopped
     depends_on:
       rabbitmq:
         condition: service_healthy

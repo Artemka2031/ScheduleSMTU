@@ -3,6 +3,7 @@ import logging
 
 from aiogram import Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
+from aiogram.utils.backoff import BackoffConfig
 
 from Bot.RabbitMQProducer.rabbitmq_producer import RabbitMQProducer
 from Bot.Routers import MailRouter, RepSuggestionRouter, RoleRouter, MenuRouter, ScheduleRouter, SettingsRouter, \
@@ -19,6 +20,12 @@ async def start_bot():
         logging.info("Инициализация хранилища и диспетчера...")
         storage = MemoryStorage()
         dp = Dispatcher(storage=storage)
+        backoff_config = BackoffConfig(
+            min_delay=1.0,  # Минимальная задержка (секунды)
+            max_delay=60.0,  # Максимальная задержка
+            factor=2.0,  # Множитель задержки
+            jitter=0.1  # Случайное отклонение
+        )
 
         logging.info("Установка команд бота...")
         await default_commands()
@@ -39,7 +46,7 @@ async def start_bot():
 
         logging.info("Запуск лонг-поллинга...")
 
-        await dp.start_polling(bot)
+        await dp.start_polling(bot, backoff_config=backoff_config)
 
     except Exception as e:
         logging.error(f"Произошла ошибка при запуске бота: {e}")
