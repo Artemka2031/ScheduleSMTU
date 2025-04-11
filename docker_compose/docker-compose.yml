@@ -66,11 +66,13 @@ services:
       RABBITMQ_DEFAULT_PASS: ScheduleSMTU
     ports:
       - "5672:5672"
-      - "15672:15672"  # Панель управления RabbitMQ
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
     networks:
       - app-network
     healthcheck:
-      test: ["CMD", "rabbitmqctl", "status"]
+      test: [ "CMD", "rabbitmqctl", "status" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -123,6 +125,7 @@ services:
 
 volumes:
   mariadb_data:
+  rabbitmq_data:
 
 networks:
   app-network:
