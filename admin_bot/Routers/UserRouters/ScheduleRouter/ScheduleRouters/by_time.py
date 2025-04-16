@@ -83,8 +83,6 @@ async def cancel_get_calendar(call: CallbackQuery, state: FSMContext, callback_d
         await call.bot.delete_messages(chat_id=call.from_user.id, message_ids=[call.message.message_id])
     except Exception as e:
         print(e)
-    # Переходим заново к выбору времени
-    await schedule_groups_by_time(call.message, state)
 
 
 @ScheduleByTimeRouter.callback_query(ByTimeState.class_time, ClassTimeCallback.filter())
@@ -96,10 +94,15 @@ async def choose_way_to_navigate(call: CallbackQuery, state: FSMContext, callbac
     else:
         class_time_id = callback_data.classtime_id
 
-    class_time_text = await send_request_mq('bot.tasks.get_time_text_by_id', [class_time_id])
+    class_time_text = 'Весь день'
+
+    if class_time_id != '9':
+        class_time_text = await send_request_mq('bot.tasks.get_time_text_by_id', [class_time_id])
+
+
     # Обновляем состояние: сохраняем выбранное время; остальные данные (group, week_type) остаются, если уже есть
     await state.update_data(class_time=class_time_id)
-
+    print(f'class_time_id: {class_time_id}')
 
     # group_number = await send_request_mq('admin_bot.tasks.get_group_number', [group_id])
     current_week = await send_request_mq('bot.tasks.get_current_week', [])

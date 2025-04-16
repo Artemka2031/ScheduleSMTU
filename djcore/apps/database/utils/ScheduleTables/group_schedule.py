@@ -512,17 +512,34 @@ class GroupSchedule(models.Model):
         try:
             day_id = Weekday.objects.get(name=weekday_name).id
             print(f"Фильтрация: faculty_id={faculty_id}, class_time_id={pare_time_id}, day_id={day_id}")
-
             query = GroupSchedule.objects.filter(
                 group__faculty_id=faculty_id,
-                class_time_id=pare_time_id,
                 day_id=day_id
-            ).select_related('group', 'teacher').values(
+            )
+
+            if pare_time_id != 9:
+                query.filter(
+                    class_time_id=pare_time_id,
+                )
+
+            query = query.select_related('group', 'teacher').values(
                 'group__group_number',
                 'teacher__last_name',
                 'teacher__first_name',
                 'teacher__middle_name'
             ).distinct()
+
+
+            # query = GroupSchedule.objects.filter(
+            #     group__faculty_id=faculty_id,
+            #     class_time_id=pare_time_id,
+            #     day_id=day_id
+            # ).select_related('group', 'teacher').values(
+            #     'group__group_number',
+            #     'teacher__last_name',
+            #     'teacher__first_name',
+            #     'teacher__middle_name'
+            # ).distinct()
 
             print(f"Найдено записей: {query.count()}")  # Отладка: сколько записей найдено
 

@@ -19,6 +19,9 @@ async def classtime_kb():
     for pare_time, pare_id in all_pare_start.items():
         builder.button(text=str(pare_time), callback_data=ClassTimeCallback(classtime_id=pare_id).pack())
 
+    # Добавляем кнопку "Весь день"
+    builder.button(text="Весь день", callback_data=ClassTimeCallback(classtime_id=9).pack())
+
     builder.adjust(2)
 
     back_button = InlineKeyboardButton(
