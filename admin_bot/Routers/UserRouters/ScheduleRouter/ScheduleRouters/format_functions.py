@@ -35,7 +35,8 @@ async def format_groups_list(filtered_groups, week_type, name_weekday, class_tim
     formatted_schedule += f"🔹 День недели: {hbold(name_weekday)}\n"
 
     class_time_text = 'Весь день'
-    if class_time_id != 9:
+
+    if class_time_id != '9':
         class_time_text = await send_request_mq('bot.tasks.get_time_text_by_id', [class_time_id])
 
     formatted_schedule += f"🕘 {hbold('Выбранное время:')} {class_time_text}\n\n"
