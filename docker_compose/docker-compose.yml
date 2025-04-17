@@ -35,6 +35,9 @@ services:
     networks:
       - app-network
     container_name: backend
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
     #сначала должен подниматься брокер, потом джанго! Дописать Dockerfile
 
   redis:
@@ -76,6 +79,9 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
 
   telegram_bot:
     build:
@@ -99,6 +105,9 @@ services:
     command: ["/app/Bot/wait-for-it.sh", "rabbitmq:5672", "--", "python", "Bot/start_bot.py"]
     networks:
       - app-network
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
 
   telegram_bot_admin:
     build:
@@ -122,6 +131,9 @@ services:
     command: [ "/app/admin_bot/wait-for-it.sh", "rabbitmq:5672", "--", "python", "admin_bot/start_bot.py" ]
     networks:
       - app-network
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
 
 volumes:
   mariadb_data:
