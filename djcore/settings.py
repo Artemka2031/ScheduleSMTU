@@ -140,7 +140,7 @@ RABBITMQ_PASSWORD = 'ScheduleSMTU' # Пароль пользователя Rabbi
 CELERY_BEAT_SCHEDULE = {
     'parse_groups_daily_at_4am': {
         'task': 'parser.tasks.schedule_employees_parse',
-        'schedule': crontab(hour='4', minute='0'),
+        'schedule': crontab(hour='15', minute='50'),
         'options': {'queue': 'celery'},  # Отправляем в очередь 'celery_queue'
     }
 }
