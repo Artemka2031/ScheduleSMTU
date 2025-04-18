@@ -89,7 +89,7 @@ def run_celery(venv_python):
     #     celery_path = os.path.join("celery")
     #     if not os.path.exists(celery_path):
     #         raise FileNotFoundError(f"Celery не найден по пути: {celery_path}")
-    command = ["celery", "-A", "celery_app", "worker", "--loglevel=info", "--pool=solo", "-Q", "celery", "--hostname=worker1"]
+    command = ["celery", "-A", "celery_app", "worker", "--loglevel=info", "--concurrency=4", "-Q", "celery", "--hostname=worker1"]
     command_beat = ["celery", '-A', 'celery_app', 'beat', '-l', 'INFO']
 
     # else:
