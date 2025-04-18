@@ -9,10 +9,9 @@ from aiogram.types import Message, CallbackQuery
 from aiogram.utils.markdown import hbold, hitalic
 from aiogram_calendar import DialogCalendar, get_user_locale, DialogCalendarCallback
 
-from admin_bot.Keyboards.group_list_inl_kb import group_list_kb, GroupListCallback
 from admin_bot.Keyboards.week_schedule_inl_kb import week_type_kb, WeekTypeCallback, week_day_kb, WeekDayCallback
 from admin_bot.Middlewares.authentication_middleware import IsRegMiddleware
-from admin_bot.Keyboards.classtime_inl_kb import classtime_kb, ClassTimeCallback
+from admin_bot.Keyboards.classtime_for_router_by_time import classtime_kb, ClassTimeCallback
 from admin_bot.Routers.UserRouters.ScheduleRouter.ScheduleRouters.format_functions import format_schedule, \
     format_groups_list
 from admin_bot.RabbitMQProducer.producer_api import send_request_mq
