@@ -1,24 +1,24 @@
+import logging
 from datetime import datetime
+from tokenize import group
 
 from aiogram import Router, F
-from aiogram.filters.callback_data import CallbackData
 from aiogram.fsm.context import FSMContext
 from aiogram.methods import EditMessageText, SendMessage
 from aiogram.types import CallbackQuery
 from aiogram.utils.markdown import hbold
-from aiogram_calendar import SimpleCalendar, get_user_locale, DialogCalendar, CalendarLabels, DialogCalendarCallback
+from aiogram_calendar import get_user_locale, DialogCalendar, DialogCalendarCallback
 
 from Bot.Keyboards.menu_kb import create_menu_kb, MenuCallback
 from Bot.Keyboards.week_schedule_inl_kb import week_type_kb, WeekTypeCallback, week_day_kb, WeekDayCallback
+from Bot.RabbitMQProducer.producer_api import send_request_mq
 from Bot.Routers.UserRouters.MenuRouter.SubRouters.TeachersRouters.teachers_callback_router import \
     init_dialog_calendar_teacher_month
 from Bot.Routers.UserRouters.MenuRouter.menu_state import MenuState
 from Bot.Routers.UserRouters.ScheduleRouter.ScheduleRouters.format_functions import format_schedule, \
     format_dual_week_schedule
 from Bot.bot_initialization import bot
-from ORM.Tables.SceduleTables.group_schedule import GroupSchedule
-from ORM.Tables.SceduleTables.time_tables import WeekType, Weekday
-from ORM.Tables.UserTables.user_table import User
+
 
 WeekScheduleRouter = Router()
 
@@ -26,9 +26,13 @@ WeekScheduleRouter = Router()
 @WeekScheduleRouter.callback_query(MenuState.menu_option, MenuCallback.filter(F.operation == "schedule"))
 async def call_menu(call: CallbackQuery, state: FSMContext) -> None:
     await call.answer()
+
+    current_week = await send_request_mq('bot.tasks.get_current_week', [])
+    group_number = await send_request_mq('bot.tasks.get_group_number', [call.message.chat.id])
+
     await bot(EditMessageText(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                              text=f"📅 Текущий тип недели: {hbold(WeekType.get_current_week())}\n\n"
-                                    f"🎓 Выбранная группа: {hbold(User.get_group_number(call.message.chat.id))}\n\n"
+                              text=f"📅 Текущий тип недели: {hbold(current_week)}\n\n"
+                                    f"🎓 Выбранная группа: {hbold(group_number)}\n\n"
                                     f"👇 Выбери тип недели или воспользуйся виджетом календаря для выбора конкретной даты!",
                               reply_markup=week_type_kb(back_to_menu=True)))
 
@@ -38,6 +42,7 @@ async def call_menu(call: CallbackQuery, state: FSMContext) -> None:
 @WeekScheduleRouter.callback_query(MenuState.week_type, WeekTypeCallback.filter(F.week_type == "Открыть календарь"))
 async def open_calendar(call: CallbackQuery, state: FSMContext):
     await call.answer()
+    logging.info(call.from_user.language_code)
     await call.message.edit_text(
         "📅 Выбери дату, которая тебя интересует:",
         reply_markup=await DialogCalendar(locale=await get_user_locale(call.from_user)).start_calendar(
@@ -79,21 +84,25 @@ async def process_dialog_calendar(callback_query: CallbackQuery, callback_data: 
     ).process_selection(callback_query, callback_data)
 
     if selected:
-        await state.update_data(week_type=WeekType.determine_week_type(date))
 
-        week_type = (await state.get_data())['week_type']
+        week_type = await send_request_mq('bot.tasks.determine_week_type', [str(date)])
+        await state.update_data(week_type=week_type)
+
 
         user_id = callback_query.from_user.id
-        group_id = User.get_group_number(user_id)
-        name_weekday = Weekday.get_weekday_name(date)
+
+        group_id = await send_request_mq('bot.tasks.get_group_number', [user_id])
+        name_weekday = await send_request_mq('bot.tasks.get_weekday_name', [str(date)])
+        # group_id = BaseUser.get_group_number(user_id)
+        # name_weekday = Weekday.get_weekday_name(date)
 
         if name_weekday == "Воскресенье":
             await bot(SendMessage(chat_id=callback_query.message.chat.id,
                                   text="В этот день выходной 🎉"))
             await state.clear()
             return
-
-        sorted_schedule = GroupSchedule.get_schedule(group_id, Weekday.get_weekday_name(date))
+        sorted_schedule = await send_request_mq('bot.tasks.get_schedule', [group_id, name_weekday])
+        #sorted_schedule = GroupSchedule.get_schedule(group_id, Weekday.get_weekday_name(date))
 
         if sorted_schedule:
             schedule = format_schedule(sorted_schedule, week_type)
@@ -153,9 +162,13 @@ async def send_day_schedule(call: CallbackQuery, state: FSMContext, callback_dat
     week_type = (await state.get_data())['week_type']
 
     user_id = call.from_user.id
-    group_id = User.get_group_number(user_id)
 
-    sorted_schedule = GroupSchedule.get_schedule(group_id, callback_data.week_day)
+    group_id = await send_request_mq('bot.tasks.get_group_number', [user_id])
+    #group_id = BaseUser.get_group_number(user_id)
+
+    sorted_schedule = await send_request_mq('bot.tasks.get_schedule', [group_id, callback_data.week_day])
+
+    #sorted_schedule = GroupSchedule.get_schedule(group_id, callback_data.week_day)
     if sorted_schedule:
         if week_type == "Обе недели":
             schedule = format_dual_week_schedule(sorted_schedule)

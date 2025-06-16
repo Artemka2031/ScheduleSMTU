@@ -1,9 +1,9 @@
 from aiogram.filters import Filter
 from aiogram.types import Message
 
-from ORM.Tables.SceduleTables.group_schedule import Group
-from ORM.Tables.UserTables.user_table import User
-
+#from djcore.apps.database.utils.SceduleTables import Group
+#from djcore.apps.database.utils.UserTables.user_table import BaseUser
+from Bot.RabbitMQProducer.producer_api import send_request_mq
 
 class CheckGroupFilter(Filter):
 
@@ -14,17 +14,22 @@ class CheckGroupFilter(Filter):
             return False
 
         try:
-            Group.get_group_id(group_number)
-        except ValueError:
+            group_exists = await send_request_mq('bot.tasks.get_group_id', [group_number])
+        except Exception as e:
+            print(f"Возникла ошибка при связи с брокером сообщений: {e}")
             return False
 
-        return True
+        if group_exists:
+            return True
+        else:
+            return False
 
 
 class CheckCurrentGroupFilter(Filter):
 
     async def __call__(self, message: Message) -> bool:
-        current_group = User.get_group_number(message.from_user.id)
+
+        current_group = await send_request_mq('bot.tasks.get_group_number', [message.from_user.id])
 
         if current_group == int(message.text):
             return False

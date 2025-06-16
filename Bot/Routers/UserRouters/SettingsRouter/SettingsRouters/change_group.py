@@ -8,7 +8,7 @@ from aiogram.utils.markdown import hbold
 from Bot.Filters.check_group_number_filter import CheckGroupFilter, CheckCurrentGroupFilter
 from Bot.Keyboards.change_current_group_kb import create_change_current_group_kb, ChangeCurrentGroupCallback
 from Bot.Keyboards.today_tomorrow_rep_kb import today_tomorrow_rep_keyboard
-from ORM.Tables.UserTables.user_table import User
+from Bot.RabbitMQProducer.producer_api import send_request_mq, update_cache
 
 ChangeGroupRouter = Router()
 
@@ -26,8 +26,9 @@ async def change_group_number(message: Message, state: FSMContext):
     await state.clear()
 
     await state.set_state(ChangeGroupState.user_id)
+    group_number = await send_request_mq('bot.tasks.get_group_number', [message.from_user.id])
     sent_message = await message.answer(
-        f"Ваша текущая группа {hbold(User.get_group_number(message.from_user.id))}.\nОставьте текущую или напишите новую:",
+        f"Ваша текущая группа {hbold(group_number)}.\nОставьте текущую или напишите новую:",
         reply_markup=create_change_current_group_kb())
 
     await state.update_data(messages_to_delete=[message.message_id, sent_message.message_id])
@@ -46,8 +47,8 @@ async def cancel_change_group(query: Message, state: FSMContext):
             await query.message.bot.delete_message(user_id, message_id)
     except Exception as e:
         print(e)
-
-    await query.message.answer(f"Выбрана группа {hbold(User.get_group_number(query.from_user.id))}",
+    group_number = await send_request_mq('bot.tasks.get_group_number', [query.from_user.id])
+    await query.message.answer(f"Выбрана группа {hbold(group_number)}",
                                reply_markup=today_tomorrow_rep_keyboard())
     await state.clear()
 
@@ -57,7 +58,9 @@ async def set_group_number(message: Message, state: FSMContext):
     user_id = message.from_user.id
     group_number = int(message.text)
 
-    User.change_group_number(user_id, group_number)
+    await send_request_mq('bot.tasks.change_group_number', [user_id, group_number])
+    await update_cache(user_id)
+    #BaseUser.change_group_number(user_id, group_number)
 
     data = (await state.get_data())["messages_to_delete"]
     data.append(message.message_id)
@@ -92,9 +95,9 @@ async def invalid_group_number(message: Message, state: FSMContext):
 async def same_group_number(message: Message, state: FSMContext):
     data = (await state.get_data())["messages_to_delete"]
     data.append(message.message_id)
-
+    group_number = await send_request_mq('bot.tasks.get_group_number', [message.from_user.id])
     sent_message = await message.answer(
-        text=f"Группа {hbold(User.get_group_number(message.from_user.id))} уже выбрана.\nОставьте текущую или напишите новую:",
+        text=f"Группа {hbold(group_number)} уже выбрана.\nОставьте текущую или напишите новую:",
         reply_markup=create_change_current_group_kb())
     data.append(sent_message.message_id)
     await state.update_data(messages_to_delete=data)

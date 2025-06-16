@@ -1,0 +1,142 @@
+services:
+  mariadb:
+    image: mariadb:10.6
+    container_name: mariadb
+    restart: unless-stopped
+    ports:
+      - "3307:3306"  # Порт для подключения к MariaDB
+    environment:
+      MYSQL_DATABASE: schedule
+      MYSQL_USER: schedule_SMTU
+      MYSQL_PASSWORD: wD7jQ#2zRt!vY6Tp
+      MYSQL_ROOT_PASSWORD: rootpassword  # Пароль для root-пользователя
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "root", "-prootpassword"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ../
+      dockerfile: djcore/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    ports:
+      - "8000:8080"
+    networks:
+      - app-network
+    container_name: backend
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
+    #сначала должен подниматься брокер, потом джанго! Дописать Dockerfile
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - app-network
+    command: ["redis-server", "--requirepass", "ScheduleSMTU"]
+    environment:
+      - REDIS_PASSWORD=ScheduleSMTU
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "ScheduleSMTU", "PING"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    restart: always
+    environment:
+      RABBITMQ_DEFAULT_USER: rabbitmq
+      RABBITMQ_DEFAULT_PASS: ScheduleSMTU
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - app-network
+    healthcheck:
+      test: [ "CMD", "rabbitmqctl", "status" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
+
+  telegram_bot:
+    build:
+      context: ../  # Указываем корневую директорию проекта
+      dockerfile: Bot/Dockerfile  # Путь к Dockerfile бота
+    container_name: telegram_bot
+    restart: unless-stopped
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ScheduleSMTU
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: rabbitmq
+      RABBITMQ_PASSWORD: ScheduleSMTU
+    command: ["/app/Bot/wait-for-it.sh", "rabbitmq:5672", "--", "python", "Bot/start_bot.py"]
+    networks:
+      - app-network
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
+
+  telegram_bot_admin:
+    build:
+      context: ../  # Указываем корневую директорию проекта
+      dockerfile: admin_bot/Dockerfile  # Путь к Dockerfile бота
+    container_name: telegram_bot_admin
+    restart: unless-stopped
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ScheduleSMTU
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: rabbitmq
+      RABBITMQ_PASSWORD: ScheduleSMTU
+    command: [ "/app/admin_bot/wait-for-it.sh", "rabbitmq:5672", "--", "python", "admin_bot/start_bot.py" ]
+    networks:
+      - app-network
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
+
+volumes:
+  mariadb_data:
+  rabbitmq_data:
+
+networks:
+  app-network:
+    driver: bridge

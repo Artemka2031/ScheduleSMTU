@@ -1,0 +1,2 @@
+from admin_bot.Routers.UserRouters.SettingsRouter.change_faculty_suggestions_router import SettingsRouter
+
