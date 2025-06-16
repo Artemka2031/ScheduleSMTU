@@ -4,12 +4,12 @@ services:
     container_name: mariadb
     restart: unless-stopped
     ports:
-      - "3307:3306"  # Порт для подключения к MariaDB
+      - "3307:3306"
     environment:
       MYSQL_DATABASE: schedule
       MYSQL_USER: schedule_SMTU
       MYSQL_PASSWORD: wD7jQ#2zRt!vY6Tp
-      MYSQL_ROOT_PASSWORD: rootpassword  # Пароль для root-пользователя
+      MYSQL_ROOT_PASSWORD: rootpassword
     volumes:
       - mariadb_data:/var/lib/mysql
     networks:
@@ -21,9 +21,7 @@ services:
       retries: 5
 
   backend:
-    build:
-      context: ../
-      dockerfile: djcore/Dockerfile
+    image: homostultus39/schedule_smtu_backend:latest
     restart: unless-stopped
     depends_on:
       rabbitmq:
@@ -36,7 +34,6 @@ services:
     dns:
       - 8.8.8.8
       - 1.1.1.1
-    #сначала должен подниматься брокер, потом джанго! Дописать Dockerfile
 
   redis:
     image: redis:latest
@@ -73,7 +70,7 @@ services:
     networks:
       - app-network
     healthcheck:
-      test: [ "CMD", "rabbitmqctl", "status" ]
+      test: ["CMD", "rabbitmqctl", "status"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -82,9 +79,7 @@ services:
       - 1.1.1.1
 
   telegram_bot:
-    build:
-      context: ../  # Указываем корневую директорию проекта
-      dockerfile: Bot/Dockerfile  # Путь к Dockerfile бота
+    image: homostultus39/schedule_smtu_telegram_bot:latest
     container_name: telegram_bot
     restart: unless-stopped
     depends_on:
@@ -108,9 +103,7 @@ services:
       - 1.1.1.1
 
   telegram_bot_admin:
-    build:
-      context: ../  # Указываем корневую директорию проекта
-      dockerfile: admin_bot/Dockerfile  # Путь к Dockerfile бота
+    image: homostultus39/schedule_smtu_telegram_bot_admin:latest
     container_name: telegram_bot_admin
     restart: unless-stopped
     depends_on:
@@ -126,7 +119,7 @@ services:
       RABBITMQ_PORT: 5672
       RABBITMQ_USER: rabbitmq
       RABBITMQ_PASSWORD: ScheduleSMTU
-    command: [ "/app/admin_bot/wait-for-it.sh", "rabbitmq:5672", "--", "python", "admin_bot/start_bot.py" ]
+    command: ["/app/admin_bot/wait-for-it.sh", "rabbitmq:5672", "--", "python", "admin_bot/start_bot.py"]
     networks:
       - app-network
     dns:

@@ -105,15 +105,15 @@ class WeekType(models.Model):
         Returns:
             str: The week type for tomorrow.
         """
-        tomorrow_date = datetime.now(moscow_tz) + timedelta(days=1)
-        week_number = tomorrow_date.isocalendar()[1]
-        if week_number % 2 == 0:
-            t_week_type = 'Верхняя неделя'
+        current_date = datetime.now(moscow_tz)
+        current_week_number = current_date.isocalendar()[1]
+        if current_date.weekday() != 6:
+            week_type = 'Верхняя неделя' if current_week_number % 2 == 1 else 'Нижняя неделя'
         else:
-            t_week_type = 'Нижняя неделя'
-        # return 'Верхняя неделя' if week_number % 2 == 0 else 'Нижняя неделя'
-        result = {'result': t_week_type}
+            week_type = 'Нижняя неделя' if current_week_number % 2 == 1 else 'Верхняя неделя'
+        result = {'result': week_type}
         asyncio.run(send_response(result, reply_to, correlation_id))
+        return week_type
 
 class Weekday(models.Model):
     name = models.CharField(unique=True, max_length=255)
