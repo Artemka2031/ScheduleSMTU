@@ -23,7 +23,7 @@ class IsRegMiddleware(BaseMiddleware):
         if not user_is_registered:
             await bot(
                 SendMessage(chat_id=event.from_user.id,
-                            text='Чтобы использовать бота нужно зарегистрироваться. \nНапишите /registration.'))
+                            text='Чтобы использовать бота нужно зарегистрироваться. \nНапишите /start.'))
             return None
 
         return await handler(event, data)
