@@ -108,9 +108,9 @@ class WeekType(models.Model):
         current_date = datetime.now(moscow_tz)
         current_week_number = current_date.isocalendar()[1]
         if current_date.weekday() != 6:
-            week_type = 'Верхняя неделя' if current_week_number % 2 == 1 else 'Нижняя неделя'
-        else:
             week_type = 'Нижняя неделя' if current_week_number % 2 == 1 else 'Верхняя неделя'
+        else:
+            week_type = 'Верхняя неделя' if current_week_number % 2 == 1 else 'Нижняя неделя'
         result = {'result': week_type}
         asyncio.run(send_response(result, reply_to, correlation_id))
         return week_type
