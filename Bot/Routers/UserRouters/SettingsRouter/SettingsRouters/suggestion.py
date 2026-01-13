@@ -2,11 +2,12 @@ from aiogram import Router
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
-from aiogram.types import Message, CallbackQuery
+from aiogram.types import Message
 
 from Bot.Keyboards.today_tomorrow_rep_kb import today_tomorrow_rep_keyboard
 from Bot.Middlewares import SuggestionLimitMiddleware
-from ORM.Tables.UserTables.suggestion_table import Suggestion
+from Bot.RabbitMQProducer.producer_api import send_request_mq
+#from djcore.apps.database.utils.UserTables.suggestion_table import BaseSuggestion
 from Bot.Filters.not_comand_filter import isNotComandFilter
 
 SuggestionRouter = Router()
@@ -43,7 +44,8 @@ async def sent_suggestion(message: Message, state: FSMContext):
     suggestion = message.text
 
     try:
-        Suggestion.add_suggestion(user_id, suggestion)
+        await send_request_mq('bot.tasks.add_suggestion', [user_id, suggestion])
+        #BaseSuggestion.add_suggestion(user_id, suggestion)
     except Exception as e:
         print(e)
 

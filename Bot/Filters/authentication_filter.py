@@ -1,13 +1,22 @@
 from aiogram.filters import Filter
 from aiogram.types import Message
-
-from ORM.Tables.UserTables.user_table import User
+from Bot.RabbitMQProducer.producer_api import send_request_mq
 
 
 class isRegFilter(Filter):
 
     async def __call__(self, message: Message) -> bool:
-        if User.get_user(message.from_user.id) is None:
+        try:
+        # Отправляем запрос и ожидаем ответа
+            user_data = await send_request_mq('bot.tasks.get_user', [message.from_user.id])
+        except Exception as e:
+            print(f"Возникла ошибка при связи с брокером сообщений: {e}")
             return False
 
-        return True
+        # Обрабатываем результат
+        if user_data is None:
+            # Если None, значит пользователь не найден
+            return False
+        else:
+            print(f"Пользователь найден: {user_data}")
+            return True

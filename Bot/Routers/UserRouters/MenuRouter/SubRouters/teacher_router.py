@@ -3,18 +3,20 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 
 from Bot.Keyboards.menu_kb import TeacherCallback, create_menu_kb, create_teachers_kb, MenuCallback
+from Bot.RabbitMQProducer.producer_api import send_request_mq
 from Bot.Routers.UserRouters.MenuRouter.SubRouters.TeachersRouters import TeacherRouterCallback, TeacherRouterText
 from Bot.Routers.UserRouters.MenuRouter.menu_state import MenuState
-from ORM.Tables.SceduleTables.group_schedule import GroupSchedule
-from ORM.Tables.UserTables.user_table import User
 
 TeacherRouter = Router()
-
 
 @TeacherRouter.callback_query(MenuState.menu_option, MenuCallback.filter(F.operation == "teachers"))
 async def send_teachers(call: CallbackQuery, state: FSMContext):
     await call.answer()
-    teachers = GroupSchedule.get_teachers_for_group(User.get_group_number(call.from_user.id))
+
+    group_number = await send_request_mq('bot.tasks.get_group_number', [call.from_user.id])
+
+    teachers = await send_request_mq('bot.tasks.get_teachers_for_group', [group_number])
+    #teachers = GroupSchedule.get_teachers_for_group(BaseUser.get_group_number(call.from_user.id))
 
     await call.message.edit_text(text="👩‍🏫👨‍🏫 Выбери преподавателя из списка или просто напиши его фамилию в чат!",
                                  reply_markup=create_teachers_kb(teachers))

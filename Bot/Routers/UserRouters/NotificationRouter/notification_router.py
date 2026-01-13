@@ -1,4 +1,4 @@
-from aiogram import Router, F
+from aiogram import Router
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import Message, CallbackQuery
@@ -7,7 +7,8 @@ from aiogram.utils.markdown import hbold
 
 from Bot.Keyboards.notification_inl_kb import notification_kb, NotificationCallback
 from Bot.Middlewares.authentication_middleware import IsRegMiddleware
-from ORM.Tables.UserTables.notification_table import Notification
+from Bot.RabbitMQProducer.producer_api import send_request_mq
+
 from Bot.Keyboards.time_for_notification_inl_kb import NotificationTimeCallback, notification_time_kb
 
 NotificationRouter = Router()
@@ -46,8 +47,11 @@ async def choose_notification_time(call: CallbackQuery, state: FSMContext, callb
         await state.clear()
         return
     else:
-        if Notification.has_subscription(data):
-            Notification.cancel_notification(data)
+
+        has_subscription_flag = await send_request_mq('bot.tasks.has_subscription', [data])
+        if has_subscription_flag:
+            await send_request_mq('bot.tasks.cancel_notification', [data])
+            #Notification.cancel_notification(data)
         await call.message.answer("Вы успешно отменили подписку на уведомления")
         await state.clear()
         return
@@ -65,11 +69,13 @@ async def apply_notification_time(call: CallbackQuery, state: FSMContext,
     await state.update_data(time_to_send=callback_data.notification_time)
 
     data = await state.get_data()
-
-    if Notification.has_subscription(data["user_id"]):
-        Notification.update_notification(data["user_id"], data["time_to_send"])
-    elif not Notification.has_subscription(data["user_id"]):
-        Notification.add_notification(data["user_id"], data["time_to_send"])
+    has_subscription_flag = await send_request_mq('bot.tasks.has_subscription', [data["user_id"]])
+    if has_subscription_flag:
+        await send_request_mq('bot.tasks.update_notification', [data["user_id"], data["time_to_send"]])
+        #Notification.update_notification(data["user_id"], data["time_to_send"])
+    elif not has_subscription_flag:
+        await send_request_mq('bot.tasks.add_notification', [data["user_id"], data["time_to_send"]])
+        #Notification.add_notification(data["user_id"], data["time_to_send"])
 
     await call.message.bot.delete_messages(chat_id=call.message.chat.id, message_ids=[call.message.message_id])
     await call.message.answer(f"Вы успешно установили время уведомлений на {hbold(data['time_to_send'] + ':00')}  🎉")
